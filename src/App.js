@@ -11,6 +11,8 @@ import Micro from './pages/component/doc/MicroProductOptions';
 import Tele from './pages/component/doc/Telemedicine';
 
 
+
+
 function App() {
   return (
     <Router>
