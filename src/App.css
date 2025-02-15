@@ -1,0 +1,200 @@
+:root {
+  --primary: #3B82F6;
+  --secondary: #F87171;
+  --shade: #fafbfc;
+  --gray_shade: #1F2937;
+}
+@import '~@fortawesome/fontawesome-free/css/all.css';
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Roboto";
+}
+body{
+  overflow: hidden;
+}
+
+.wrapper{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: url("./img/bg.jpg") no-repeat center/cover;
+}
+
+.container{
+  padding: 20px 22px;
+  background-color: #fafbfc;
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  box-shadow: 2px 2px 16px 2px rgba(0, 0, 0, 0.181);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.container h1{
+  margin: 15px 0;
+  color: var(--primary);
+  text-shadow: 0px 0px 3px #0000003b;
+}
+
+.container h1 span{
+  color: var(--secondary);
+}
+
+
+.container form{
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.container form div{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 5px 0;
+}
+.container form div label{
+  color: var(--gray_shade);
+  opacity: 0.5;
+  font-size: 0.8em;
+  margin: 5px;
+}
+
+.container form div input{
+  width: 250px;
+  height: 40px;
+  border: none;
+  outline: none;
+  background-color: #ccddf8;
+  border-radius: 5px;
+  padding: 2px 10px;
+  font-size: 1em;
+  font-weight: 600;
+  transition: 0.2s ease-in-out;
+  color: #1F2937;
+}
+
+.container form div input:focus{
+  border: solid 3px #008a9980;
+}
+.container form div input:focus,
+.container form div input:valid{
+  border: solid 3px #008a9983;
+}
+.container form button {
+  width: 100%;
+  margin: 20px 0;
+  padding: 10px ;
+  border: none;
+  background-color: var(--primary);
+  border-radius: 5px;
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #fafbfc;
+  transition: 0.5s ease-in-out cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+.container form button:hover{
+  background-color: #1d5bb2;
+}
+
+.loader {
+  width: 90px;
+  height: 12px;
+  --c:#fafafa 50%,#ffffff00 0;
+  background: 
+    linear-gradient( 90deg,var(--c)) 0 0,
+    linear-gradient(-90deg,var(--c)) 0 0;
+  background-size: 20px 100%;
+  background-repeat: repeat-x;
+  animation: l10 1s infinite linear;
+}
+@keyframes l10 {
+    100% {background-position: -20px 0,20px 0}
+}
+
+.main{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+.main .content{
+  width: 100%;
+  height: calc(100vh - 65px);
+}
+
+.main nav{
+  width: calc(100% - 250px);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  padding: 5px 0px;
+  color: var(--shade);
+  background-color: var(--secondary);
+  margin-bottom: 6px;
+  border-radius: 50px;
+  position: relative;
+}
+
+.main nav div{
+  position: relative;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 10px;
+  transition: 0.1s ease ;
+  font-size: 2em;
+}
+
+.main nav div.active{
+  padding: 10px 25px;
+  border-radius: 0px 0px 50px 50px;
+  background-color: #ffffff;
+  position: relative;
+  color: var(--secondary);
+  top: -35px;
+  cursor: pointer;
+}
+
+.btn-a{
+  width: 70px;
+  padding: 5px 20px;
+  transform: translateY(50px);
+  background-color: var(--secondary);
+  font-size: 1.2em;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+
+@media screen and (max-width: 767px) {
+  .main .content{
+    height: calc(100vh - 60px);
+  }
+  .main nav{
+    width: 100%;
+    border-radius: 10px 10px 0px 0px;
+    margin-bottom: 0px;
+  }
+  .main nav div{
+    font-size: 1.6em;
+  }
+  .main nav div.active{
+    padding: 10px 20px;
+    top: -30px;
+  }
+}
+
+

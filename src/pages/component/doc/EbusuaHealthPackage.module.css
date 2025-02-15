@@ -1,0 +1,76 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  max-height: 98vh;
+  overflow-y: scroll;
+}
+
+.title {
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.guidelines,
+.guidelinesCont,
+.sheaPlan {
+  margin-bottom: 30px;
+}
+
+.backButton {
+  padding: 8px 16px;
+  font-size: 0.9em;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: #f0f0f0;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.backButton:hover {
+  background: #e0e0e0;
+}
+
+
+.guidelines h2,
+.guidelinesCont h2,
+.sheaPlan h2 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.guidelines ul,
+.guidelinesCont ul {
+  padding-left: 20px;
+}
+
+.guidelines li,
+.guidelinesCont li {
+  margin-bottom: 10px;
+}
+
+.benefitsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.benefitsTable th,
+.benefitsTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.benefitsTable th {
+  background-color: #f2f2f2;
+}
+
+.benefitsTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
