@@ -5,9 +5,9 @@ function Product() {
         <div>
             <div className={style.intro}>
                 <h1>Product Policy</h1>
-                <a className={style.btn} href='/form'>+</a>
+                <a className={style.btn} href='http://equity-health-insurance.kesug.com/?i=1'>+</a>
             </div>
-            
+
             <div className={style.container}>
                 <a href='/edusua' className={style.one}>
                     <span>

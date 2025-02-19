@@ -8,6 +8,7 @@ import InsuranceCalculator from './InsuranceCalculator';
 import Settings from './logout'
 
 
+
 function Dashboard() {
     const [activeTab, setActiveTab] = useState('home');
     return (

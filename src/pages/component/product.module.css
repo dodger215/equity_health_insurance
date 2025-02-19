@@ -5,7 +5,7 @@
     background: white;
     border-radius: 10px;
     grid-template-columns: 2fr 2fr;
-    max-height: 90vh;
+    max-height: 75vh;
     overflow-y: scroll;
 }
 

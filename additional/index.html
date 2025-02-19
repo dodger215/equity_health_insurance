@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Policy Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .collapsible-section {
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .collapsible-header {
+            background-color: #f1f1f1;
+            color: #333;
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            transition: 0.4s;
+        }
+        .collapsible-content {
+            padding: 0 10px;
+            display: none;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        .add-beneficiary-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .remove-beneficiary-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .beneficiary-field {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Insurance Policy Form</h1>
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+            <h2>Client Information</h2>
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" required>
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number:</label>
+                <input type="tel" id="phoneNumber" name="phoneNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" rows="3" required></textarea>
+            </div>
+
+            <h2>Policy Selection</h2>
+            <div class="collapsible-section">
+                <button type="button" class="collapsible-header">
+                    <span>MICRO</span>
+                    <i class="fas fa-plus"></i>
+                </button>
+                <div class="collapsible-content">
+                    <div class="form-group">
+                        <label for="microCoverage">Coverage Amount (GHS):</label>
+                        <input type="number" id="microCoverage" name="microCoverage" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="microDuration">Policy Duration (months):</label>
+                        <input type="number" id="microDuration" name="microDuration" min="1" max="12">
+                    </div>
+                    <div class="form-group">
+                        <label for="microBenefits">Benefits:</label>
+                        <textarea id="microBenefits" name="microBenefits" rows="3"></textarea>
+                    </div>
+                    <div class="beneficiaries-section">
+                        <button type="button" class="add-beneficiary-btn" data-policy="micro">Add Beneficiary</button>
+                        <div class="beneficiaries-container" id="microBeneficiaries"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible-section">
+                <button type="button" class="collapsible-header">
+                    <span>TELEMEDICINE</span>
+                    <i class="fas fa-plus"></i>
+                </button>
+                <div class="collapsible-content">
+                    <div class="form-group">
+                        <label for="teleMedProvider">Preferred Telemedicine Provider:</label>
+                        <input type="text" id="teleMedProvider" name="teleMedProvider">
+                    </div>
+                    <div class="form-group">
+                        <label for="teleMedConsultations">Number of Consultations:</label>
+                        <input type="number" id="teleMedConsultations" name="teleMedConsultations" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="teleMedSpecialties">Preferred Specialties:</label>
+                        <select id="teleMedSpecialties" name="teleMedSpecialties[]" multiple>
+                            <option value="generalPractice">General Practice</option>
+                            <option value="pediatrics">Pediatrics</option>
+                            <option value="dermatology">Dermatology</option>
+                            <option value="mentalHealth">Mental Health</option>
+                        </select>
+                    </div>
+                    <div class="beneficiaries-section">
+                        <button type="button" class="add-beneficiary-btn" data-policy="teleMed">Add Beneficiary</button>
+                        <div class="beneficiaries-container" id="teleMedBeneficiaries"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible-section">
+                <button type="button" class="collapsible-header">
+                    <span>ABS</span>
+                    <i class="fas fa-plus"></i>
+                </button>
+                <div class="collapsible-content">
+                    <div class="form-group">
+                        <label for="absType">ABS Type:</label>
+                        <select id="absType" name="absType">
+                            <option value="">Select ABS Type</option>
+                            <option value="individual">Individual</option>
+                            <option value="family">Family</option>
+                            <option value="group">Group</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="absCoverage">Coverage Amount (GHS):</label>
+                        <input type="number" id="absCoverage" name="absCoverage" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="absDeductible">Deductible Amount (GHS):</label>
+                        <input type="number" id="absDeductible" name="absDeductible" min="0" step="0.01">
+                    </div>
+                    <div class="beneficiaries-section">
+                        <button type="button" class="add-beneficiary-btn" data-policy="abs">Add Beneficiary</button>
+                        <div class="beneficiaries-container" id="absBeneficiaries"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible-section">
+                <button type="button" class="collapsible-header">
+                    <span>EBUSUA</span>
+                    <i class="fas fa-plus"></i>
+                </button>
+                <div class="collapsible-content">
+                    <div class="form-group">
+                        <label for="ebusuaMembers">Number of Family Members:</label>
+                        <input type="number" id="ebusuaMembers" name="ebusuaMembers" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="ebusuaCoverage">Coverage Amount per Member (GHS):</label>
+                        <input type="number" id="ebusuaCoverage" name="ebusuaCoverage" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="ebusuaMaternity">
+                            <input type="checkbox" id="ebusuaMaternity" name="ebusuaMaternity">
+                            Include Maternity Coverage
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="ebusuaDental">
+                            <input type="checkbox" id="ebusuaDental" name="ebusuaDental">
+                            Include Dental Coverage
+                        </label>
+                    </div>
+                    <div class="beneficiaries-section">
+                        <button type="button" class="add-beneficiary-btn" data-policy="ebusua">Add Beneficiary</button>
+                        <div class="beneficiaries-container" id="ebusuaBeneficiaries"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible-section">
+                <button type="button" class="collapsible-header">
+                    <span>DAAKYE</span>
+                    <i class="fas fa-plus"></i>
+                </button>
+                <div class="collapsible-content">
+                    <div class="form-group">
+                        <label for="daakyePlan">Daakye Plan:</label>
+                        <select id="daakyePlan" name="daakyePlan">
+                            <option value="">Select Daakye Plan</option>
+                            <option value="basic">Basic</option>
+                            <option value="standard">Standard</option>
+                            <option value="premium">Premium</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="daakyeDuration">Policy Duration (years):</label>
+                        <input type="number" id="daakyeDuration" name="daakyeDuration" min="1" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="daakyePremium">Annual Premium (GHS):</label>
+                        <input type="number" id="daakyePremium" name="daakyePremium" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="daakyeCriticalIllness">
+                            <input type="checkbox" id="daakyeCriticalIllness" name="daakyeCriticalIllness">
+                            Include Critical Illness Coverage
+                        </label>
+                    </div>
+                    <div class="beneficiaries-section">
+                        <button type="button" class="add-beneficiary-btn" data-policy="daakye">Add Beneficiary</button>
+                        <div class="beneficiaries-container" id="daakyeBeneficiaries"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+            collapsibleHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const content = this.nextElementSibling;
+                    if (content.style.display === 'block') {
+                        content.style.display = 'none';
+                        this.querySelector('i').classList.remove('fa-minus');
+                        this.querySelector('i').classList.add('fa-plus');
+                    } else {
+                        content.style.display = 'block';
+                        this.querySelector('i').classList.remove('fa-plus');
+                        this.querySelector('i').classList.add('fa-minus');
+                    }
+                });
+            });
+
+            const addBeneficiaryButtons = document.querySelectorAll('.add-beneficiary-btn');
+            addBeneficiaryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const policyType = this.dataset.policy;
+                    const container = document.getElementById(`${policyType}Beneficiaries`);
+                    
+                    if (container.children.length < 5) {
+                        const beneficiaryField = createBeneficiaryField(policyType, container.children.length + 1);
+                        container.appendChild(beneficiaryField);
+                    } else {
+                        alert('You can add a maximum of 5 beneficiaries.');
+                    }
+                });
+            });
+
+            function createBeneficiaryField(policyType, index) {
+                const div = document.createElement('div');
+                div.className = 'beneficiary-field';
+                div.innerHTML = `
+                    <h4>Beneficiary ${index}</h4>
+                    <div class="form-group">
+                        <label for="${policyType}BeneficiaryName${index}">Full Name:</label>
+                        <input type="text" id="${policyType}BeneficiaryName${index}" name="${policyType}BeneficiaryName[]">
+                    </div>
+                    <div class="form-group">
+                        <label for="${policyType}BeneficiaryDOB${index}">Date of Birth:</label>
+                        <input type="date" id="${policyType}BeneficiaryDOB${index}" name="${policyType}BeneficiaryDOB[]">
+                    </div>
+                    <div class="form-group">
+                        <label for="${policyType}BeneficiaryRelationship${index}">Relationship to Client:</label>
+                        <input type="text" id="${policyType}BeneficiaryRelationship${index}" name="${policyType}BeneficiaryRelationship[]">
+                    </div>
+                    <button type="button" class="remove-beneficiary-btn">Remove Beneficiary</button>
+                `;
+
+                const removeButton = div.querySelector('.remove-beneficiary-btn');
+                removeButton.addEventListener('click', function() {
+                    div.remove();
+                    updateBeneficiaryIndexes(policyType);
+                });
+
+                return div;
+            }
+
+            function updateBeneficiaryIndexes(policyType) {
+                const container = document.getElementById(`${policyType}Beneficiaries`);
+                const beneficiaryFields = container.querySelectorAll('.beneficiary-field');
+                beneficiaryFields.forEach((field, index) => {
+                    const newIndex = index + 1;
+                    field.querySelector('h4').textContent = `Beneficiary ${newIndex}`;
+                    field.querySelectorAll('label, input').forEach(element => {
+                        element.id = element.id.replace(/\d+$/, newIndex);
+                        if (element.name) {
+                            element.name = element.name.replace(/\d+$/, newIndex);
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

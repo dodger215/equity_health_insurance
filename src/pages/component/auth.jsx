@@ -37,7 +37,7 @@ function LoginForm() {
   useEffect(() => {
     if (isSubmitting) {
       console.log("Submitting form data:", formData)
-      fetch("https://equity-health-insurance-agent-api.onrender.com/login", {
+      fetch("https://equity-health-insurance-agent-api-new.onrender.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,6 +48,7 @@ function LoginForm() {
         .then((data) => {
           if (data.status === "success" && data.access_token) {
             console.log("Login successful")
+            console.log(`Token: ${data.access_token}`)
             localStorage.setItem("jwtToken", data.access_token)
             localStorage.setItem("agents_name", data.full_name)
             localStorage.setItem("id", data.id)

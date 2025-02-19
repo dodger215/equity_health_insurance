@@ -17,6 +17,7 @@ const DashboardView = () => {
     const fetchDashboardData = async () => {
       const token = localStorage.getItem("jwtToken")
       const agentId = localStorage.getItem("id")
+      console.log(token)
 
       if (!token || !agentId) {
         setError("No authentication token or agent ID found")
@@ -41,6 +42,7 @@ const DashboardView = () => {
         setUserData({
           agent_id: data.agent_id,
           clients: data.clients,
+          client_id: data.id,
         })
       } catch (err) {
         setError(err.message)
@@ -86,7 +88,13 @@ const DashboardView = () => {
         <h3>Clients ({userData.clients.length})</h3>
         <ul>
           {userData.clients.map((client, index) => (
-            <li key={client.id || index}>{client.name || `Client in draft ${index + 1}`}</li>
+            <li
+            key={client.id || index}
+            onClick={() => navigate(`/submit-client/${client.client_id || index}`)}
+            style={{ cursor: "pointer" }}
+          >
+            {client.name || `Client in draft ${index + 1}`}
+            </li>
           ))}
         </ul>
       </div>
