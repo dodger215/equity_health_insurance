@@ -4,7 +4,7 @@ function Product() {
     return (
         <div>
             <div className={style.intro}>
-                <h1>Product Policy</h1>
+                <h1>Product</h1>
                 <a className={style.btn} href='http://equity-health-insurance.kesug.com/?i=1'>+</a>
             </div>
 

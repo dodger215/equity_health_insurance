@@ -8,7 +8,7 @@
 
 .intro{
     padding: 10px 20px;
-    background-color: #fffdfd;
+    background-color: #daf5fe;
     position: absolute;
     top: 0%;
     left: 0%;
@@ -16,6 +16,7 @@
     margin: 10px 0;
     border-radius: 0px 50px 50px 0px;
     box-shadow: 0 0 12px #05000042;
+    font-weight: 600;
 }
 .show{
     display: flex;
@@ -43,8 +44,7 @@
     }
   }
 
-.targetScore,
-.draftScore {
+.targetScore {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -146,7 +146,7 @@
 
     .show {
         width: 100%;
-        height: 40vh;
+        height: 60vh;
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -154,7 +154,7 @@
         margin: 0px 0;
         padding: 75px 0px;
         background-color: #efefef;
-        border-radius: 0px 0px 200px 200px;
+        border-radius: 0px 0px 50px 50px;
         background: url('../../img/family.jpg') no-repeat center/cover;
         backdrop-filter: contrast(20%);
         animation: show 20s ease-in-out infinite;
@@ -175,8 +175,7 @@
     }
   }
   
-  .targetScore,
-  .draftScore {
+  .targetScore {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -185,8 +184,8 @@
   
   .scoreCircle {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     background: #f4f4f4;
     display: flex;
@@ -205,7 +204,7 @@
     bottom: -10px;
     border-radius: 50%;
     border: 10px solid transparent;
-    border-top-color: #4caf50;
+    border-top-color: var(--secondary);
     transform: rotate(45deg);
     animation: rolate 0.5s ease-in-out;
     transition: all;
@@ -227,6 +226,7 @@
     max-height: 40vh;
     overflow-y: scroll;
     padding: 20px;
+    margin: 20px 0;
     display: flex;
     flex-direction: column;
     background-color: rgba(255, 255, 255, 0.999);
@@ -258,3 +258,61 @@
     }
   }
   
+
+  .list{
+    display: flex;
+    height: 80px;
+    flex-direction: row;
+    background-color: #bef8ff;
+    align-items: center;
+    box-shadow: 0px 0px 15px #00000039;
+    justify-content: space-between;
+    padding: 20px 20px;
+  }
+  @media (min-width: 768px){
+    .subContact{
+      position: absolute;
+      height: calc(100% - 10vh);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      right: -20px;
+    }
+  
+  }
+  
+  :where(.notification, .commission){
+    width: 50px;
+    height: 50px;
+    background-color: #ffffff;
+    border-radius: 100px;
+    box-shadow: 0px 0px 15px #0000008d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+  }
+
+  :where(.notification, .commission) i {
+    font-size: 1.7rem;
+    color: var(--secondary);
+  }
+  :where(.notification, .commission) p{
+    font-size: 0.5em;
+    font-weight: 700;
+    position: absolute;
+    bottom: -12px;
+    
+  }
+  @media (max-width: 768px) {
+    .subContact{
+      position: absolute;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      bottom: -20px;
+    }
+  }

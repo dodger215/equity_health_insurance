@@ -10,6 +10,8 @@ import Micro from './pages/component/doc/MicroProductOptions';
 import Tele from './pages/component/doc/Telemedicine';
 import SubmitClient from './pages/component/SubmitClientView';
 
+import InsuranceForm from './pages/insurance-form';
+
 
 
 
@@ -21,7 +23,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/agent/main" element={<Main />} />
-          {/* <Route path='/form' element={<Form/>} /> */}
+          <Route path='/form' element={<InsuranceForm/>} />
           <Route path='/abs' element={<ABS/>} />
           <Route path='/daakye' element={<DaakyeApomuden/>} />
           <Route path='/edusua' element={<Ebusua/>} />

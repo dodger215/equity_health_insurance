@@ -17,7 +17,7 @@ const DashboardView = () => {
     const fetchDashboardData = async () => {
       const token = localStorage.getItem("jwtToken")
       const agentId = localStorage.getItem("id")
-      console.log(token)
+      // console.log(token)
 
       if (!token || !agentId) {
         setError("No authentication token or agent ID found")
@@ -27,7 +27,7 @@ const DashboardView = () => {
       }
 
       try {
-        const response = await fetch(`https://equity-health-insurance-agent-api.onrender.com/clients/${agentId}`, {
+        const response = await fetch(`https://ehi-agent-api.onrender.com/clients/1`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -68,18 +68,22 @@ const DashboardView = () => {
 
   return (
     <div className={styles.dashboard}>
-      <div className={styles.intro}>Welcome {localStorage.getItem("agents_name")}</div>
+      <div className={styles.intro}><i className="fas fa-profile"></i>Welcome {localStorage.getItem("agents_name")}</div>
       <div className={styles.show}>
         <div className={styles.targetScore}>
           <div className={styles.scoreCircle}>
             <div className={styles.scoreText}>{targetScore}%</div>
             <p>Target</p>
           </div>
-        </div>
-        <div className={styles.draftScore}>
-          <div className={styles.scoreCircle}>
-            <div className={styles.scoreText}>{draftScore}%</div>
-            <p>Draft</p>
+          <div className={styles.subContact}>
+            <div className={styles.commission}>
+              <i className="fas fa-coins"></i>
+              <p>Commission</p>
+            </div>
+            <div className={styles.notification}>
+              <i className="fas fa-bell"></i>
+              <p>Notify</p>
+            </div>
           </div>
         </div>
       </div>
@@ -90,10 +94,14 @@ const DashboardView = () => {
           {userData.clients.map((client, index) => (
             <li
             key={client.id || index}
-            onClick={() => navigate(`/submit-client/${client.client_id || index}`)}
-            style={{ cursor: "pointer" }}
+            onClick={() => navigate(`/submit-client/${client.client_id || index + 1}`)}
+            className={styles.list}
           >
-            {client.name || `Client in draft ${index + 1}`}
+            {`${client.first_name} ${client.surname}` || `Client in draft ${index + 1}`}
+            <i 
+              className="fa fa-trash"
+              onClick={() => navigate()}
+              ></i>
             </li>
           ))}
         </ul>

@@ -42,7 +42,7 @@ const SubmitClient = () => {
       }
 
       try {
-        const response = await fetch(`https://equity-health-insurance-agent-api.onrender.com/get_client_info/${id}/`, {
+        const response = await fetch(`https://ehi-agent-api.onrender.com/get_client_info/${id}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -101,7 +101,7 @@ const SubmitClient = () => {
       formDataToSend.append("signature", signature)
       formDataToSend.append("client_data", JSON.stringify(formData))
 
-      const response = await fetch(`https://equity-health-insurance-agent-api.onrender.com/upload_client/${id}/`, {
+      const response = await fetch(`https://ehi-agent-api.onrender.com/upload_client/${id}/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

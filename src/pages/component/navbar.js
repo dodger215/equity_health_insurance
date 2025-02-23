@@ -18,7 +18,9 @@ function Navbar({ activeTab, setActiveTab }) {
                     className={`${activeTab === item.id ? 'active' : ''}`}
                     onClick={() => setActiveTab(item.id)}
                 >
-                    <FontAwesomeIcon icon={item.icon} />
+                    <span className="left"></span>
+                    <span className="right"></span>
+                    <FontAwesomeIcon icon={item.icon} className="icon"/>
                 </div>
             ))}
         </nav>

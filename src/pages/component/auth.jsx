@@ -37,7 +37,7 @@ function LoginForm() {
   useEffect(() => {
     if (isSubmitting) {
       console.log("Submitting form data:", formData)
-      fetch("https://equity-health-insurance-agent-api-new.onrender.com/login", {
+      fetch("https://ehi-agent-api.onrender.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
