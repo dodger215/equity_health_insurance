@@ -1,0 +1,118 @@
+/* Container for the form */
+.Container {
+    width: 100%;
+    max-height: 95vh; /* Limit height and enable scrolling */
+    overflow-y: scroll; /* Enable vertical scrolling */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+  }
+  
+  /* Form container */
+  .formContainer {
+    width: 100%;
+    max-width: 800px; /* Limit maximum width for better readability */
+    margin: 60px auto; /* Center the form */
+    padding: 50px 15px; /* Add padding */
+  }
+  
+  /* Form title */
+  .formTitle {
+    font-size: 1.5rem;
+    margin-bottom: 0;
+    text-align: center;
+  }
+  
+  /* Labels */
+  label {
+    margin-bottom: 12px;
+    padding: 5px 0;
+    font-size: 0.8em;
+    color: var(--main-light); /* Use a CSS variable for color */
+  }
+  
+  /* Button container */
+  .buttonContainer {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    margin-top: 20px;
+  }
+  
+  /* Input fields */
+  input {
+    width: 100%;
+    border-bottom: solid 2px #fda1a1; /* Bottom border only */
+    border-right: none;
+    border-top: none;
+    border-left: none;
+    outline: none;
+    background-color: transparent;
+    border-radius: 0px;
+    font-size: 1.3em;
+    transition: border-color 0.5s ease-in-out; /* Smooth transition for focus */
+  }
+  
+  /* Input focus state */
+  input:focus {
+    border-bottom: solid 2px var(--light); /* Change border color on focus */
+  }
+  
+  /* Textarea fields */
+  textarea {
+    width: 100%;
+    border: solid 2px #4e3030;
+    outline: none;
+    height: 100px;
+    border-radius: 10px;
+    padding: 10px; /* Add padding for better readability */
+    resize: vertical; /* Allow vertical resizing */
+  }
+  
+  /* Fieldset styling */
+  fieldset {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: aliceblue;
+    border: none;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 10px;
+  }
+  
+  /* Ensure inputs and textareas inside fieldset take full width */
+  fieldset :where(input, textarea) {
+    width: 100%;
+  }
+  
+  /* Buttons */
+  button {
+    background-color: var(--light); /* Use a CSS variable for color */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+  }
+  
+  button:hover {
+    background-color: var(--light-hover); /* Add a hover effect */
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .formTitle {
+      font-size: 1.2rem; /* Smaller title on mobile */
+    }
+  
+    .buttonContainer {
+      flex-direction: column; /* Stack buttons vertically on mobile */
+    }
+  
+    .buttonContainer button {
+      margin-right: 0 !important;
+      margin-bottom: 10px;
+      width: 100%; /* Full-width buttons on mobile */
+    }
+  }

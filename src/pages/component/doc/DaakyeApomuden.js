@@ -1,43 +1,38 @@
 import styles from "./DaakyeApomuden.module.css"
 import { useNavigate } from "react-router-dom"
+import { Forms, Close } from "../ui/button"
 
-const DaakyeApomuden = () => {
-  const router = useNavigate()
-
-  const handleBack = () => {
-    router('/agent/main')
-  }
+export default function DaakyeApomuden() {
   return (
     <div className={styles.container}>
-      <button onClick={handleBack} className={styles.backButton}>
-          &larr; Back to Main
-        </button>
-      <h1 className={styles.title}>DAAKYE APOMUDEN</h1>
 
-      <section className={styles.premium}>
+      <Close />
+      <Forms />
+      <div className={styles.header}>
+        <h1>DAAKYE APOMUDEN</h1>
+        <div className={styles.website}>www.equityhealthinsurance.com</div>
+      </div>
+
+      <div className={styles.content}>
         <h2>PREMIUM</h2>
-        <p>Selected based on the annual sum assured or Monthly contribution</p>
-      </section>
+        <p>
+          Selected based on the annual sum assured or
+          <br />
+          Monthly contribution
+        </p>
 
-      <section className={styles.benefits}>
         <h2>BENEFITS</h2>
-        <h3>Contribution period benefits</h3>
         <ul>
+          <li>Contribution period benefits</li>
           <li>Daily hospitalization benefit</li>
           <li>Medical check-up</li>
           <li>Critical illness</li>
           <li>Dietary supplement support – every 2 years</li>
           <li>Death benefit</li>
-        </ul>
-
-        <h3>Benefits for life</h3>
-        <ul>
-          <li>Telemedicine</li>
+          <li>Benefits for life – Telemedicine</li>
           <li>Health insurance cover for life</li>
         </ul>
-      </section>
 
-      <section className={styles.terms}>
         <h2>TERMS AND CONDITIONS</h2>
         <ul>
           <li>Age at entry – 18 to 65 years old</li>
@@ -57,11 +52,10 @@ const DaakyeApomuden = () => {
           <li>Surrender value – not applicable</li>
           <li>Termination – death of policyholder</li>
         </ul>
-        <a href="/form" className="btn-a">Fill Fields</a>
-      </section>
+      </div>
+
+      <div className={styles.website}>www.equityhealthinsurance.com</div>
     </div>
   )
 }
-
-export default DaakyeApomuden
 

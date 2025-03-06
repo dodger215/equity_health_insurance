@@ -7,17 +7,7 @@
   overflow-y: scroll;
 }
 
-.title {
-  color: #333;
-  text-align: center;
-  margin-bottom: 20px;
-}
 
-.guidelines,
-.guidelinesCont,
-.sheaPlan {
-  margin-bottom: 30px;
-}
 
 .backButton {
   padding: 8px 16px;
@@ -35,42 +25,107 @@
   background: #e0e0e0;
 }
 
-
-.guidelines h2,
-.guidelinesCont h2,
-.sheaPlan h2 {
-  color: #2c3e50;
-  margin-bottom: 10px;
+:root {
+  --primary-blue: #1a3e6f;
+  --secondary-blue: #2c5f9e;
+  --accent-red: #b22222;
+  --neutral-bg: #f8fafc;
 }
 
-.guidelines ul,
-.guidelinesCont ul {
-  padding-left: 20px;
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
-.guidelines li,
-.guidelinesCont li {
-  margin-bottom: 10px;
+.mainTitle {
+  color: var(--primary-blue);
+  font-size: 2.5rem;
+  margin: 0;
 }
 
-.benefitsTable {
+.subtitle {
+  color: var(--secondary-blue);
+  font-size: 1.8rem;
+  margin-top: 0.5rem;
+}
+
+.sectionTitle {
+  background: linear-gradient(90deg, var(--accent-red), var(--primary-blue));
+  color: white;
+  padding: 1.5rem;
+  border-radius: 5px;
+  margin: 2rem 0;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.planTable {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin: 2rem -144px;
+  
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  scale: 0.6;
 }
 
-.benefitsTable th,
-.benefitsTable td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+.planTable th,
+.planTable td {
+  padding: 16px;
+  border: 2px solid #1a3e6f;
+  text-align: center;
+  font-weight: 600;
 }
 
-.benefitsTable th {
-  background-color: #f2f2f2;
+.planTable th {
+  background: linear-gradient(45deg, var(--primary-blue), var(--secondary-blue));
+  color: white;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-.benefitsTable tr:nth-child(even) {
-  background-color: #f9f9f9;
+.planTable tr:nth-child(even) {
+  background-color: #f0f4f8;
+}
+
+.cardFee {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #fff;
+  border-left: 5px solid var(--accent-red);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.guidelinesList {
+  list-style: none;
+  padding-left: 1rem;
+}
+
+.guidelinesList li {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+  position: relative;
+  font-size: 1.1rem;
+}
+
+.guidelinesList li::before {
+  content: "•";
+  color: var(--accent-red);
+  position: absolute;
+  left: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 3rem;
+  color: var(--primary-blue);
+  padding: 2rem;
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 

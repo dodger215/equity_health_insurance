@@ -7,22 +7,24 @@
   }
 
 .intro{
-    padding: 10px 20px;
-    background-color: #daf5fe;
+    padding: 5px 20px;
     position: absolute;
     top: 0%;
     left: 0%;
     z-index: 1000000;
+    background-color: #00000051;
     margin: 10px 0;
     border-radius: 0px 50px 50px 0px;
     box-shadow: 0 0 12px #05000042;
+    backdrop-filter: blur(20px);
     font-weight: 600;
+    color: #fffdfc;
 }
 .show{
     display: flex;
     flex-direction: row;
     width: 50%;
-    height: 85vh;
+    height: 75vh;
     background: url('../../img/family.jpg') no-repeat center/cover;
     backdrop-filter: contrast(20%);
     animation: show 20s ease-in-out infinite;
@@ -146,7 +148,7 @@
 
     .show {
         width: 100%;
-        height: 60vh;
+        height: 40vh;
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -281,12 +283,12 @@
   
   }
   
-  :where(.notification, .commission){
+  :where(.notification){
     width: 50px;
     height: 50px;
-    background-color: #ffffff;
+    background-color: none;
     border-radius: 100px;
-    box-shadow: 0px 0px 15px #0000008d;
+    /* box-shadow: 0px 0px 15px #0000008d; */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -295,11 +297,11 @@
     cursor: pointer;
   }
 
-  :where(.notification, .commission) i {
+  :where(.notification) i {
     font-size: 1.7rem;
-    color: var(--secondary);
+    color: #ececec;
   }
-  :where(.notification, .commission) p{
+  :where(.notification) p{
     font-size: 0.5em;
     font-weight: 700;
     position: absolute;
@@ -312,7 +314,7 @@
       width: 100%;
       display: flex;
       flex-direction: row;
-      justify-content: space-around;
-      bottom: -20px;
+      justify-content: end;
+      top: 10px;
     }
   }

@@ -1,0 +1,27 @@
+.container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 50%;
+  margin: 50px auto;
+}
+
+.title {
+  color: #333;
+}
+
+.label,
+.select,
+.input {
+  display: block;
+  width: 80%;
+  margin: 10px auto;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.premiumText {
+  color: #007bff;
+}
+

@@ -1,7 +1,7 @@
 // import React, { useState, useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import Navbar from './navbar';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardView from './view';
 import Product from './product';
 import InsuranceCalculator from './InsuranceCalculator';
@@ -10,7 +10,16 @@ import Settings from './logout'
 
 
 function Dashboard() {
-    const [activeTab, setActiveTab] = useState('home');
+
+    const [activeTab, setActiveTab] = useState("home")
+
+    useEffect(() => {
+      const getNav = localStorage.getItem("nav") || "home"
+      setActiveTab(getNav)
+    }, []) 
+    
+
+
     return (
         <div className='main'>
             <div className='content'>

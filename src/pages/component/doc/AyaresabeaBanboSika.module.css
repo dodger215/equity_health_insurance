@@ -1,104 +1,97 @@
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
   font-family: Arial, sans-serif;
-  max-height: 98vh;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: center;
+  width: 100%;
+  background-color: #f8f9fa;
+  color: #1a237e;
+  padding: 20px;
+  max-height: 95vh;
   overflow-y: scroll;
 }
 
-.title {
-  color: #333;
-  text-align: center;
-  margin-bottom: 20px;
+h1,
+h2,
+h3 {
+  color: #ff4444; 
+  text-shadow: none;
+  border-bottom: none;
+  
 }
+
+
 
 .level {
-  margin-bottom: 40px;
-  border: 1px solid #ddd;
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  margin: 30px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.highlight {
+  color: #b22222;
+  font-weight: bold;
+}
+
+.termsList {
+  margin-left: 20px;
+  padding-left: 15px;
+  border-left: 3px solid #1a237e;
+}
+
+.termsList li {
+  margin: 15px 0;
+}
+
+.website {
+  text-align: center;
+  margin-top: 40px;
+  padding: 15px 0;
+  background-color: #ffe5e5;
   border-radius: 8px;
-  padding: 20px;
 }
 
-.level h2 {
-  color: #2c3e50;
-  margin-bottom: 15px;
+a {
+  color: #1a237e;
+  text-decoration: none;
+  font-weight: bold;
+  box-shadow: none;
 }
 
-.premium,
-.benefits,
-.terms {
-  margin-bottom: 20px;
+a:hover {
+  text-decoration: underline;
 }
 
-.premium h3,
-.benefits h3,
-.terms h3 {
-  color: #34495e;
-  margin-bottom: 10px;
-}
-
-.premium table {
-  width: 100%;
+.comparisonTable {
   border-collapse: collapse;
-  margin-top: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  scale: 0.9;
 }
 
-.premium th,
-.premium td {
-  border: 1px solid #ddd;
-  padding: 8px;
+.comparisonTable th {
+  background-color: #b22222;
+  color: white;
+  padding: 15px;
   text-align: left;
 }
 
-.premium th {
-  background-color: #f2f2f2;
+.comparisonTable td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
 }
 
-.benefits ul,
-.terms ol {
-  padding-left: 20px;
+.comparisonTable tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
-.backButton {
-  padding: 8px 16px;
-  font-size: 0.9em;
-  font-weight: 600;
+.noteSection {
+  background-color: #ffe5e5;
+  padding: 20px;
   border-radius: 8px;
-  border: none;
-  background: #f0f0f0;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
-.backButton:hover {
-  background: #e0e0e0;
-}
-
-
-.benefits li,
-.terms li {
-  margin-bottom: 5px;
-}
-
-@media (max-width: 600px) {
-  .container {
-    padding: 10px;
-  }
-
-  .title {
-    font-size: 24px;
-  }
-
-  .level h2 {
-    font-size: 20px;
-  }
-
-  .premium h3,
-  .benefits h3,
-  .terms h3 {
-    font-size: 18px;
-  }
+  margin-top: 30px;
 }
 

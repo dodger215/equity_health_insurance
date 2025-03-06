@@ -7,17 +7,6 @@
   overflow-y: scroll;
 }
 
-.title {
-  color: #333;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.premium,
-.benefits,
-.terms {
-  margin-bottom: 30px;
-}
 
 .backButton {
   padding: 8px 16px;
@@ -31,52 +20,38 @@
   transition: all 0.3s ease-in-out;
 }
 
-.backButton:hover {
-  background: #e0e0e0;
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  max-height: 98vh;
+  overflow-y: scroll;
 }
 
-
-.premium h2,
-.benefits h2,
-.terms h2 {
-  color: #2c3e50;
-  margin-bottom: 10px;
+.header h1 {
+  color: #ff5858;
+  margin-bottom: 5px;
 }
 
-.benefits h3 {
-  color: #34495e;
-  margin-top: 15px;
-  margin-bottom: 10px;
+.header h2 {
+  color: #8b0000;
+  border-bottom: 2px solid #a90000;
+  padding-bottom: 5px;
+  margin-top: 25px;
 }
 
-.premium p,
-.benefits ul,
-.terms ul {
+.content {
+  color: #0000ff;
+  line-height: 1.6;
+}
+
+ul {
   padding-left: 20px;
 }
 
-.benefits li,
-.terms li {
-  margin-bottom: 10px;
-}
-
-@media (max-width: 600px) {
-  .container {
-    padding: 10px;
-  }
-
-  .title {
-    font-size: 24px;
-  }
-
-  .premium h2,
-  .benefits h2,
-  .terms h2 {
-    font-size: 20px;
-  }
-
-  .benefits h3 {
-    font-size: 18px;
-  }
+.website {
+  text-align: center;
+  margin: 15px 0;
+  font-weight: bold;
 }
 

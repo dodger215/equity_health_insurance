@@ -1,18 +1,15 @@
 import styles from "./MicroProductOptions.module.css"
 import { useNavigate } from "react-router-dom"
+import { Forms, Close } from "../ui/button"
 
 
 const MicroProductOptions = () => {
-  const router = useNavigate()
-
-  const handleBack = () => {
-    router('/agent/main')
-  }
+  
   return (
     <div className={styles.container}>
-      <button onClick={handleBack} className={styles.backButton}>
-          &larr; Back to Main
-        </button>
+
+      <Close />
+      <Forms />
       <h1 className={styles.title}>MICRO PRODUCT OPTIONS</h1>
 
       <section className={styles.summary}>

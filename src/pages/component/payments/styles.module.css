@@ -1,0 +1,221 @@
+
+.paymentContainer {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(29, 78, 216, 0.1);
+  width: 100%;
+  max-width: 640px;
+  margin: 20px;
+  border: 1px solid rgba(224, 242, 254, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.paymentContainer::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(45deg, rgba(37, 99, 235, 0.05) 0%, rgba(224, 242, 254, 0.1) 100%);
+  z-index: 0;
+}
+
+.paymentHeader {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.paymentHeader h1 {
+  color: #1d4ed8;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(29, 78, 216, 0.05);
+}
+
+.paymentHeader p {
+  color: #4b5563;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.paymentMethodToggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  gap: 1px;
+  position: relative;
+  z-index: 1;
+}
+
+.methodBtn {
+  padding: 1rem 2.5rem;
+  border: none;
+  background: #e0f2fe;
+  color: #1e40af;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.95rem;
+  font-weight: 600;
+  position: relative;
+}
+
+.methodBtn.active {
+  background: linear-gradient(145deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.15);
+  transform: translateY(-1px);
+}
+
+.methodBtn:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.methodBtn:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.paymentForm {
+  display: grid;
+  gap: 1.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.formGroup label {
+  color: #1e3a8a;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding-left: 2px;
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 1rem;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.9);
+  color: #1e3a8a;
+}
+
+.formGroup input::placeholder {
+  color: #94a3b8;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background: white;
+}
+
+.fullWidth {
+  grid-column: span 2;
+}
+
+.submitBtn {
+  background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  padding: 1.25rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+  margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
+}
+
+.submitBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.25);
+  background: linear-gradient(145deg, #1e4cd6 0%, #1a43c2 100%);
+}
+
+.cardLogos {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  filter: grayscale(100%);
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.paymentForm:hover .cardLogos {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.cardLogo {
+  width: 48px;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.cardLogo:hover {
+  transform: translateY(-2px);
+}
+
+.formGroup select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231d4ed8'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .paymentContainer {
+    padding: 1.75rem;
+    margin: 15px;
+    border-radius: 16px;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidth {
+    grid-column: span 1;
+  }
+
+  .methodBtn {
+    padding: 0.9rem 1.75rem;
+    font-size: 0.9rem;
+  }
+
+  .submitBtn {
+    padding: 1.1rem;
+    font-size: 0.95rem;
+  }
+}
+

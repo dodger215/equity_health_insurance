@@ -1,0 +1,45 @@
+.container {
+  width: 100%;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 0px auto;
+  border-radius: 0px;
+  height: 100vh;
+  background-color: #fff;
+}
+
+
+.label {
+  display: block;
+  width: 80%;
+  margin: 10px 0px;
+  padding: 10px;
+  font-size: 16px;
+  color: var(--secondary);
+}
+
+.select {
+  display: block;
+  width: 80%;
+  margin: 10px auto;
+  padding: 10px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.resultTitle {
+  color: #ff5d54;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  flex-direction: row;
+  position: relative;
+}
+.resultTitle span {
+  color: #333;
+  position: absolute;
+  right: 10px;
+}
+
+

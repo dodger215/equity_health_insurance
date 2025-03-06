@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { PrimaryLoading } from "./ui/loading"
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -37,7 +38,7 @@ function LoginForm() {
   useEffect(() => {
     if (isSubmitting) {
       console.log("Submitting form data:", formData)
-      fetch("https://ehi-agent-api.onrender.com/login", {
+      fetch(`http://127.0.0.1:8000/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +51,7 @@ function LoginForm() {
             console.log("Login successful")
             console.log(`Token: ${data.access_token}`)
             localStorage.setItem("jwtToken", data.access_token)
-            localStorage.setItem("agents_name", data.full_name)
+            localStorage.setItem("agents_name", data.name)
             localStorage.setItem("id", data.id)
             navigate("/agent/main")
           } else {
@@ -92,11 +93,29 @@ function LoginForm() {
           onChange={handleChange}
           required
         />
-        {errors.password && <span className="error">{errors.password}</span>}
+        {
+          errors.password && 
+          <span className="error">{errors.password}</span>
+        }
       </div>
-      {errors.submit && <div className="error">{errors.submit}</div>}
+      {
+        errors.submit && 
+        <div 
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#b22222",
+          fontSize: "0.6em"
+        }}
+        className="error"
+        
+        >
+          {errors.submit}
+        </div>
+      }
       <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? <div className="loader"></div> : "Login"}
+        {isSubmitting ? <PrimaryLoading /> : "Login"}
       </button>
     </form>
   )

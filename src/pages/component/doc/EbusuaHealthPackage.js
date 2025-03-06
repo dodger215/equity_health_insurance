@@ -1,67 +1,40 @@
 import styles from "./EbusuaHealthPackage.module.css"
 import { useNavigate } from "react-router-dom"
+import { Forms, Close } from "../ui/button"
 
-const EbusuaHealthPackage = () => {
-  const router = useNavigate()
-
-  const handleBack = () => {
-    router('/agent/main')
-  }
+export default function EbusuaHealthPackage() {
+  
+    
   return (
     <div className={styles.container}>
-      <button onClick={handleBack} className={styles.backButton}>
-          &larr; Back to Main
-        </button>
-      <h1 className={styles.title}>FAMILY AND INDIVIDUAL HEALTH INSURANCE PACKAGE (EBUSUA HEALTH PACKAGE)</h1>
+      <Close />
+      <Forms />
+      <div className={styles.header}>
+        <h1 className={styles.mainTitle}>EQUITY HEALTH INSURANCE</h1>
+        <div className={styles.subtitle}>FAMILY AND INDIVIDUAL HEALTH INSURANCE PACKAGE</div>
+        <div className={styles.subtitle}>(EBUSUA HEALTH PACKAGE)</div>
+      </div>
 
-      <section className={styles.guidelines}>
-        <h2>EBUSUA HEALTH PACKAGE GUIDELINES</h2>
-        <ul>
-          <li>
-            There are 4 plans with 4 levels for each plan. [Shea (level 1 to 4), Oak (level 1 to 4), Mahogany (level 1
-            to 4), Rosewood (level 1 to 4)]
-          </li>
-          <li>Level 1: base cover without dental, optical, and maternity</li>
-          <li>Level 2: base cover with dental cover</li>
-          <li>Level 3: base cover with dental and optical cover</li>
-          <li>Level 4: base cover with dental, optical, and maternity cover</li>
-          <li>Family Plans exist for families with one to six members (M; M+1; M+2; M+3; M+4; M+5).</li>
-          <li>Age limit: 0 to 59 years.</li>
-          <li>Risk loadings will be applied to family members with chronic conditions and members above 60 years.</li>
-          <li>The number of Adults in a family shall not exceed two.</li>
-          <li>A family may only subscribe to one plan and one level; multiple plans and levels are not allowed.</li>
-          <li>Premiums are payable in Advance.</li>
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>EBUSUA HEALTH PACKAGE GUIDELINES</h2>
+        <ul className={styles.guidelinesList}>
+          <li>4 plans with 4 levels each (Shea, Oak, Mahogany, Rosewood)</li>
+          <li>Family Plans: M to M+5 members</li>
+          <li>Age limit: 0-59 years</li>
+          <li>Premium payment options: Quarterly, Semi-annually, Annually</li>
+          <li>Risk loadings for chronic conditions/60+ years</li>
+          <li>Max 2 adults per family</li>
+          <li>One plan/level per family</li>
+          <li>Premiums payable in Advance</li>
         </ul>
-      </section>
+      </div>
 
-      <section className={styles.guidelinesCont}>
-        <h2>EBUSUA HEALTH PACKAGE GUIDELINES CONT'D</h2>
-        <ul>
-          <li>Frequency of payment: Quarterly, Semiannually, or Annually.</li>
-          <li>
-            Payment modes: Cheque, Bank Transfer, Source Deductions including CAGD, Bank Standing Order, Mobile Money.
-          </li>
-          <li>For payments through CAGD, the policy will be activated after 3 successful deductions</li>
-          <li>
-            Limits and sub-limits for all benefits will be applicable as indicated in the benefits table according to
-            plan and level.
-          </li>
-          <li>Benefits shall be prorated according to premiums paid.</li>
-          <li>A one-month waiting period will apply to annual payment frequencies</li>
-          <li>A nine-month waiting period is applicable for maternity cover</li>
-          <li>A six-month waiting period is applicable for non-emergency surgeries</li>
-        </ul>
-      </section>
-
-      {/* Note: The benefit tables for each plan (Shea, Oak, Mahogany, Rosewood) are quite extensive.
-         For brevity, I'll include just the Shea plan here. You would create similar sections for the other plans. */}
-
-      <section className={styles.sheaPlan}>
-        <h2>EBUSUA HEALTH PACKAGE (SHEA PLAN) PREMIUMS & BENEFITS</h2>
-        <table className={styles.benefitsTable}>
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>SHEA PLAN - PREMIUMS & BENEFITS</h2>
+        <table className={styles.planTable}>
           <thead>
             <tr>
-              <th></th>
+              <th style={{ width: "25%" }}></th>
               <th>M</th>
               <th>M+1</th>
               <th>M+2</th>
@@ -72,7 +45,7 @@ const EbusuaHealthPackage = () => {
           </thead>
           <tbody>
             <tr>
-              <td>OPD BENEFITS</td>
+              <td style={{ fontWeight: 700 }}>OPD BENEFITS</td>
               <td>4,000</td>
               <td>7,200</td>
               <td>10,800</td>
@@ -81,7 +54,7 @@ const EbusuaHealthPackage = () => {
               <td>21,600</td>
             </tr>
             <tr>
-              <td>IPD BENEFITS</td>
+              <td style={{ fontWeight: 700 }}>IPD BENEFITS</td>
               <td>16,000</td>
               <td>28,800</td>
               <td>43,200</td>
@@ -90,7 +63,7 @@ const EbusuaHealthPackage = () => {
               <td>86,400</td>
             </tr>
             <tr>
-              <td>SUM ASSURED</td>
+              <td style={{ fontWeight: 700 }}>SUM ASSURED</td>
               <td>20,000</td>
               <td>36,000</td>
               <td>54,000</td>
@@ -98,16 +71,70 @@ const EbusuaHealthPackage = () => {
               <td>90,000</td>
               <td>108,000</td>
             </tr>
-            {/* Add more rows for yearly premiums per level */}
           </tbody>
         </table>
-        <a href="/form" className="btn-a">Fill Fields</a>
-      </section>
 
-      {/* You would add similar sections for Oak, Mahogany, and Rosewood plans here */}
+        <div className={styles.cardFee}>
+          <h3>CARD FEES</h3>
+          <p>GHC 30 • GHC 60 • GHC 90 • GHC 120 • GHC 150 • GHC 180</p>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>OAK PLAN - PREMIUMS & BENEFITS</h2>
+        <table className={styles.planTable}>
+          <thead>
+            <tr>
+              <th style={{ width: "25%" }}></th>
+              <th>M</th>
+              <th>M+1</th>
+              <th>M+2</th>
+              <th>M+3</th>
+              <th>M+4</th>
+              <th>M+5</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ fontWeight: 700 }}>OPD BENEFITS</td>
+              <td>5,000</td>
+              <td>9,000</td>
+              <td>13,500</td>
+              <td>18,000</td>
+              <td>22,500</td>
+              <td>27,000</td>
+            </tr>
+            <tr>
+              <td style={{ fontWeight: 700 }}>IPD BENEFITS</td>
+              <td>25,000</td>
+              <td>45,000</td>
+              <td>67,500</td>
+              <td>90,000</td>
+              <td>112,500</td>
+              <td>135,000</td>
+            </tr>
+            <tr>
+              <td style={{ fontWeight: 700 }}>SUM ASSURED</td>
+              <td>30,000</td>
+              <td>54,000</td>
+              <td>81,000</td>
+              <td>108,000</td>
+              <td>135,000</td>
+              <td>162,000</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div className={styles.cardFee}>
+          <h3>CARD FEES</h3>
+          <p>GHC 30 • GHC 60 • GHC 90 • GHC 120 • GHC 150 • GHC 180</p>
+        </div>
+      </div>
+
+      <div className={styles.footer}>
+        <p>www.equityhealthinsurance.com</p>
+      </div>
     </div>
   )
 }
-
-export default EbusuaHealthPackage
 

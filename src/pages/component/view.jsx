@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import styles from "./Dashboard.module.css"
+import Contents from "./contents"
+import { InternetLoader } from "./ui/loading"
 
 const DashboardView = () => {
   const [userData, setUserData] = useState({
@@ -12,12 +14,25 @@ const DashboardView = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
+  const [prospects, setProspects] = useState([]); 
+  const [targetScores, setTargetScore] = useState(0);
+
+  const [appointment, setAppointment] = useState([]); 
+  const [notification, setNotification] = useState(0);
+
+
+
+  
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       const token = localStorage.getItem("jwtToken")
       const agentId = localStorage.getItem("id")
       // console.log(token)
+
+      let target = 0;
+
+  
 
       if (!token || !agentId) {
         setError("No authentication token or agent ID found")
@@ -27,7 +42,7 @@ const DashboardView = () => {
       }
 
       try {
-        const response = await fetch(`https://ehi-agent-api.onrender.com/clients/1`, {
+        const response = await fetch(`http://127.0.0.1:8000/agents/${agentId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -40,10 +55,12 @@ const DashboardView = () => {
 
         const data = await response.json()
         setUserData({
-          agent_id: data.agent_id,
-          clients: data.clients,
-          client_id: data.id,
+          agent_name: data.OtherNames
         })
+
+        
+
+          
       } catch (err) {
         setError(err.message)
 
@@ -55,40 +72,130 @@ const DashboardView = () => {
     fetchDashboardData()
   })
 
+
+  useEffect(() => {
+    const fetchAppointment = async () => {
+      try {
+        const agentId = localStorage.getItem("id");
+  
+        // Log the agentId to ensure it's correct
+        console.log("Fetching appointments for agentId:", agentId);
+  
+        const responseProspects = await fetch(
+          `http://127.0.0.1:8000/client/appointments/${agentId}`
+        );
+  
+        // Log the response status and body
+        console.log("Response status:", responseProspects.status);
+        const responseBody = await responseProspects.json();
+        console.log("Response body:", responseBody);
+  
+        if (!responseProspects.ok) {
+          throw new Error(`Failed to fetch prospects: ${responseProspects.statusText}`);
+        }
+  
+        // Ensure the response is an array
+        if (Array.isArray(responseBody)) {
+          setAppointment(responseBody);
+          setNotification(responseBody.length);
+        } else {
+          setAppointment([]);
+          setNotification(0);
+        }
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+  
+        // Set states to default values in case of error
+        setAppointment([]);
+        setNotification(0);
+      }
+    };
+  
+    fetchAppointment();
+  }, []); 
+
+
+
+  useEffect(() => {
+
+    const fetchProspects = async () => {
+      const agentId = localStorage.getItem("id")
+      const responseProspects = await fetch(`http://127.0.0.1:8000/prospects/${agentId}`);
+            if (!responseProspects.ok) {
+              // throw new Error("Failed to fetch prospects");
+              setProspects([]); 
+              setTargetScore(0);
+            }
+            const prospectsData = await responseProspects.json();
+    
+            if (Array.isArray(prospectsData)) {
+              setProspects(prospectsData.length);
+              setTargetScore(prospectsData.length);
+  
+            } else {
+              setProspects([]); 
+              setTargetScore(0);
+            }
+    }
+    fetchProspects()
+    
+  })
+
+
+  const notify = () => {
+    navigate('/notify')
+  }
+
   if (loading) {
-    return <div className={styles.loading}>Loading...</div>
+    return <InternetLoader/>
   }
 
   if (error) {
     return <div className={styles.error}>Error: {error}</div>
   }
 
-  const targetScore = userData.clients.length
-  const draftScore = 0 - targetScore
+  
+  // const draftScore = 0 - targetScore
+
+
+
+ 
 
   return (
     <div className={styles.dashboard}>
-      <div className={styles.intro}><i className="fas fa-profile"></i>Welcome {localStorage.getItem("agents_name")}</div>
+      <div className={styles.intro}><i className="fas fa-user p-3"></i>Welcome {userData.agent_name}</div>
       <div className={styles.show}>
         <div className={styles.targetScore}>
           <div className={styles.scoreCircle}>
-            <div className={styles.scoreText}>{targetScore}%</div>
-            <p>Target</p>
+            <div className={styles.scoreText}>{targetScores}</div>
+            <p>Targets</p>
           </div>
+          {/* <div className={styles.scoreCircle}>
+            <div className={styles.scoreText}>{targetScores}</div>
+            <p>Targets week</p>
+          </div> */}
           <div className={styles.subContact}>
-            <div className={styles.commission}>
-              <i className="fas fa-coins"></i>
-              <p>Commission</p>
-            </div>
-            <div className={styles.notification}>
+            <div className={styles.notification} style={{
+              position: "relative",
+              background: "rgb(236, 24, 24)",
+            }}>
+              <p style={{
+                fontSize: "1.5em",
+                color: "rgb(68, 7, 7)",
+                fontWeight: "700",
+                position: "absolute",
+                right: "5px",
+                top: "-5px"
+              }}
+              onClick={() => notify()}>{notification}</p>
               <i className="fas fa-bell"></i>
-              <p>Notify</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className={styles.usersList}>
+      <Contents />
+      {/* <div className={styles.usersList}>
         <h3>Clients ({userData.clients.length})</h3>
         <ul>
           {userData.clients.map((client, index) => (
@@ -105,7 +212,7 @@ const DashboardView = () => {
             </li>
           ))}
         </ul>
-      </div>
+      </div> */}
     </div>
   )
 }
