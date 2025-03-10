@@ -5,6 +5,11 @@ import { useNavigate } from "react-router-dom"
 import styles from "./Dashboard.module.css"
 import Contents from "./contents"
 import { InternetLoader } from "./ui/loading"
+import API_URL from "./link"
+import { faBell, faShake } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import OfflinePage from "./ui/error"
+
 
 const DashboardView = () => {
   const [userData, setUserData] = useState({
@@ -42,7 +47,7 @@ const DashboardView = () => {
       }
 
       try {
-        const response = await fetch(`http://127.0.0.1:8000/agents/${agentId}`, {
+        const response = await fetch(`${API_URL}/agents/${agentId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -82,7 +87,7 @@ const DashboardView = () => {
         console.log("Fetching appointments for agentId:", agentId);
   
         const responseProspects = await fetch(
-          `http://127.0.0.1:8000/client/appointments/${agentId}`
+          `${API_URL}/client/appointments/${agentId}`
         );
   
         // Log the response status and body
@@ -120,7 +125,7 @@ const DashboardView = () => {
 
     const fetchProspects = async () => {
       const agentId = localStorage.getItem("id")
-      const responseProspects = await fetch(`http://127.0.0.1:8000/prospects/${agentId}`);
+      const responseProspects = await fetch(`${API_URL}/prospects/${agentId}`);
             if (!responseProspects.ok) {
               // throw new Error("Failed to fetch prospects");
               setProspects([]); 
@@ -154,6 +159,8 @@ const DashboardView = () => {
     return <div className={styles.error}>Error: {error}</div>
   }
 
+ 
+  
   
   // const draftScore = 0 - targetScore
 
@@ -178,17 +185,27 @@ const DashboardView = () => {
             <div className={styles.notification} style={{
               position: "relative",
               background: "rgb(236, 24, 24)",
-            }}>
-              <p style={{
-                fontSize: "1.5em",
+            }}
+            onClick={() => notify()}>
+              <div style={{
+                background: "#fff",
+                borderRadius: "100px",
+                padding: "5px 10px",
+                fontSize: "1em",
                 color: "rgb(68, 7, 7)",
                 fontWeight: "700",
                 position: "absolute",
-                right: "5px",
-                top: "-5px"
+                right: "-8px",
+                top: "-10px"
               }}
-              onClick={() => notify()}>{notification}</p>
-              <i className="fas fa-bell"></i>
+              >{notification}</div>
+              {/* <i className={`fas fa-bell ${font}`}></i> */}
+              <FontAwesomeIcon 
+              style={{
+                color: "#fff",
+                fontSize: "1.8em",
+              }}
+              icon={ faBell } className={notification > 0 ? "fa-shake" : ''} />
             </div>
           </div>
         </div>

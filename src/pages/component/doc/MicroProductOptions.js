@@ -8,7 +8,7 @@ const MicroProductOptions = () => {
   return (
     <div className={styles.container}>
 
-      <Close />
+      <Close title={"MICRO PRODUCT OPTIONS"}/>
       <Forms />
       <h1 className={styles.title}>MICRO PRODUCT OPTIONS</h1>
 

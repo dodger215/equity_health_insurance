@@ -1,12 +1,13 @@
 "use client"
-
-import { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styles from "./insurance-form.module.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPlus, faMinus, faCalendar } from "@fortawesome/free-solid-svg-icons"
-import { useNavigate } from "react-router-dom"
 import { premiums } from "../calculator/abs/premiums"
 import { Close, Forms } from "../ui/button"
+import axios from 'axios';
+import API_URL from '../link';
 
 export default function InsuranceForm() {
   const navigate = useNavigate()
@@ -55,8 +56,7 @@ export default function InsuranceForm() {
   const [gender, setGender] = useState("")
 
   const [nationalNumber, setNationalNumber] = useState("")
-  const [frontImage, setFrontImage] = useState("")
-  const [backImage, setBackImage] = useState("")
+
   const [idType, setIdType] = useState("")
   const [idNumber, setIdNumber] = useState("")
   const [occupation, setOccupation] = useState("")
@@ -66,6 +66,17 @@ export default function InsuranceForm() {
   const [ebusua, setEbusua] = useState(false)
   const [telemed, setTele] = useState(false)
   const [micro, setMicro] = useState(false)
+
+
+  const [frontImage, setFrontImage] = useState(null);
+  const [backImage, setBackImage] = useState(null);
+
+  const handleFileChange = (e, setter) => {
+    const file = e.target.files[0];
+    if (file) {
+      setter(file);
+    }
+  };
 
   
   const [phonenumber, setPhonenumber] = useState("")
@@ -201,7 +212,7 @@ export default function InsuranceForm() {
     if (id) {
       const fetchProspect = async () => {
         try {
-          const response = await fetch(`http://127.0.0.1:8000/get/prospects/${id}`);
+          const response = await fetch(`${API_URL}/get/prospects/${id}`);
           const data = await response.json();
           setProspect(data);
         } catch (error) {
@@ -349,6 +360,32 @@ export default function InsuranceForm() {
       }
     })
 
+    const { clientId } = useParams();
+    const [formState, setFormState] = useState({
+      firstName: '',
+      surname: '',
+      dateOfBirth: '',
+      phonenumber: '',
+      email: '',
+      address: '',
+      nationalNumber: '',
+      idType: '',
+      idNumber: '',
+      occupation: '',
+      nationality: '',
+      city: '',
+      country: '',
+      frontImage: null,
+      backImage: null,
+      // dependent_name: '',
+      // dependent_dob: '',
+      // dependent_rel: ''
+    });
+
+    //const [selectedPolicy, setSelectedPolicy] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Authentication check
     useEffect(() => {
       if (!token || !agentId) {
         console.log("No authentication token or agent ID found");
@@ -391,6 +428,8 @@ export default function InsuranceForm() {
         const policyPrefix = selectedPolicy.slice(0, 3);
         return `${policyPrefix}_${year}$${month}&${randomInt}`;
       };
+
+      
       
       const generateClientId = () => {
         const now = new Date();
@@ -399,6 +438,8 @@ export default function InsuranceForm() {
         const randomInt = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
         return `CLI_${year}$${month}&${randomInt}`;
       };
+
+      const productCode = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
 
       
     
@@ -430,12 +471,11 @@ export default function InsuranceForm() {
       const policyData = {
         policy_id: policyId, 
         client_id: clientid, 
-        agent: agentId,
+        agent: agentId.toString(),
         product_name: selectedPolicy, 
-        product_code: productCode,
+        product_code: productCode.toString(),
       };
 
-      let productCode = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000; 
 
       const dependentData = {
         client_id: clientid, 
@@ -447,9 +487,10 @@ export default function InsuranceForm() {
         relation_type: dependent_rel, 
       };
 
+      console.log(policyData)
     
       try {
-        const response = await fetch("http://127.0.0.1:8000/create/clients/", {
+        const response = await fetch(`${API_URL}/create/clients/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -465,6 +506,7 @@ export default function InsuranceForm() {
         const result = await response.json();
         console.log("Successfully", result);
 
+
       } catch (error) {
         console.error("Error:", error);
         alert("There was an error submitting the form. Please try again.");
@@ -473,7 +515,7 @@ export default function InsuranceForm() {
 
       try {
         // Submit the policy data
-        const policyResponse = await fetch("http://127.0.0.1:8000/client-policies/", {
+        const policyResponse = await fetch(`${API_URL}/client-policies/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -488,32 +530,33 @@ export default function InsuranceForm() {
     
         const policyResult = await policyResponse.json();
         console.log("Policy submitted successfully:", policyResult);
-    
-        // Submit the dependent data
-        const dependentResponse = await fetch("http://127.0.0.1:8000/dependants/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(dependentData),
-        });
-    
-        if (!dependentResponse.ok) {
-          throw new Error(`HTTP error! status: ${dependentResponse.status}`);
-        }
-    
-        const dependentResult = await dependentResponse.json();
-        console.log("Dependent submitted successfully:", dependentResult);
-    
-        // Navigate to the success page
-        navigate("/client/submit");
+
+        if(dependentData.product_name === "ebusua"){
+          // Submit the dependent data
+          const dependentResponse = await fetch(`${API_URL}/dependants/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(dependentData),
+          });
+      
+          if (!dependentResponse.ok) {
+            throw new Error(`HTTP error! status: ${dependentResponse.status}`);
+
+          }
+          const dependentResult = await dependentResponse.json();
+          console.log("Dependent submitted successfully:", dependentResult);
+
+        }    navigate('/ListClient');
       } catch (error) {
-        console.error("Error submitting the form:", error);
-        alert("There was an error submitting the form. Please try again.");
+        console.error('Submission error:', error);
+        alert(error.response?.data?.message || 'Submission failed. Please try again.');
+      } finally {
+        setIsSubmitting(false);
       }
-    
-  }
+    };
 
  
 
@@ -559,7 +602,7 @@ export default function InsuranceForm() {
             type="text" 
             id="firstName" 
             name="firstName"
-            value={ prospect.FirstName || firstName }
+            value={ prospect.firstName || firstName }
             onChange={(e) => setFirstName(e.target.value)} 
             required />
           </div>
@@ -569,7 +612,7 @@ export default function InsuranceForm() {
             type="text" 
             id="surname" 
             name="surname"
-            value={ prospect.LastName || surname }
+            value={ prospect.lastName || surname }
             onChange={(e) => setSurname(e.target.value)} 
             required />
           </div>
@@ -604,7 +647,7 @@ export default function InsuranceForm() {
             id="nationalNumber" 
             name="nationalNumber"
             value={ nationalNumber }
-            onChange={(e) => setLastName(e.target.value)}  
+            onChange={(e) => setNationalNumber(e.target.value)}  
             required />
           </div>
           <div className={styles.formGroup}>
@@ -631,23 +674,27 @@ export default function InsuranceForm() {
           <div className={styles.formGroup}>
             <label htmlFor="frontImage">Front Image of Ghana Card</label>
             <input 
-            type="file" 
-            id="frontImage" 
-            name="frontImage"
-            value={ frontImage }
-            onChange={(e) => setFrontImage(e.target.value)}  
-            required />
+              type="file" 
+              id="frontImage" 
+              name="frontImage"
+              onChange={(e) => setFrontImage(e.target.value)}
+              accept="image/*"
+              required 
+            />
+            {frontImage && <p>Selected file: {frontImage.name}</p>}
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="backImage">Back Image of Ghana Card</label>
             <input 
-            type="file" 
-            id="backImage" 
-            name="backImage"
-            value={ backImage }
-            onChange={(e) => setBackImage(e.target.value)}  
-            required />
+              type="file" 
+              id="backImage" 
+              name="backImage"
+              onChange={(e) => setBackImage(e.target.value)}
+              accept="image/*"
+              required 
+            />
+            {backImage && <p>Selected file: {backImage.name}</p>}
           </div>
 
           <div className={styles.formGroup}>
@@ -1116,7 +1163,7 @@ export default function InsuranceForm() {
             type="tel" 
             id="phone" 
             name="phonenumber"
-            value={ prospect.Phone || phonenumber }
+            value={ prospect.phone || phonenumber }
             onChange={(e) => setPhonenumber(e.target.value)} 
             placeholder="+233 (0) "
             required />
@@ -1127,7 +1174,7 @@ export default function InsuranceForm() {
             type="email" 
             id="email" 
             name="email"
-            value={ prospect.Address || email }
+            value={ prospect.email || email }
             onChange={(e) => setEmail(e.target.value)} 
             required />
           </div>

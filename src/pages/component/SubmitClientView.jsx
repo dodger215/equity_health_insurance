@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import styles from "./SubmitClient.module.css"
 import { Modal, Button } from "react-bootstrap";
 import PaymentGateway from "./payments/payment";
+import API_URL from "./link";
 
 const SubmitClient = () => {
 
@@ -51,7 +52,7 @@ const SubmitClient = () => {
       }
 
       try {
-        const response = await fetch(`http://127.0.0.1:8000/get_client_info/1/`, {
+        const response = await fetch(`${API_URL}/get_client_info/1/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -111,7 +112,7 @@ const SubmitClient = () => {
       formDataToSend.append("signature", signature)
       formDataToSend.append("client_data", JSON.stringify(formData))
 
-      const response = await fetch(`http://127.0.0.1:8000/upload_client/1/`, {
+      const response = await fetch(`${API_URL}/upload_client/1/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

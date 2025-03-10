@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { PrimaryLoading } from "./ui/loading"
+import API_URL from "./link"
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ function LoginForm() {
   useEffect(() => {
     if (isSubmitting) {
       console.log("Submitting form data:", formData)
-      fetch(`http://127.0.0.1:8000/login`, {
+      fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

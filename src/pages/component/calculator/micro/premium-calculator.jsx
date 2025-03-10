@@ -33,10 +33,10 @@ export default function MicroCalculator() {
     <div className={styles.wrapper}>
 
 
-      <Close />
+      <Close title={"Micro Product Premium Calculator"}/>
       <div className={styles.container}>
         
-        <h1 className={styles.title}>Micro Product Premium Calculator</h1>
+        <h1 className={styles.title}></h1>
 
         <label className={styles.label} htmlFor="plan">
           Select Plan:

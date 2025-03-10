@@ -7,6 +7,7 @@ import { Close } from "../ui/button"
 import React from "react"
 import { useNavigate } from "react-router-dom"
 import { InternetLoader, PrimaryLoading } from "../ui/loading"
+import API_URL from "../link"
 
 export default function AppointmentList() {
     const navigate = useNavigate()
@@ -35,7 +36,7 @@ export default function AppointmentList() {
     const fetchProspects = async () => {
       try {
         const agentId = localStorage.getItem('id');
-        const response = await fetch(`http://127.0.0.1:8000/prospects/${agentId}`);
+        const response = await fetch(`${API_URL}/prospects/${agentId}`);
   
         if (!response.ok) {
           throw new Error('Failed to fetch prospects');
@@ -54,7 +55,7 @@ export default function AppointmentList() {
     const fetchAppointment = async () => {
       try {
         const agentId = localStorage.getItem('id');
-        const response = await fetch(`http://127.0.0.1:8000/client/appointments/${agentId}`);
+        const response = await fetch(`${API_URL}/client/appointments/${agentId}`);
   
         if (!response.ok) {
           throw new Error('Failed to fetch appointments');
@@ -83,7 +84,7 @@ export default function AppointmentList() {
     const interval = setInterval(() => {
       fetchProspects();
       fetchAppointment();
-    }, 50); 
+    }, 10000); 
   
   
     return () => clearInterval(interval);
@@ -114,7 +115,7 @@ export default function AppointmentList() {
 
       console.log("Sending appointment data:", appointmentData)
 
-      const response = await fetch("http://127.0.0.1:8000/appointments/", {
+      const response = await fetch(`${API_URL}/appointments/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -147,7 +148,7 @@ export default function AppointmentList() {
 
     const deleleAppointment = async (id) => {
       try{
-        const response = await fetch(`http://127.0.0.1:8000/delete/appointment/${id}`, {
+        const response = await fetch(`${API_URL}/delete/appointment/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -257,7 +258,7 @@ export default function AppointmentList() {
           <h3 style={{
             margin: "10px",
             padding: "10px"
-          }}>List prostects</h3>
+          }}>List Prospects</h3>
         {
           isBothListsEmpty ? (
             <div className="text-center text-muted py-4">No appointments found.</div>

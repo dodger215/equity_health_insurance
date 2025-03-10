@@ -6,9 +6,9 @@ import { Close, Forms } from "../ui/button"
 export default function ABSBrochure() {
   return (
     <div className={styles.container}>
-      <Close />
+      <Close title={'AYARESABEA BANBO SIKA (ABS)'} />
       <Forms />
-      <h1>AYARESABEA BANBO SIKA (ABS)</h1>
+      <h1></h1>
       <div className={styles.website}>
         <a href="http://www.equityhealthinsurance.com">www.equityhealthinsurance.com</a>
       </div>

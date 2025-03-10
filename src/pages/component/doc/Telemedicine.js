@@ -6,7 +6,7 @@ const Telemedicine = () => {
   
   return (
     <div className={styles.container}>
-      <Close />
+      <Close title={"TELEMEDICINE"}/>
       <Forms />
       <h1 className={styles.title}>TELEMEDICINE</h1>
 

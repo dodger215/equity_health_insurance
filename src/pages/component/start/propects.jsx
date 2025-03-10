@@ -5,6 +5,7 @@ import styles from "./ProspectForm.module.css";
 import { Close } from "../ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import API_URL from "../link";
 
 function ProspectForm() {
   const agentid = parseInt(localStorage.getItem('id'), 10);
@@ -65,7 +66,7 @@ function ProspectForm() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const submitToAPI = async (data) => {
-    const apiUrl = "http://127.0.0.1:8000/prospects/";
+    const apiUrl = `${API_URL}/prospects/`;
 
     try {
       const response = await fetch(apiUrl, {

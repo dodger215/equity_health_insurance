@@ -4,6 +4,7 @@ import Started from './tabContents/start';
 import Commission from './tabContents/commission';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import API_URL from "./link";
 
 function Content() {
     const [active, setActive] = useState('start');
@@ -17,7 +18,7 @@ function Content() {
     useEffect(() => {
       const fetchProspects = async () => {
         try {
-          const response = await fetch(`http://127.0.0.1:8000/prospects/${agentid}`);
+          const response = await fetch(`${API_URL}/prospects/${agentid}`);
           if (!response.ok) {
             throw new Error("Failed to fetch prospects");
           }
@@ -41,7 +42,7 @@ function Content() {
     // Delete a prospect
     const deleteProspect = async (prospectId) => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/prospects/${prospectId}`, {
+        const response = await fetch(`${API_URL}/prospects/${prospectId}`, {
           method: "DELETE",
         });
         if (!response.ok) {

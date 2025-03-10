@@ -42,7 +42,7 @@ export function Close({title}) {
 
             <h2 style={{
                 color: "#fff",
-                fontSize: "1.6em",
+                fontSize: "0.9em",
                 marginRight: "20px"
             }}>{ title || ''}</h2>
         </div>

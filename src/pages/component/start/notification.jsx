@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Close } from "../ui/button";
 import { InternetLoader } from "../ui/loading";
+import API_URL from "../link";
 
 const Notifications = () => {
   const [prospects, setProspects] = useState([]); // State for prospects
@@ -15,7 +16,7 @@ const Notifications = () => {
         const agentId = localStorage.getItem("id"); // Get agent ID from localStorage
 
         // Fetch prospects
-        const prospectsResponse = await fetch(`http://127.0.0.1:8000/prospects/${agentId}`);
+        const prospectsResponse = await fetch(`${API_URL}/prospects/${agentId}`);
         if (!prospectsResponse.ok) {
           throw new Error("Failed to fetch prospects");
         }
@@ -23,7 +24,7 @@ const Notifications = () => {
         setProspects(prospectsData);
 
         // Fetch appointments
-        const appointmentsResponse = await fetch(`http://127.0.0.1:8000/client/appointments/${agentId}`);
+        const appointmentsResponse = await fetch(`${API_URL}/client/appointments/${agentId}`);
         if (!appointmentsResponse.ok) {
           throw new Error("Failed to fetch appointments");
         }

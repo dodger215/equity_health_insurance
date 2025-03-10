@@ -3,6 +3,7 @@
 import { useNavigate } from "react-router-dom"
 import { useEffect } from "react"
 import styles from "./logout.module.css"
+import API_URL from "./link"
 
 const LogoutPage = () => {
   const navigate = useNavigate()

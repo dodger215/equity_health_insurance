@@ -36,10 +36,10 @@ const Started = () => {
             <i class="fa-solid fa-chevron-right"></i>
         </div>
 
-        <div className="list_items" onClick={() => handleNavigation("/Payments")}>
+        <div className="list_items" onClick={() => handleNavigation("/ListClient")}>
             <div className="side">
-                <i className="fas fa-coins"></i>
-                <p>Make Payments</p>
+                <i className="fas fa-file"></i>
+                <p>Fill Forms For Clients</p>
             </div>
             <i class="fa-solid fa-chevron-right"></i>
         </div>

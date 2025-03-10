@@ -1,6 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/home';
+import Home from './pages/component/home';
 import Login from './pages/agent_login';
 import Main from './pages/agent_main';
 import ABS from './pages/component/doc/AyaresabeaBanboSika'
@@ -19,11 +19,16 @@ import ProspectForm from './pages/component/start/propects';
 import TeleCalc from './pages/component/calculator/tele/premium-calculator'
 import AppointmentList from './pages/component/start/appointment';
 
+import ClientList from './pages/component/verification/ClientListComponent';
 
 import InsuranceForm from './pages/component/forms/insurance-form';
 import DraftClients from './pages/component/tabContents/client'
 
 import Notifications from './pages/component/start/notification';
+import CodeValidation from './pages/component/verification/CodeValidationComponent';
+import ClientFormComponent from './pages/component/verification/ClientFormComponent';
+
+
 
 
 
@@ -52,7 +57,10 @@ function App() {
           <Route path='/client/submit' element={<SubmitClient />}/>
           <Route path='/clients' element={<DraftClients />}/>
           <Route path='/Appointment' element={ <AppointmentList/> }/>
+          <Route path='/ListClient' element={ <ClientList/> }/>
           <Route path='/notify' element={ <Notifications/> }/>
+          <Route path='/validate-code/:clientId' element={ <CodeValidation/> }/>
+          <Route path='/client-form/:clientId' element={ <ClientFormComponent/> }/>
         </Routes>
       </div>
     </Router>

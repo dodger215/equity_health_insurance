@@ -28,8 +28,8 @@ export default function PremiumCalculator() {
 
   return (
     <div className={styles.container}>
-      <Close/>
-      <h1 className={styles.title}>Telemedicine Premium Calculator</h1>
+      <Close title={"Telemedicine Premium Calculator"}/>
+      <h1 className={styles.title}></h1>
 
       <label htmlFor="subscription" className={styles.label}>
         Select Subscription Type:

@@ -7,10 +7,10 @@ export default function EbusuaHealthPackage() {
     
   return (
     <div className={styles.container}>
-      <Close />
+      <Close title={'EQUITY HEALTH INSURANCE'}/>
       <Forms />
       <div className={styles.header}>
-        <h1 className={styles.mainTitle}>EQUITY HEALTH INSURANCE</h1>
+        <h1 className={styles.mainTitle}></h1>
         <div className={styles.subtitle}>FAMILY AND INDIVIDUAL HEALTH INSURANCE PACKAGE</div>
         <div className={styles.subtitle}>(EBUSUA HEALTH PACKAGE)</div>
       </div>

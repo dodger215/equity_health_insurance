@@ -6,10 +6,10 @@ export default function DaakyeApomuden() {
   return (
     <div className={styles.container}>
 
-      <Close />
+      <Close title={'DAAKYE APOMUDEN'} />
       <Forms />
       <div className={styles.header}>
-        <h1>DAAKYE APOMUDEN</h1>
+        <h1></h1>
         <div className={styles.website}>www.equityhealthinsurance.com</div>
       </div>
 
