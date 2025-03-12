@@ -68,8 +68,9 @@ export default function InsuranceForm() {
   const [micro, setMicro] = useState(false)
 
 
-  const [frontImage, setFrontImage] = useState(null);
-  const [backImage, setBackImage] = useState(null);
+  const [message, setMessage] = useState("");
+
+
 
   const handleFileChange = (e, setter) => {
     const file = e.target.files[0];
@@ -87,7 +88,8 @@ export default function InsuranceForm() {
   const [address, setAddress] = useState("")
 
   const [dependent_dob, setDependentDOB] = useState("")
-  const [dependent_name, setDependentName] = useState("")
+  const [dependent_fname, setDependentFirstName] = useState("")
+  const [dependent_lname, setDependentLastName] = useState("")
   const [dependent_rel, setDependentRel] = useState("")
 
   
@@ -324,6 +326,7 @@ export default function InsuranceForm() {
 
  
 
+  
 
 
   // Calculate EBUSUA premium
@@ -375,8 +378,6 @@ export default function InsuranceForm() {
       nationality: '',
       city: '',
       country: '',
-      frontImage: null,
-      backImage: null,
       // dependent_name: '',
       // dependent_dob: '',
       // dependent_rel: ''
@@ -420,6 +421,8 @@ export default function InsuranceForm() {
     const handleSubmit = async (e) => {
       e.preventDefault();
 
+
+      
       const generatePolicyId = () => {
         const now = new Date();
         const year = now.getFullYear();
@@ -440,8 +443,17 @@ export default function InsuranceForm() {
       };
 
       const productCode = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
+    
+      if (!selectedPolicy) {
+        setMessage("Please select a policy before submitting.");
+        return;
+      }
 
-      
+    
+      if (!firstName || !surname || !dateOfBirth || !phonenumber || !email || !address || !nationalNumber || !idType || !idNumber || !occupation || !nationality || !city || !country) {
+        setMessage("Please fill out all required fields.");
+        return;
+      }
     
       const personal = {
         client_id: clientid,
@@ -456,8 +468,6 @@ export default function InsuranceForm() {
         gender: gender,
         id_type: idType,
         id_number: idNumber,
-        front_image: frontImage,
-        back_image: backImage,
         phone_number: phonenumber,
         email_address: email,
         nationality: nationality,
@@ -466,28 +476,27 @@ export default function InsuranceForm() {
         country: country,
         occupation: occupation,
       };
+    
+    
       let policyId = generatePolicyId();
-
+    
       const policyData = {
-        policy_id: policyId, 
-        client_id: clientid, 
+        policy_id: policyId,
+        client_id: clientid,
         agent: agentId.toString(),
-        product_name: selectedPolicy, 
+        product_name: selectedPolicy,
         product_code: productCode.toString(),
       };
-
-
+    
       const dependentData = {
-        client_id: clientid, 
-        agent: agentId, 
-        product_name: selectedPolicy, 
-        product_code: productCode, 
-        full_name: dependent_name, 
-        date_of_birth: dependent_dob, 
-        relation_type: dependent_rel, 
+        client_id: clientid,
+        agent: agentId,
+        product_name: selectedPolicy,
+        product_code: productCode,
+        full_name: `${dependent_fname} ${dependent_lname}`,
+        date_of_birth: dependent_dob,
+        relation_type: dependent_rel,
       };
-
-      console.log(policyData)
     
       try {
         const response = await fetch(`${API_URL}/create/clients/`, {
@@ -504,17 +513,9 @@ export default function InsuranceForm() {
         }
     
         const result = await response.json();
-        console.log("Successfully", result);
-
-
-      } catch (error) {
-        console.error("Error:", error);
-        alert("There was an error submitting the form. Please try again.");
-      }
-
-
-      try {
-        // Submit the policy data
+        console.log("Client created successfully", result);
+    
+    
         const policyResponse = await fetch(`${API_URL}/client-policies/`, {
           method: "POST",
           headers: {
@@ -530,9 +531,8 @@ export default function InsuranceForm() {
     
         const policyResult = await policyResponse.json();
         console.log("Policy submitted successfully:", policyResult);
-
-        if(dependentData.product_name === "ebusua"){
-          // Submit the dependent data
+    
+        if (dependentData.product_name === "ebusua") {
           const dependentResponse = await fetch(`${API_URL}/dependants/`, {
             method: "POST",
             headers: {
@@ -541,15 +541,17 @@ export default function InsuranceForm() {
             },
             body: JSON.stringify(dependentData),
           });
-      
+    
           if (!dependentResponse.ok) {
             throw new Error(`HTTP error! status: ${dependentResponse.status}`);
-
           }
+    
           const dependentResult = await dependentResponse.json();
           console.log("Dependent submitted successfully:", dependentResult);
-
-        }    navigate('/ListClient');
+        }
+    
+        navigate(`/client/image/${clientid}`);
+        console.log("Navigating to /ListClient"); // Debugging line
       } catch (error) {
         console.error('Submission error:', error);
         alert(error.response?.data?.message || 'Submission failed. Please try again.');
@@ -671,31 +673,32 @@ export default function InsuranceForm() {
             required />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="frontImage">Front Image of Ghana Card</label>
-            <input 
-              type="file" 
-              id="frontImage" 
-              name="frontImage"
-              onChange={(e) => setFrontImage(e.target.value)}
-              accept="image/*"
-              required 
-            />
-            {frontImage && <p>Selected file: {frontImage.name}</p>}
-          </div>
+          {/* <div className={styles.formGroup}>
+          <label htmlFor="frontImage">Front Image of Ghana Card</label>
+          <input
+            type="file"
+            id="frontImage"
+            name="frontImage"
+            onChange={handleFrontImageChange}
+            accept="image/*"
+            required
+          />
+          {frontImage && <p>Selected file: {frontImage.name}</p>}
+        </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="backImage">Back Image of Ghana Card</label>
-            <input 
-              type="file" 
-              id="backImage" 
-              name="backImage"
-              onChange={(e) => setBackImage(e.target.value)}
-              accept="image/*"
-              required 
-            />
-            {backImage && <p>Selected file: {backImage.name}</p>}
-          </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="backImage">Back Image of Ghana Card</label>
+          <input
+            type="file"
+            id="backImage"
+            name="backImage"
+            onChange={handleBackImageChange}
+            accept="image/*"
+            required
+          />
+          {backImage && <p>Selected file: {backImage.name}</p>}
+        </div> */}
+
 
           <div className={styles.formGroup}>
             <label htmlFor="occupation">Occupation</label>
@@ -1122,10 +1125,20 @@ export default function InsuranceForm() {
                       <input 
                       type="text" 
                       id={`ebusuaBeneficiaryName${beneficiary.id}`} 
-                      placeholder="Enter full name"
+                      placeholder="Enter Firat Name"
                       name="dependent_name"
-                      onChange={(e) => setDependentName(e.target.value)}
-                      value={ dependent_name } />
+                      onChange={(e) => setDependentFirstName(e.target.value)}
+                      value={ dependent_fname } />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>Full Name:</label>
+                      <input 
+                      type="text" 
+                      id={`ebusuaBeneficiaryName${beneficiary.id}`} 
+                      placeholder="Enter Last Name"
+                      name="dependent_lname"
+                      onChange={(e) => setDependentLastName(e.target.value)}
+                      value={ dependent_lname } />
                     </div>
                     <div className={styles.formGroup}>
                       <label htmlFor={`ebusuaBeneficiaryDob${beneficiary.id}`}>Date of Birth:</label>
@@ -1233,7 +1246,7 @@ export default function InsuranceForm() {
   
 
         <button type="submit" className={styles.submitButton}>
-          Submit Application
+            next
         </button>
       </form>
     </div>

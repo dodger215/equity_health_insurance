@@ -1,4 +1,4 @@
 
-const API_URL = 'https://equity-health-insurance-agent-api-2.onrender.com';
+const API_URL = 'http://127.0.0.1:8000';
 
 export default API_URL;

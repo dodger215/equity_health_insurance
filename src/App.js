@@ -24,6 +24,8 @@ import ClientList from './pages/component/verification/ClientListComponent';
 import InsuranceForm from './pages/component/forms/insurance-form';
 import DraftClients from './pages/component/tabContents/client'
 
+import ImageUploadForm from './pages/component/forms/form-image';
+
 import Notifications from './pages/component/start/notification';
 import CodeValidation from './pages/component/verification/CodeValidationComponent';
 import ClientFormComponent from './pages/component/verification/ClientFormComponent';
@@ -61,6 +63,7 @@ function App() {
           <Route path='/notify' element={ <Notifications/> }/>
           <Route path='/validate-code/:clientId' element={ <CodeValidation/> }/>
           <Route path='/client-form/:clientId' element={ <ClientFormComponent/> }/>
+          <Route path='/client/image/:clientId' element={ <ImageUploadForm/> } />
         </Routes>
       </div>
     </Router>
