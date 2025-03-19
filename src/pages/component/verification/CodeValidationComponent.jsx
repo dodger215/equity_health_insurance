@@ -1,10 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import emailjs from 'emailjs-com';
 import axios from 'axios';
 import API_URL from '../link';
+import { InternetLoader } from '../ui/loading';
+import { useContext } from 'react';
+import { PopupContext } from '../../../App';
+
+import img from './otp.gif';
 
 const CodeValidation = () => {
+  const { setPopupState } = useContext(PopupContext)
   const [code, setCode] = useState(['', '', '', '', '']);
   const [generatedCode, setGeneratedCode] = useState('');
   const [error, setError] = useState('');
@@ -12,31 +18,103 @@ const CodeValidation = () => {
   const navigate = useNavigate();
   const inputRefs = useRef([]);
 
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [response, setResponse] = useState(null);
 
-  const generateCode = () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${API_URL}/get/premium/${clientId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const result = await response.json();
+        setData(result);
+        console.log(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [clientId]);
+
+  const premiums = localStorage.getItem("total_premium");
+
+
+  console.log(`Premium: ${premiums}`);
+
+
+  const generateCode = async () => {
     const randomCode = Math.floor(10000 + Math.random() * 90000);
     setGeneratedCode(randomCode.toString());
 
-    // Fetch client email (mock API call)
+
     axios.get(`${API_URL}/get/client/${clientId}`)
       .then(response => {
-        const clientEmail = response.data.email_address;
+        const clientNumber = response.data.phone_number;
+        const clientName = `${response.data.first_name} ${response.data.surname}`;
 
-        // Send email using EmailJS
-        emailjs.send('service_hk1e0x4', 'template_kl5zsnr', {
-          to_name: `${response.data.first_name} ${response.data.surname}`,
-          from_name: localStorage.getItem('agents_name'),
-          message: `Code-${randomCode}`,
-          reply_to: 'no-reply@yourcompany.com',
-          to_client: clientEmail,
-          from_email: "qwabsj@gmail.com",
-        }, 'eRTdfNHhE37btGzHH')
-        
-          .then(() => {
-            console.log(`Code - ${randomCode}`)
-            console.log('Email sent successfully')
+
+        const generatePolicyId = () => {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, "0"); 
+          const randomInt = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000; 
+          const policyPrefix = data?.product.slice(0, 3);
+          return `${policyPrefix}_${year}$${month}&${randomInt}`;
+        };
+  
+
+        const msg = `Dear ${clientName.toUpperCase()},  
+
+You have applied for ${data?.product.toUpperCase()} with a premium ${data?.total}.  
+
+Please provide the token:${randomCode} to the agent to finalise your application.`;
+
+
+        console.log(`Email: ${response.data.email_address}`)
+
+
+        emailjs.send('service_1zc90u8', 'template_zqpczsv', {
+                  to_name: `${clientName}`,
+                  from_name: "Equity",
+                  message: `${msg}`,
+                  reply_to: 'no-reply@yourcompany.com',
+                  to_client: response.data.email_address,
+                  from_email: "info@equityinsurance.com",
+                }, 'OdwbNHd4lP5RDWUr6')
+                
+                  .then(() => {
+                    // console.log(`Code - ${randomCode}`)
+                    console.log('Email sent successfully')
+                  })
+                  .catch(error => console.error('Error sending email:', error));
+
+        const params = {
+          number: clientNumber,
+          message: msg
+        };
+
+          axios.post(`${API_URL}/sent-sms/`, params, {
+            headers: {
+              "Content-Type": "application/json",
+            },
           })
-          .catch(error => console.error('Error sending email:', error));
+          .then(response => {
+            setPopupState({
+              show: true,
+              message: 'OTP Sent To Client Successful!', 
+              page: 'login', 
+            });
+            console.log(response);
+          })
+          .catch(error => {
+            console.log(error)
+          });
       })
       .catch(error => console.error('Error fetching client details:', error));
   };
@@ -63,13 +141,25 @@ const CodeValidation = () => {
     }
   };
 
+  const abort =() => {
+    setPopupState({
+      show: true,
+      message: 'OPT Process Cancelled', // Custom message
+      page: 'login', // Page identifier
+    });
+    navigate('/agent/main');
+  } 
+
+  if (loading) return <InternetLoader/>;
+  if (error) return <p>Error: {error}</p>;
+
   return (
     <div style={{
       display: "flex",
       alignItems: "center",
       flexDirection: "column",
     }}>
-      <h1>Code Validation</h1>
+      <h1>OTP Code</h1>
       <div style={{
         width: "100%",
         margin: "40px 0",
@@ -97,13 +187,23 @@ const CodeValidation = () => {
         <button
         style={{
           margin: "20px 0",
-          outline: "none"
+          outline: "none",
+          background: "linear-gradient(#1c7dff, #0051c4)"
         }}
         onClick={() => generateCode()}
         >Generate and Send Code</button>
+        <button onClick={() => abort()} >
+          Abort Process
+        </button>
   
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </div>
+
+      <img 
+      style={{
+        scale: "0.5",
+      }}
+      src={ img } alt="" />
       
     </div>
   );

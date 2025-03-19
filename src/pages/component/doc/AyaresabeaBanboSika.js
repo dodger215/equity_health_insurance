@@ -1,11 +1,62 @@
 import styles from "./AyaresabeaBanboSika.module.css"
 import { useNavigate } from "react-router-dom"
 import { Close, Forms } from "../ui/button"
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShareAlt } from "@fortawesome/free-solid-svg-icons";
+import { useRef } from "react";
+import { useContext } from "react";
+import { PopupContext } from "../../../App";
 
 
 export default function ABSBrochure() {
+  const { setPopupState } = useContext(PopupContext)
+  const contentRef = useRef(null); 
+
+  const handleSharePDF = async () => {
+    if (!contentRef.current) return;
+
+    try {
+      // Step 1: Capture the component content as an image
+      const canvas = await html2canvas(contentRef.current);
+      const imgData = canvas.toDataURL("image/png");
+
+      // Step 2: Create a PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+      // Step 3: Save the PDF as a file
+      const pdfBlob = pdf.output("blob");
+      const pdfFile = new File([pdfBlob], "ABS.pdf", {
+        type: "application/pdf",
+      });
+
+      // Step 4: Share the PDF using the Web Share API
+      if (navigator.share) {
+        await navigator.share({
+          title: "ABS",
+          files: [pdfFile],
+        });
+        setPopupState({
+          show: true,
+          message: 'PDF Successfully Sent !', 
+          page: 'login', 
+        });
+      } else {
+        console.error("Web Share API not supported in this browser.");
+      }
+    } catch (error) {
+      console.error("Error generating or sharing PDF:", error);
+    }
+  };
+
+
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={contentRef}>
       <Close title={'AYARESABEA BANBO SIKA (ABS)'} />
       <Forms />
       <h1></h1>
@@ -245,6 +296,11 @@ export default function ABSBrochure() {
 
       <div className={styles.website}>
         <a href="http://www.equityhealthinsurance.com">www.equityhealthinsurance.com</a>
+        <br/>
+        <button onClick={handleSharePDF} style={{ marginTop: "20px" }}>
+                  <FontAwesomeIcon icon={ faShareAlt }/>
+                </button>
+
       </div>
     </div>
   )

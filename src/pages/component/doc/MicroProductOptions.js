@@ -1,9 +1,57 @@
 import styles from "./MicroProductOptions.module.css"
 import { useNavigate } from "react-router-dom"
 import { Forms, Close } from "../ui/button"
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShareAlt } from "@fortawesome/free-solid-svg-icons";
+import { useRef } from "react";
+import { useContext } from "react";
+import { PopupContext } from "../../../App";
 
 
 const MicroProductOptions = () => {
+  const contentRef = useRef(null); 
+  const { setPopupState } = useContext(PopupContext)
+
+  const handleSharePDF = async () => {
+    if (!contentRef.current) return;
+
+    try {
+      // Step 1: Capture the component content as an image
+      const canvas = await html2canvas(contentRef.current);
+      const imgData = canvas.toDataURL("image/png");
+
+      // Step 2: Create a PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+      // Step 3: Save the PDF as a file
+      const pdfBlob = pdf.output("blob");
+      const pdfFile = new File([pdfBlob], "Micro.pdf", {
+        type: "application/pdf",
+      });
+
+      // Step 4: Share the PDF using the Web Share API
+      if (navigator.share) {
+        await navigator.share({
+          title: "Micro",
+          files: [pdfFile],
+        });
+        setPopupState({
+          show: true,
+          message: 'PDF Successfully Sent !', 
+          page: 'login', 
+        });
+      } else {
+        console.error("Web Share API not supported in this browser.");
+      }
+    } catch (error) {
+      console.error("Error generating or sharing PDF:", error);
+    }
+  };
   
   return (
     <div className={styles.container}>
@@ -89,7 +137,11 @@ const MicroProductOptions = () => {
         <h2>ELIGIBILITY</h2>
         <p>Ages 0 to 59 years.</p>
       </section>
-      <a href="/form" className="btn-a">Fill Fields</a>
+    
+
+      <button onClick={handleSharePDF} style={{ marginTop: "20px" }}>
+          <FontAwesomeIcon icon={ faShareAlt }/>
+        </button>
     </div>
   )
 }

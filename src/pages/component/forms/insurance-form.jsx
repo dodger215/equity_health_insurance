@@ -8,8 +8,11 @@ import { premiums } from "../calculator/abs/premiums"
 import { Close, Forms } from "../ui/button"
 import axios from 'axios';
 import API_URL from '../link';
+import { useContext } from 'react';
+import { PopupContext } from '../../../App';
 
 export default function InsuranceForm() {
+  const { setPopupState } = useContext(PopupContext)
   const navigate = useNavigate()
 
   const token = localStorage.getItem("jwtToken")
@@ -55,7 +58,7 @@ export default function InsuranceForm() {
   const [dateOfBirth, setDOB] = useState("")
   const [gender, setGender] = useState("")
 
-  const [nationalNumber, setNationalNumber] = useState("")
+  const [nationalNumber, setNationalNumber] = useState('GHA--')
 
   const [idType, setIdType] = useState("")
   const [idNumber, setIdNumber] = useState("")
@@ -386,6 +389,8 @@ export default function InsuranceForm() {
     //const [selectedPolicy, setSelectedPolicy] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+
+    
     // Authentication check
     useEffect(() => {
       if (!token || !agentId) {
@@ -417,6 +422,46 @@ export default function InsuranceForm() {
         console.log(prospect.FirstName)
       }
     }, [prospect]);
+
+
+
+    const deleteProspect = async () => {
+      try {
+        const response = await fetch(`${API_URL}/prospects/${id}`, {
+          method: 'DELETE',
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        console.log('Prospect deleted:', data);
+        // Add your success handling here
+      } catch (error) {
+        console.error('Error deleting prospect:', error);
+        // Add your error handling here
+      }
+    };
+
+    const deleteAppointment = async () => {
+      try {
+        const response = await fetch(`${API_URL}/prospects/${id}`, {
+          method: 'DELETE',
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        console.log('Prospect deleted:', data);
+        // Add your success handling here
+      } catch (error) {
+        console.error('Error deleting prospect:', error);
+        // Add your error handling here
+      }
+    };
     
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -476,6 +521,50 @@ export default function InsuranceForm() {
         country: country,
         occupation: occupation,
       };
+
+
+      const qwabs = {
+        "micro": microPremium,
+        "daakye": daakyeCalculatedSumAssured,
+        "abs": absPremium,
+        "ebusua": ebusuaPremium,
+        "tele": telePremium
+      }
+    
+  
+      // console.log(
+      //   Object.entries(qwabs)
+      //     .filter(([_, value]) => parseFloat(value.replace(/[^\d.]/g, '')) > 0)
+      //     .map(([key, value]) => `${key}: ${value}`)
+      //     .join(', ')
+      // );
+  
+      const found = Object.entries(qwabs)
+                    .filter(([_, value]) => parseFloat(value.replace(/[^\d.]/g, '')) > 0)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(', ')
+  
+      console.log(JSON.stringify(found));
+  
+  
+      const filteredValues = Object.entries(qwabs)
+                            .filter(([_, value]) => parseFloat(value.replace(/[^\d.]/g, '')) > 0)
+                            .map(([key, value]) => ({ product: key, total: value }));
+  
+  
+      const payload = {
+        client_id: clientid,
+        agent_id: agentId.toString(),
+        product: filteredValues.length > 0 ? filteredValues[0].product : "N/A", 
+        total: filteredValues.length > 0 ? filteredValues[0].total : "0.00" 
+      };
+      
+      console.log(`Premium: ${JSON.stringify(payload)}`);
+  
+  
+      console.log(qwabs)
+      localStorage.setItem("total_premium", JSON.stringify(qwabs));
+  
     
     
       let policyId = generatePolicyId();
@@ -489,14 +578,18 @@ export default function InsuranceForm() {
       };
     
       const dependentData = {
-        client_id: clientid,
-        agent: agentId,
+        client_id: clientid.toString(),
+        agent: agentId.toString(),
         product_name: selectedPolicy,
-        product_code: productCode,
+        product_code: productCode.toString(),
         full_name: `${dependent_fname} ${dependent_lname}`,
-        date_of_birth: dependent_dob,
-        relation_type: dependent_rel,
+        date_of_birth: dependent_dob.toString(),
+        relation_type: dependent_rel.toString(),
       };
+
+
+
+      console.log(`Dependant: ${dependentData}`);
     
       try {
         const response = await fetch(`${API_URL}/create/clients/`, {
@@ -514,6 +607,13 @@ export default function InsuranceForm() {
     
         const result = await response.json();
         console.log("Client created successfully", result);
+        setPopupState({
+          show: true,
+          message: 'Client Created Successful!', 
+          page: 'login', 
+        });
+        deleteProspect();
+        deleteAppointment();
     
     
         const policyResponse = await fetch(`${API_URL}/client-policies/`, {
@@ -531,6 +631,24 @@ export default function InsuranceForm() {
     
         const policyResult = await policyResponse.json();
         console.log("Policy submitted successfully:", policyResult);
+
+
+
+        const PayLoadResponse = await fetch(`${API_URL}/premiums/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+    
+        if (!PayLoadResponse.ok) {
+          throw new Error(`HTTP error! status: ${PayLoadResponse.status}`);
+        }
+    
+        const payLoadResult = await PayLoadResponse.json();
+        console.log("Policy submitted successfully:", payLoadResult);
     
         if (dependentData.product_name === "ebusua") {
           const dependentResponse = await fetch(`${API_URL}/dependants/`, {
@@ -554,11 +672,33 @@ export default function InsuranceForm() {
         console.log("Navigating to /ListClient"); // Debugging line
       } catch (error) {
         console.error('Submission error:', error);
-        alert(error.response?.data?.message || 'Submission failed. Please try again.');
+        setPopupState({
+          show: true,
+          message: error.response?.data?.message || 'Submission failed. Please try again.', 
+          page: 'login', 
+        });
       } finally {
         setIsSubmitting(false);
       }
     };
+
+
+    const handleNineDigitsChange = (e) => {
+      const value = e.target.value.replace(/\D/g, '').slice(0, 9); // Allow only digits and limit to 9
+      const oneDigit = nationalNumber.split('-')[2] || ''; // Get the existing oneDigit part
+      setNationalNumber(`GHA-${value}-${oneDigit}`); // Update the nationalNumber state
+    };
+  
+    const handleOneDigitChange = (e) => {
+      const value = e.target.value.replace(/\D/g, '').slice(0, 1); // Allow only digits and limit to 1
+      const nineDigits = nationalNumber.split('-')[1] || ''; // Get the existing nineDigits part
+      setNationalNumber(`GHA-${nineDigits}-${value}`); // Update the nationalNumber state
+    };
+  
+    const parts = nationalNumber.split('-');
+    const nineDigits = parts.length > 1 ? parts[1] : '';
+    const oneDigit = parts.length > 2 ? parts[2] : '';
+  
 
  
 
@@ -571,16 +711,7 @@ export default function InsuranceForm() {
     
   }
 
-  const qwabs = {
-    "micro": microPremium,
-    "daakye": daakyeCalculatedSumAssured,
-    "abs": absPremium,
-    "ebusua": ebusuaPremium,
-    "tele": telePremium
-  }
 
-  console.log(qwabs)
-  localStorage.setItem("total_premium", JSON.stringify(qwabs));
 
   return (
     <div className={styles.container}>
@@ -624,8 +755,8 @@ export default function InsuranceForm() {
             type="text" 
             id="lastName" 
             name="lastName"
-            value={ lastName || '' }
-            onChange={(e) => setLastName(e.target.value)}  
+            value={ otherName || '' }
+            onChange={(e) => setOtherName(e.target.value)}  
             required />
           </div>
           <div className={styles.formGroup}>
@@ -644,23 +775,47 @@ export default function InsuranceForm() {
           
           <div className={styles.formGroup}>
             <label htmlFor="nationalNumber">National Id Number</label>
-            <input 
-            type="text" 
-            id="nationalNumber" 
-            name="nationalNumber"
-            value={ nationalNumber }
-            onChange={(e) => setNationalNumber(e.target.value)}  
-            required />
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span>GHA-</span>
+              <input
+                type="text"
+                id="nineDigits"
+                name="nineDigits"
+                value={nineDigits}
+                onChange={handleNineDigitsChange}
+                maxLength={9}
+                required
+                style={{ width: '100px', margin: '0 5px' }} // Adjust styling as needed
+              />
+              <span>-</span>
+              <input
+                type="text"
+                id="oneDigit"
+                name="oneDigit"
+                value={oneDigit}
+                onChange={handleOneDigitChange}
+                maxLength={1}
+                required
+                style={{ width: '30px', margin: '0 5px' }} 
+              />
+            </div>
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="idType">Id Type</label>
-            <input 
-            type="text" 
-            id="idType" 
-            name="idType"
-            value={ idType }
-            onChange={(e) => setIdType(e.target.value)}  
-            required />
+            <label htmlFor="idType">Type of ID</label>
+            <select
+              id="idType"
+              name="idType"
+              value={idType}
+              onChange={(e) => setIdType(e.target.value)}
+              required
+            >
+              <option value="">Select ID Type</option>
+              <option value="Passport">Passport</option>
+              <option value="Driver's License">Driver's License</option>
+              <option value="National ID">National ID</option>
+              <option value="Ghana Card">Ghana Card</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="idNumber">Id Number</label>
@@ -1121,7 +1276,7 @@ export default function InsuranceForm() {
                   <div key={beneficiary.id} className={styles.beneficiaryContainer}>
                     <h3>Beneficiary {beneficiary.id}</h3>
                     <div className={styles.formGroup}>
-                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>Full Name:</label>
+                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>First Name:</label>
                       <input 
                       type="text" 
                       id={`ebusuaBeneficiaryName${beneficiary.id}`} 
@@ -1131,7 +1286,7 @@ export default function InsuranceForm() {
                       value={ dependent_fname } />
                     </div>
                     <div className={styles.formGroup}>
-                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>Full Name:</label>
+                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>Last Name:</label>
                       <input 
                       type="text" 
                       id={`ebusuaBeneficiaryName${beneficiary.id}`} 

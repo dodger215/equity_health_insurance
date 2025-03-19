@@ -2,47 +2,45 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
+}
+.settingsItems{
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-height: 79vh;
+  overflow: hidden;
+  margin: 30px 0;
+  padding: 20px;
 }
 
-.title {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 1rem;
+.settingsItems .item{
+  height: 23vh;
+  box-shadow: 0px 0px 15px #00000086;
+  border-radius: 10px;
+  outline: none;
+  position: relative;
+  transition: transform 0.3s ease-in-out;
+  background: linear-gradient(#1c7dff, #0051c4);
+  box-shadow: inset 0px 0px 20px #0000004e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  color: rgb(255, 255, 255);
 }
 
-.message {
-  font-size: 1.2rem;
-  color: #666;
-  margin-bottom: 2rem;
+.settingsItems .item .icon{
+  font-size: 3em;
 }
 
-.logoutButton {
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+
+.settingsItems .item:nth-child(3)
+{
+  grid-column: span 2;
 }
 
-.logoutButton:hover {
-  background-color: #0056b3;
-}
-
-@media (max-width: 600px) {
-  .title {
-    font-size: 1.5rem;
-  }
-
-  .message {
-    font-size: 1rem;
-  }
-
-  .logoutButton {
-    padding: 0.6rem 
-  }
+.settingsItems .item:last-child{
+  background: linear-gradient(#ff641c, #c40000);
+  grid-column: span 2;
 }

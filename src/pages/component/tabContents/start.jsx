@@ -6,7 +6,7 @@ const Started = () => {
     
 
   const set = () => {
-    // Define the nav key as a string
+    
     const nav = "product"
 
     localStorage.setItem("nav", nav)
@@ -39,7 +39,7 @@ const Started = () => {
         <div className="list_items" onClick={() => handleNavigation("/ListClient")}>
             <div className="side">
                 <i className="fas fa-file"></i>
-                <p>Fill Forms For Clients</p>
+                <p>Pending Quotation</p>
             </div>
             <i class="fa-solid fa-chevron-right"></i>
         </div>

@@ -110,7 +110,7 @@ const DashboardView = () => {
       } catch (error) {
         console.error("Error fetching appointments:", error);
   
-        // Set states to default values in case of error
+        console.log("No Appointments")
         setAppointment([]);
         setNotification(0);
       }
@@ -122,10 +122,11 @@ const DashboardView = () => {
 
 
   useEffect(() => {
-
+    
     const fetchProspects = async () => {
-      const agentId = localStorage.getItem("id")
-      const responseProspects = await fetch(`${API_URL}/prospects/${agentId}`);
+      try{
+        const agentId = localStorage.getItem("id")
+            const responseProspects = await fetch(`${API_URL}/prospects/${agentId}`);
             if (!responseProspects.ok) {
               // throw new Error("Failed to fetch prospects");
               setProspects([]); 
@@ -141,6 +142,13 @@ const DashboardView = () => {
               setProspects([]); 
               setTargetScore(0);
             }
+      }
+      catch(error){
+        console.log("No Prospect Found")
+        setProspects([]); 
+        setTargetScore(0);
+      }
+      
     }
     fetchProspects()
     

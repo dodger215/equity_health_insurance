@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import styles from "./SubmitClient.module.css"
 import { Modal, Button } from "react-bootstrap";
-import PaymentGateway from "./payments/payment";
+import PaymentGateway from "./payments/momo";
 import API_URL from "./link";
 
 const SubmitClient = () => {

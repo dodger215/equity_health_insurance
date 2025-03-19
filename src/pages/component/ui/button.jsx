@@ -51,9 +51,10 @@ export function Close({title}) {
 }
 
 export function Forms () {
+    localStorage.removeItem('prospect_id');
     return (
         <a
-         href="/form"
+         href="/prospect"
          style={{
             padding: "10px",
             width: "50px",

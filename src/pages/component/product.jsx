@@ -1,11 +1,19 @@
 import style from './product.module.css';
+import { useNavigate } from 'react-router-dom';
 
 function Product() {
+    const navigate = useNavigate()
+
+
+    const handleForm = () => {
+        localStorage.removeItem("prospect_id")
+        navigate('/form')
+    }
     return (
         <div>
             <div className={style.intro}>
                 <h1>Product</h1>
-                <a className={style.btn} href='/form'>+</a>
+                {/* <div className={style.btn} onClick={() => handleForm()}>+</div> */}
             </div>
 
             <div className={style.container}>

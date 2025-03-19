@@ -8,8 +8,11 @@ import React from "react"
 import { useNavigate } from "react-router-dom"
 import { InternetLoader, PrimaryLoading } from "../ui/loading"
 import API_URL from "../link"
+import { useContext } from "react"
+import { PopupContext } from "../../../App"
 
 export default function AppointmentList() {
+  const { setPopupState } = useContext(PopupContext)
     const navigate = useNavigate()
   const [prospects, setProspects] = useState([])
   const [appointment, setAppointment] = useState([])
@@ -84,7 +87,7 @@ export default function AppointmentList() {
     const interval = setInterval(() => {
       fetchProspects();
       fetchAppointment();
-    }, 10000); 
+    }, 1000); 
   
   
     return () => clearInterval(interval);
@@ -128,7 +131,7 @@ export default function AppointmentList() {
       }
 
       const result = await response.json()
-      console.log("Appointment created:", result)
+      
 
       setShowAppointmentModal(false)
       setAppointmentDate("")
@@ -136,7 +139,13 @@ export default function AppointmentList() {
       setAppointmentNotes("")
       setAppointmentStatus("Scheduled")
 
-      alert("Appointment created successfully!")
+      setPopupState({
+        show: true,
+        message: 'Appointment scheduled Successful! 🎉', 
+        page: 'login', 
+      });
+
+       // Trigger the popup
     } catch (err) {
       console.error("Error creating appointment:", err)
       alert(`Failed to create appointment: ${err.message}`)
@@ -158,11 +167,15 @@ export default function AppointmentList() {
       if (!response.ok) {
         throw new Error(`Failed to create appointment: ${response.status}`)
       }
-      console.log("Appointment deleted")
+      setPopupState({
+        show: true,
+        message: 'Appointment deleted Successful! 🎉', 
+        page: 'login', 
+      });
       navigate("/Appointment") // to refresh
 
       
-      alert("Appointment delete successfully!")
+       // Trigger the popup
     } catch (err) {
       console.error("Error deleting appointment:", err)
       alert(`Failed to deleting appointment: ${err.message}`)

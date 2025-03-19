@@ -7,11 +7,22 @@ import axios from 'axios';
 import SignatureCanvas from 'react-signature-canvas';
 import { InternetLoader } from '../ui/loading';
 import { Close } from '../ui/button';
-import MobilePayment from './MobilePayment';
-import PayPoint from './PayPoint';
+
 import API_URL from '../link';
+import PDFTemplate from './PDFTemplate';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import emailjs from 'emailjs-com';
+import MobilePayment from '../payments/momo';
+import PayPoint from '../payments/paycheck';
+import BankPayPoint from '../payments/bank';
+import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { PopupContext } from '../../../App';
 
 const ClientFormComponent = () => {
+  const { setPopupState } = useContext(PopupContext)
+  const navigate = useNavigate();
   const [activeSections, setActiveSections] = useState({
     stage_1: false,
     stage_2: false,
@@ -21,6 +32,19 @@ const ClientFormComponent = () => {
     stage_6: false,
     
   });
+
+  
+
+  const [data, setData] = useState(null);
+
+  const [activeTab, setActiveTab] = useState('page1');
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
+
+
+  
 
   const toggleSection = (section) => {
     setActiveSections(prev => ({
@@ -37,6 +61,7 @@ const ClientFormComponent = () => {
   const [error, setError] = useState('');
   const [signature, setSignature] = useState(null);
   const signatureRef = useRef();
+  const [amount, setAmount] = useState([]);
 
   console.log(`client id: ${clientId}`);
 
@@ -77,30 +102,197 @@ const ClientFormComponent = () => {
   }, [clientId]);
 
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${API_URL}/get/premium/${clientId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const result = await response.json();
+        setData(result);
+        console.log(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [clientId]);
+
+  useEffect(() => {
+    const fetchAmount = async () => {
+      try {
+        const response = await fetch(`${API_URL}/get/premium/${clientId}`);
+        if(!response.ok){
+          throw new Error("Failed to fetch the amounts");
+        }
+        const data = await response.json()
+
+        setAmount(data)
+        console.log(`Payment: ${data}`)
+
+
+      }
+      catch(error){
+        setError(error.message);
+      }
+      finally{
+        setIsLoading(false);
+      }
+    }
+    fetchAmount();
+  }, [clientId])
+
+
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      // Update the client object to set is_submitted to true
-      const updatedClient = { ...client, is_submitted: true };
 
-      // Submit the form data to a different API
-      const formData = {
-        client: updatedClient,
-        dependants,
-        policies,
-        signature: signatureRef.current.toDataURL(), // Capture the signature as a data URL
-      };
+    const deleteClient = async () => {
+      try {
+        const response = await fetch(`${API_URL}/delete/client/${clientId}`, {
+          method: 'DELETE',
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        console.log('Client deleted:', data);
+        // Add your success handling here
+      } catch (error) {
+        console.error('Error deleting client:', error);
+        // Add your error handling here
+      }
+    };
+  
+    // Delete Dependent
+    const deleteDependent = async () => {
+      try {
+        const response = await fetch(`${API_URL}/delete/depentance/${clientId}`, {
+          method: 'DELETE',
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        console.log('Dependent deleted:', data);
+      } catch (error) {
+        console.error('Error deleting dependent:', error);
+      }
+    };
+  
+    // Delete Policy
+    const deletePolicy = async () => {
+      try {
+        const response = await fetch(`${API_URL}/delete/policy/${clientId}`, {
+          method: 'DELETE',
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        console.log('Policy deleted:', data);
+      } catch (error) {
+        console.error('Error deleting policy:', error);
+      }
+    };
 
-      await axios.post(`${API_URL}/submit-form/`, formData);
+    deleteClient();
+    deleteDependent();
+    deletePolicy();
+   
+      
+      try {
+        // Ensure the element exists
+        const input = document.getElementById('pdf-template');
+        if (!input) {
+          console.error("Element with ID 'pdf-template' not found.");
+          return;
+        }
+  
+        // Convert the element to a canvas
+        const canvas = await html2canvas(input);
+        const imgData = canvas.toDataURL("image/png");
+  
+        // Create a PDF
+        const pdf = new jsPDF("p", "mm", "a4");
+        const imgWidth = 210; // A4 width in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+        pdf.save("client_form.pdf");
+  
+        // Submit form data
+        const formData = {
+          client: { ...client, is_submitted: true },
+          dependants,
+          policies,
+          // signature: signatureRef.current.toDataURL(),
+        };
+  
+        // Email message
+        const msg = `
+        Dear ${formData.client.first_name.toUpperCase()} ${formData.client.surname.toUpperCase()},
+We are pleased to inform you that your subscription to the ${data?.product.toUpperCase()} has been successfully processed. The payment of ${amount?.total} has been made using your chosen payment method, Monthly.
+Should you have any questions or require further details regarding your subscription, please do not hesitate to contact our office. Our team is available to assist you and provide any additional information you may need.
+Thank you for choosing our services. We appreciate your trust and look forward to serving you.
 
-      alert('Form submitted successfully!');
-    } catch (err) {
-      console.error('Error submitting form:', err);
-      setError('Failed to submit form. Please try again.');
-    }
+Best regards,
+Equity Health Insurance
+`;
+
+        const smsParams = {
+          number: client.phone_number,
+          message: msg,
+        }
+
+        axios.post(`${API_URL}/sent-sms/`, smsParams, {
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  })
+                  .then(response => {
+                    console.log(response);
+                  })
+                  .catch(error => {
+                    console.log(error)
+                  });
+  
+        // Send email using EmailJS
+        await emailjs.send(
+          "service_1zc90u8",
+          "template_zqpczsv",
+          {
+            to_name: `${formData.client.first_name} ${formData.client.surname}`,
+            from_name: "Equity",
+            message: `${msg}`,
+            reply_to: "no-reply@yourcompany.com",
+            to_client: formData.client.email_address,
+            from_email: "info@equityinsurance.com",
+          },
+          "OdwbNHd4lP5RDWUr6"
+        );
+  
+        navigate("/agent/main")
+        setPopupState({
+          show: true,
+          message: 'Form Uploaded Into the Back Office Successful! 🎉', 
+          page: 'login', 
+        });
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    
   };
 
   // Handle input changes for client details
@@ -155,6 +347,8 @@ const ClientFormComponent = () => {
     }
   };
 
+  
+
   if (isLoading) return <InternetLoader/>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
   
@@ -170,7 +364,7 @@ const ClientFormComponent = () => {
           className={`${styles.collapsibleHeader} ${activeSections.stage_1 ? styles.active : ''}`}
           onClick={() => toggleSection('stage_1')}
         >
-          <span>Stage 1 - Client Information</span>
+          <span>Client Information</span>
           <FontAwesomeIcon 
             icon={activeSections.stage_1 ? faMinus : faPlus} 
             className={styles.icon}
@@ -329,7 +523,7 @@ const ClientFormComponent = () => {
           className={`${styles.collapsibleHeader} ${activeSections.stage_2 ? styles.active : ''}`}
           onClick={() => toggleSection('stage_2')}
         >
-          <span>Stage 2 - Dependance</span>
+          <span>Dependance</span>
           <FontAwesomeIcon 
             icon={activeSections.stage_2 ? faMinus : faPlus} 
             className={styles.icon}
@@ -388,7 +582,7 @@ const ClientFormComponent = () => {
           className={`${styles.collapsibleHeader} ${activeSections.stage_3 ? styles.active : ''}`}
           onClick={() => toggleSection('stage_3')}
         >
-          <span>Stage 3 - Policies</span>
+          <span>Policies</span>
           <FontAwesomeIcon 
             icon={activeSections.stage_3 ? faMinus : faPlus} 
             className={styles.icon}
@@ -406,7 +600,7 @@ const ClientFormComponent = () => {
                   <input
                     type="text"
                     name="product_name"
-                    value={policy.product_name || ''}
+                    value={policy.product_name.toUpperCase() || ''}
                     onChange={(e) => handlePolicyChange(index, e)}
                   />
                 </div>
@@ -428,13 +622,65 @@ const ClientFormComponent = () => {
         )}
       </div>
 
+      
+
+      
+      <div className={styles.collapsibleSection}>
+        <div
+          className={`${styles.collapsibleHeader} ${activeSections.stage_6 ? styles.active : ''}`}
+          onClick={() => toggleSection('stage_6')}
+        >
+          <span>Payment Mode </span>
+          <FontAwesomeIcon 
+            icon={activeSections.stage_6 ? faMinus : faPlus} 
+            className={styles.icon}
+          />
+        </div>
+        {activeSections.stage_6 && (
+          <div className={styles.collapsibleContent}>
+            <div>
+            <div className={styles.tabContainer}>
+                <div
+                  className={activeTab === 'page1' ? styles.activeTab : styles.tab}
+                  onClick={() => handleTabClick('page1')}
+                >
+                  Momo
+                </div>
+                <div
+                  className={activeTab === 'page2' ? styles.activeTab : styles.tab}
+                  onClick={() => handleTabClick('page2')}
+                >
+                  Bank
+                </div>
+                <div
+                  className={activeTab === 'page3' ? styles.activeTab : styles.tab}
+                  onClick={() => handleTabClick('page3')}
+                >
+                  Payload
+                </div>
+              </div>
+              <div className={styles.iframe}>
+                <div style={{
+                  margin: "20px 0",
+                  fontWeight: 800,
+                  fontSize: "1rem"
+                }}>Premium amount: {amount.total}</div>
+                {activeTab === 'page1' && <MobilePayment amount={amount.total}/>}
+                {activeTab === 'page2' && <PayPoint amount={amount.total}/>}
+                {activeTab === 'page3' && <BankPayPoint amount={amount.total}/>}
+              </div>
+          </div>
+          </div>
+        )}
+      </div>
+
       {/* Signature Section */}
       <div className={styles.collapsibleSection}>
         <div
           className={`${styles.collapsibleHeader} ${activeSections.stage_4 ? styles.active : ''}`}
           onClick={() => toggleSection('stage_4')}
         >
-          <span>Stage 4 - Signature</span>
+          <span>Signature</span>
           <FontAwesomeIcon 
             icon={activeSections.stage_4 ? faMinus : faPlus} 
             className={styles.icon}
@@ -456,50 +702,43 @@ const ClientFormComponent = () => {
               <button type="button" onClick={() => signatureRef.current.clear()}>
                 Clear Signature
               </button>
+              <input type="file" accept='image/png' />
             </div>
           </div>
         )}
       </div>
 
+
+      <div style={{
+        opacity: "100%",
+      }}>
       <div className={styles.collapsibleSection}>
         <div
           className={`${styles.collapsibleHeader} ${activeSections.stage_5 ? styles.active : ''}`}
           onClick={() => toggleSection('stage_5')}
         >
-          <span>Stage 5 - Payment Mode - Momo</span>
+          <span>PDF</span>
           <FontAwesomeIcon 
             icon={activeSections.stage_5 ? faMinus : faPlus} 
             className={styles.icon}
           />
         </div>
+        
         {activeSections.stage_5 && (
           <div className={styles.collapsibleContent}>
-            <MobilePayment />
+            <PDFTemplate client={client} dependants={dependants} policies={policies} />
           </div>
         )}
       </div>
-       <h1>OR</h1> 
-      <div className={styles.collapsibleSection}>
-        <div
-          className={`${styles.collapsibleHeader} ${activeSections.stage_6 ? styles.active : ''}`}
-          onClick={() => toggleSection('stage_6')}
-        >
-          <span>Stage 5 - Payment Mode - Pay Check </span>
-          <FontAwesomeIcon 
-            icon={activeSections.stage_6 ? faMinus : faPlus} 
-            className={styles.icon}
-          />
-        </div>
-        {activeSections.stage_6 && (
-          <div className={styles.collapsibleContent}>
-            <PayPoint />
-          </div>
-        )}
-      </div>
+      </div> 
+      
       <button type="submit">Submit Form</button>
       </form>
     </div>
   );
 };
+
+
+
 
 export default ClientFormComponent;

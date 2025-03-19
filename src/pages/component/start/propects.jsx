@@ -6,10 +6,14 @@ import { Close } from "../ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import API_URL from "../link";
+import { useContext } from "react";
+import { PopupContext } from "../../../App";
+import { useNavigate } from "react-router-dom";
 
 function ProspectForm() {
   const agentid = parseInt(localStorage.getItem('id'), 10);
   const branchid = parseInt(localStorage.getItem('branch'), 10) || 1;
+  const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
     "AgentID": agentid || 0,
@@ -25,6 +29,7 @@ function ProspectForm() {
     "Status": "Active",
     "Notes": "",
   });
+  const { setPopupState } = useContext(PopupContext)
 
   const [productKey, setProductKey] = useState("");
   const [productValue, setProductValue] = useState("");
@@ -81,8 +86,15 @@ function ProspectForm() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+
       const result = await response.json();
       console.log("API response:", result);
+      setPopupState({
+        show: true,
+        message: 'Prospect Created Successful! 🎉', 
+        page: 'prospect_forms', 
+      });
+      navigate('/agent/main')
       return result;
     } catch (error) {
       console.error("Error submitting to API:", error);
@@ -250,7 +262,7 @@ const handleSubmit = async (e) => {
               </div>
             </fieldset>
 
-            <fieldset>
+            {/* <fieldset>
               <div className="row mb-3 field">
                 <div className="col-md-6">
                   <label htmlFor="Stage" className="form-label">
@@ -289,7 +301,7 @@ const handleSubmit = async (e) => {
                   </select>
                 </div>
               </div>
-            </fieldset>
+            </fieldset> */}
 
             {/* <fieldset>
               <div className="mb-3">

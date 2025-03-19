@@ -5,7 +5,11 @@ import { useNavigate } from "react-router-dom"
 import { PrimaryLoading } from "./ui/loading"
 import API_URL from "./link"
 
+import { useContext } from "react"
+import { PopupContext } from "../../App"
+
 function LoginForm() {
+  const { setPopupState } = useContext(PopupContext)
   const [formData, setFormData] = useState({
     agent_code: "",
     password: "",
@@ -54,6 +58,11 @@ function LoginForm() {
             localStorage.setItem("jwtToken", data.access_token)
             localStorage.setItem("agents_name", data.name)
             localStorage.setItem("id", data.id)
+            setPopupState({
+              show: true,
+              message: 'Login Successful! 🎉', 
+              page: 'login', 
+            });
             navigate("/agent/main")
           } else {
             console.log("Login failed")
@@ -73,11 +82,12 @@ function LoginForm() {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label htmlFor="agent_code">Agent Code:</label>
+        {/* <label htmlFor="agent_code">Agent Code:</label> */}
         <input
           type="text"
           id="agent_code"
           name="agent_code"
+          placeholder="Agent Code"
           value={formData.agent_code}
           onChange={handleChange}
           required
@@ -85,11 +95,12 @@ function LoginForm() {
         {errors.agent_code && <span className="error">{errors.agent_code}</span>}
       </div>
       <div>
-        <label htmlFor="password">Password:</label>
+        {/*  */}
         <input
           type="password"
           id="password"
           name="password"
+          placeholder="Password"
           value={formData.password}
           onChange={handleChange}
           required

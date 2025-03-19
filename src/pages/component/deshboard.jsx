@@ -17,6 +17,8 @@ function Dashboard() {
       const getNav = localStorage.getItem("nav") || "home"
       setActiveTab(getNav)
     }, []) 
+
+    // localStorage.removeItem("nav")
     
 
 

@@ -70,6 +70,7 @@ const ClientList = () => {
             display: "flex",
             justifyContent: "space-between",
             flexDirection: "row",
+            margin: '10px 0',
           }}
           key={client.client_id} onClick={() => handleClientClick(client.client_id)}>
             {client.first_name} {client.surname}
