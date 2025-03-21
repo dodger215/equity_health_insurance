@@ -50,7 +50,7 @@ function App() {
   }, [popupState.show]);
   // Check screen size on mount and resize
   const checkScreenSize = () => {
-    setIsMobile(window.innerWidth < 768); // 768px is a common breakpoint for tablets
+    setIsMobile(window.innerWidth < 968); 
   };
 
   useEffect(() => {
@@ -73,7 +73,7 @@ function App() {
         )}
 
         {isMobile ? (
-          <div>
+          <div className='fix'>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/ABSCalc" element={<ABSCalc />} />

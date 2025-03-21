@@ -55,7 +55,7 @@ const Telemedicine = () => {
   
   return (
     <div className={styles.container}>
-      <Close title={"TELEMEDICINE"}/>
+      <Close title={"TELEMEDICINE"} tab={'product'}/>
       <Forms />
       <h1 className={styles.title}>TELEMEDICINE</h1>
 

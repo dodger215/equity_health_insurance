@@ -33,7 +33,7 @@ export default function MicroCalculator() {
     <div className={styles.wrapper}>
 
 
-      <Close title={"Micro Product Premium Calculator"}/>
+      <Close title={"Micro Product Premium Calculator"} tab={'calculator'}/>
       <div className={styles.container}>
         
         <h1 className={styles.title}></h1>

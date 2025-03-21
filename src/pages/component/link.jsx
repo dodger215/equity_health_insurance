@@ -1,4 +1,4 @@
 
-const API_URL = 'http://www.glasontechnology.com';
+const API_URL = 'http://api2.glasontechnology.com';
 
 export default API_URL;

@@ -20,8 +20,15 @@ const OfflinePage = () => {
             justifyContent: "center",
             alignItems: "center",
             padding: "20px",
+            flexDirection: "column",
+            justifyContent: "space-evenly"
         }}>
-            <FontAwesomeIcon icon={faWifi} beat />
+            <FontAwesomeIcon icon={faWifi} beat style={{
+                marginBottom: "20px",
+                fontSize: "5em"
+            }}/>
+
+            <button onClick={() => window.location.reload()}>Reload</button>
 
             
         </div>

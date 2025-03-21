@@ -66,7 +66,11 @@ function LoginForm() {
             navigate("/agent/main")
           } else {
             console.log("Login failed")
-            setErrors({ submit: "Login failed. Please check your credentials and try again." })
+            setPopupState({
+              show: true,
+              message: 'Login failed. Please check your credentials and try again.', 
+              page: 'login', 
+            });
           }
         })
         .catch((error) => {

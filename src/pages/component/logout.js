@@ -28,15 +28,15 @@ const LogoutPage = () => {
     navigate("/login")
   }
 
-  const handleDetails = () => {
+  const Details = () => {
     navigate("/agent/details")
   }
 
   return (
     <div className={styles.container}>
       <h1>Settings</h1>
-      <div className={styles.settingsItems} onClick={() => handleDetails()}>
-        <div className={styles.item}>
+      <div className={styles.settingsItems} >
+        <div className={styles.item} onClick={() => Details()}>
           <FontAwesomeIcon icon={ faUser } className={styles.icon}/>
           <span className={styles.details}>View Profile</span>
         </div>

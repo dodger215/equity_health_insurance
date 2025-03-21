@@ -55,7 +55,7 @@ export default function DaakyeApomuden() {
   return (
     <div className={styles.container}>
 
-      <Close title={'DAAKYE APOMUDEN'} />
+      <Close title={'DAAKYE APOMUDEN'} tab={'product'}/>
       <Forms />
       <div className={styles.header}>
         <h1></h1>

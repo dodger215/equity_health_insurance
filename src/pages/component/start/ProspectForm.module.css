@@ -12,7 +12,7 @@
   .formContainer {
     width: 100%;
     max-width: 800px; /* Limit maximum width for better readability */
-    margin: 60px auto; /* Center the form */
+    margin: 40px auto; /* Center the form */
     padding: 50px 15px; /* Add padding */
   }
   
@@ -41,31 +41,26 @@
   /* Input fields */
   input {
     width: 100%;
-    border-bottom: solid 2px #fda1a1; /* Bottom border only */
-    border-right: none;
-    border-top: none;
-    border-left: none;
-    outline: none;
-    background-color: transparent;
-    border-radius: 0px;
     font-size: 1.3em;
     transition: border-color 0.5s ease-in-out; /* Smooth transition for focus */
   }
   
   /* Input focus state */
   input:focus {
-    border-bottom: solid 2px var(--light); /* Change border color on focus */
+    border: solid 2px var(--light); /* Change border color on focus */
   }
   
   /* Textarea fields */
   textarea {
     width: 100%;
-    border: solid 2px #4e3030;
+    border: solid 2px #d5c3c3;
     outline: none;
     height: 100px;
     border-radius: 10px;
     padding: 10px; /* Add padding for better readability */
     resize: vertical; /* Allow vertical resizing */
+    background-color: rgb(255, 228, 228);
+
   }
   
   /* Fieldset styling */
@@ -73,7 +68,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    background-color: aliceblue;
+    background-color: rgb(255, 255, 255);
     border: none;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
     padding: 20px;

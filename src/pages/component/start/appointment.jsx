@@ -10,6 +10,8 @@ import { InternetLoader, PrimaryLoading } from "../ui/loading"
 import API_URL from "../link"
 import { useContext } from "react"
 import { PopupContext } from "../../../App"
+import Icon from "../../../img/logo.png"
+import axios from 'axios';
 
 export default function AppointmentList() {
   const { setPopupState } = useContext(PopupContext)
@@ -32,6 +34,40 @@ export default function AppointmentList() {
     return `APPT_${currentDate}_${randomNumber}`;
   }
 
+
+  const requestNotificationPermission = () => {
+    if ("Notification" in window) {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          console.log("Notification permission granted.");
+        } else {
+          console.log("Notification permission denied.");
+        }
+      });
+    } else {
+      console.log("This browser does not support notifications.");
+    }
+  };
+  
+  const triggerNotification = (message) => {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("New Message", {
+        body: message,
+        icon: Icon,
+      });
+
+
+
+    } else {
+      console.log("Notification permission not granted.");
+    }
+  };
+
+
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   const appt_code = generateAppointmentCode()
 
@@ -145,7 +181,32 @@ export default function AppointmentList() {
         page: 'login', 
       });
 
-       // Trigger the popup
+      const msg = `Appointment scheduled with ${selectedProspect.FirstName.toUpperCase()} ${selectedProspect.LastNametoUpperCase()} at ${appointmentDate} details: ${appointmentNotes}`;
+
+      triggerNotification(msg);
+
+
+        const params = {
+          number: selectedProspect.Phone,
+          message: msg
+        };
+
+          axios.post(`${API_URL}/sent-sms/`, params, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+          .then(response => {
+            setPopupState({
+              show: true,
+              message: 'OTP Sent To Client Successful!', 
+              page: 'login', 
+            });
+            console.log(response);
+          })
+          .catch(error => {
+            console.log(error)
+          });
     } catch (err) {
       console.error("Error creating appointment:", err)
       alert(`Failed to create appointment: ${err.message}`)
@@ -230,7 +291,7 @@ export default function AppointmentList() {
 
   return (
     <div className="appiontment-container py-4 ">
-      <Close title={"Appointments"}/>
+      <Close title={"Appointments"} tab={"home"}/>
       <div className="card">
         <div className="card-header">
           <div className="card-main">
@@ -308,7 +369,7 @@ export default function AppointmentList() {
                         <FontAwesomeIcon icon={faCalendar} />
                     </button>
                     </li>
-                    {/* Display appointments for the current prospect */}
+                   
                     {prospectAppointments.length > 0 ? (
                     <li className="list-group-item"
                     style={{
@@ -316,6 +377,7 @@ export default function AppointmentList() {
                         marginBottom: "30px",
                         display: "flex",
                         flexDirection: "column",
+                        background: "#650505",
                         width: "100%",
                         color: "#fff"
                     }}>
@@ -360,11 +422,15 @@ export default function AppointmentList() {
                               <FontAwesomeIcon 
                               icon={ faFileCirclePlus } 
                               style={{
-                                margin: "0 10px"
+                                margin: "0 15px"
                               }} 
                               onClick={() => handlingAutoFill(prospect.ProspectID)}/>
                               <FontAwesomeIcon icon={ faTrash } 
-                              onClick={() => deleleAppointment(appt.appointment_id)}/>
+                              onClick={() => deleleAppointment(appt.appointment_id)}
+                              style={{
+                                margin: "0 15px",
+                                color: "#fff"
+                              }} />
                               
                             </div>
                             
@@ -417,10 +483,12 @@ export default function AppointmentList() {
           style={{
             background: "#fff",
             borderRadius: "10px",
-            padding: "20px"
+            width: "100%",
           }}
           >
-            <div className="modal-content">
+            <div className="modal-content" style={{
+              width: "100%",
+            }}>
               <div className="modal-header">
                 <h5 className="modal-title">
                   {selectedProspect

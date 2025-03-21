@@ -45,7 +45,7 @@ function ABScalc() {
 
   return (
     <div className={styles.container}>
-      <Close title={"ABS Premium Calculator"}/>
+      <Close title={"ABS Premium Calculator"} tab={'calculator'}/>
       <h1 className={styles.title}></h1>
 
       <label className={styles.label} htmlFor="plan">

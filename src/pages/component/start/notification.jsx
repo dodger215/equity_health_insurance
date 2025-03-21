@@ -13,7 +13,7 @@ const Notifications = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const agentId = localStorage.getItem("id"); // Get agent ID from localStorage
+        const agentId = localStorage.getItem("id"); 
 
         // Fetch prospects
         const prospectsResponse = await fetch(`${API_URL}/prospects/${agentId}`);
@@ -139,7 +139,7 @@ const Notifications = () => {
   return (
     <div style={styles.container}>
 
-        <Close/>
+        <Close tab={"home"}/>
       <h1 style={styles.header}>Notifications</h1>
 
       {/* Display prospects */}

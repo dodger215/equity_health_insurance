@@ -34,6 +34,8 @@ const ClientList = () => {
       .finally(() => setIsLoading(false)); 
   }, [agentId]);
 
+  
+
   const handleClientClick = (clientId) => {
     navigate(`/validate-code/${clientId}`);
   };

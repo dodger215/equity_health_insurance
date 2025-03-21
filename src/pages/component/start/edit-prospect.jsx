@@ -98,7 +98,7 @@ function EditProspect() {
 
   return (
     <div className="edit-prospect">
-        <Close />
+        <Close tab={"home"}/>
       <h2 style={{
         margin: "50px 0",
       }}>Edit Prospect</h2>

@@ -61,7 +61,7 @@ export default function DaakyeCalc() {
     <div className={styles.container}>
 
 
-      <Close title={"Premium Calculator - Daakye"}/>
+      <Close title={"Premium Calculator - Daakye"} tab={'calculator'}/>
       <h1 className={styles.title}>Premium Calculator - Daakye</h1>
 
       <label className={styles.label} htmlFor="calculationType">

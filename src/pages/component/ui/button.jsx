@@ -3,12 +3,16 @@ import { faPlus, faMinus, faCalendar, faTimes, faFileCirclePlus, faAngleLeft } f
 import { useNavigate } from "react-router-dom"
 
 
-export function Close({title}) {
-    const router = useNavigate()
+
+export function Close({title, tab}) {
+
+    const navigate = useNavigate();
+
+    const goBack = () => {
+      navigate(-1); 
+      localStorage.setItem('nav', tab);
+    };
   
-    const handleBack = () => {
-      router('/agent/main')
-    }
 
     return (
         <div
@@ -24,7 +28,7 @@ export function Close({title}) {
             color: "#fff",
             border: "none",
             background: "#fc6565",
-            zIndex: "10000000000",
+            zIndex: "999",
             outline: "none",
             display: "flex",
             alignItems: "center",
@@ -34,7 +38,7 @@ export function Close({title}) {
             boxShadow: "1px 1px 12px rgba(0, 0, 17, 0.23)"
         }}>
             <FontAwesomeIcon 
-            onClick={() => handleBack()}
+            onClick={goBack}
             icon={ faAngleLeft }
             style={{
                 fontSize: "1.4rem",

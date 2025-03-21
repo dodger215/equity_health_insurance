@@ -54,7 +54,7 @@ export default function EbusuaHealthPackage() {
 
   return (
     <div className={styles.container} ref={contentRef}>
-      <Close title={"EQUITY HEALTH INSURANCE"} />
+      <Close title={"EQUITY HEALTH INSURANCE"} tab={'product'}/>
       <Forms />
       <div className={styles.header}>
         <h1 className={styles.mainTitle}></h1>

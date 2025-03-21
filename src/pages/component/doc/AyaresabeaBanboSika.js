@@ -57,7 +57,7 @@ export default function ABSBrochure() {
 
   return (
     <div className={styles.container} ref={contentRef}>
-      <Close title={'AYARESABEA BANBO SIKA (ABS)'} />
+      <Close title={'AYARESABEA BANBO SIKA (ABS)'} tab={'product'}/>
       <Forms />
       <h1></h1>
       <div className={styles.website}>

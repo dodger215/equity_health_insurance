@@ -139,7 +139,7 @@ const handleSubmit = async (e) => {
 
   return (
     <div className={styles.Container}>
-      <Close title={"Prospects Form"} />
+      <Close title={"Prospects Form"} tab={"home"}/>
       <div className={`${styles.formContainer} card mt-4 mb-4`}>
         <div className="card-body">
           <h1>Prospects Form</h1>

@@ -47,7 +47,7 @@ const AgentDetails = () => {
 
   return (
     <div className="agent-container">
-      <Close />
+      <Close tab={'settings'}/>
       <div className="agent-card">
         {/* <img src={agent.AgentPicture || 'https://via.placeholder.com/150'} alt="Agent" className="agent-image" /> */}
         <h2 className="agent-name">

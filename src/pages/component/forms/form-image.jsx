@@ -108,7 +108,7 @@ const ImageUploadForm = () => {
 
     return (
         <div className='imageContainer'>
-            <Close title={<div className='skip' onClick={handleSkip}>Next</div>} />
+            <Close title={<div className='skip' onClick={handleSkip}>Next</div>} tab={'home'}/>
 
             <form onSubmit={handleSubmit}>
                 <div style={{

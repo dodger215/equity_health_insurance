@@ -40,7 +40,7 @@ export default function EbusuaCalculator() {
   return (
     <div className={styles.container}>
       
-      <Close title={"EBUSUA Health Insurance Premium Calculator"}/>
+      <Close title={"EBUSUA Health Insurance Premium Calculator"} tab={'calculator'}/>
       <h1></h1>
       <form className={styles.form} id="premiumForm">
         <label htmlFor="plan">Select Plan:</label>
