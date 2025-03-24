@@ -72,35 +72,44 @@ function ProspectForm() {
 
   const submitToAPI = async (data) => {
     const apiUrl = `${API_URL}/prospects/`;
-
+  
     try {
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data), // Don't stringify InterestedProducts separately
+        body: JSON.stringify(data),
       });
-
+  
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
       }
-
-
+  
       const result = await response.json();
       console.log("API response:", result);
+  
       setPopupState({
         show: true,
-        message: 'Prospect Created Successful! 🎉', 
-        page: 'prospect_forms', 
+        message: 'Prospect Created Successfully!',
+        page: 'prospect_forms',
       });
-      navigate('/agent/main')
+  
+      navigate('/Appointment');
       return result;
+  
     } catch (error) {
       console.error("Error submitting to API:", error);
-      throw error;
+  
+      setPopupState({
+        show: true,
+        message: error.message,
+        page: 'prospect_forms',
+      });
     }
   };
+  
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -156,6 +165,7 @@ const handleSubmit = async (e) => {
                     className=""
                     id="FirstName"
                     name="FirstName"
+                    style={{ textTransform: 'capitalize' }}
                     value={formData.FirstName}
                     onChange={handleChange}
                     required
@@ -163,13 +173,14 @@ const handleSubmit = async (e) => {
                 </div>
                 <div className="col-md-6">
                   <label htmlFor="LastName" className="form-label">
-                    Last Name*
+                    Surname*
                   </label>
                   <input
                     type="text"
                     className="control"
                     id="LastName"
                     name="LastName"
+                    style={{ textTransform: 'capitalize' }}
                     value={formData.LastName}
                     onChange={handleChange}
                     required
@@ -182,7 +193,7 @@ const handleSubmit = async (e) => {
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label htmlFor="Email" className="form-label">
-                    Email
+                    Email*
                   </label>
                   <input
                     type="email"
@@ -214,7 +225,7 @@ const handleSubmit = async (e) => {
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label htmlFor="DateOfBirth" className="form-label">
-                    Date of Birth
+                    Date of Birth*
                   </label>
                   <input
                     type="date"
@@ -249,7 +260,7 @@ const handleSubmit = async (e) => {
 
               <div className="mb-3">
                 <label htmlFor="Address" className="form-label">
-                  Address
+                  Address*
                 </label>
                 <textarea
                   className=""
@@ -356,7 +367,7 @@ const handleSubmit = async (e) => {
 
             <div className="mb-3">
               <label htmlFor="Notes" className="form-label">
-                Notes
+                Notes Plan
               </label>
               <textarea
                 className=""
@@ -380,7 +391,6 @@ const handleSubmit = async (e) => {
             )}
             {submitSuccess && (
               <div className="alert alert-success mt-3" role="alert">
-                Prospect successfully saved!
               </div>
             )}
           </form>

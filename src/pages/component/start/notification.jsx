@@ -32,6 +32,7 @@ const Notifications = () => {
         setAppointments(appointmentsData);
       } catch (error) {
         setError(error.message);
+        
       } finally {
         setLoading(false);
       }
@@ -179,7 +180,7 @@ const Notifications = () => {
                   )}
                 </li>
               );
-            })}
+            }) ? '' : <p>No Notification Found</p>}
           </ul>
         </div>
       ))}

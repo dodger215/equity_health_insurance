@@ -737,6 +737,7 @@ export default function InsuranceForm() {
             name="firstName"
             value={ prospect.firstName || firstName }
             onChange={(e) => setFirstName(e.target.value)} 
+            style={{ textTransform: 'capitalize' }}
             required />
           </div>
           <div className={styles.formGroup}>
@@ -747,16 +748,18 @@ export default function InsuranceForm() {
             name="surname"
             value={ prospect.lastName || surname }
             onChange={(e) => setSurname(e.target.value)} 
+            style={{ textTransform: 'capitalize' }}
             required />
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="lastName">Other name</label>
             <input 
             type="text" 
-            id="lastName" 
-            name="lastName"
-            value={ otherName || '' }
+            id="otherName" 
+            name="otherName"
+            value={ otherName }
             onChange={(e) => setOtherName(e.target.value)}  
+            style={{ textTransform: 'capitalize' }}
             required />
           </div>
           <div className={styles.formGroup}>
@@ -812,8 +815,6 @@ export default function InsuranceForm() {
               <option value="">Select ID Type</option>
               <option value="Passport">Passport</option>
               <option value="Driver's License">Driver's License</option>
-              <option value="National ID">National ID</option>
-              <option value="Ghana Card">Ghana Card</option>
               <option value="Other">Other</option>
             </select>
           </div>
@@ -1280,17 +1281,17 @@ export default function InsuranceForm() {
                       <input 
                       type="text" 
                       id={`ebusuaBeneficiaryName${beneficiary.id}`} 
-                      placeholder="Enter Firat Name"
+                      placeholder="Enter First Name"
                       name="dependent_name"
                       onChange={(e) => setDependentFirstName(e.target.value)}
                       value={ dependent_fname } />
                     </div>
                     <div className={styles.formGroup}>
-                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>Last Name:</label>
+                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>Surname:</label>
                       <input 
                       type="text" 
                       id={`ebusuaBeneficiaryName${beneficiary.id}`} 
-                      placeholder="Enter Last Name"
+                      placeholder="Enter Surname"
                       name="dependent_lname"
                       onChange={(e) => setDependentLastName(e.target.value)}
                       value={ dependent_lname } />

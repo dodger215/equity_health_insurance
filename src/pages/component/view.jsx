@@ -78,48 +78,7 @@ const DashboardView = () => {
   })
 
 
-  useEffect(() => {
-    const fetchAppointment = async () => {
-      try {
-        const agentId = localStorage.getItem("id");
   
-        // Log the agentId to ensure it's correct
-        console.log("Fetching appointments for agentId:", agentId);
-  
-        const responseProspects = await fetch(
-          `${API_URL}/client/appointments/${agentId}`
-        );
-  
-        // Log the response status and body
-        console.log("Response status:", responseProspects.status);
-        const responseBody = await responseProspects.json();
-        console.log("Response body:", responseBody);
-  
-        if (!responseProspects.ok) {
-          throw new Error(`Failed to fetch prospects: ${responseProspects.statusText}`);
-        }
-  
-        // Ensure the response is an array
-        if (Array.isArray(responseBody)) {
-          setAppointment(responseBody);
-          setNotification(responseBody.length);
-        } else {
-          setAppointment([]);
-          setNotification(0);
-        }
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-  
-        console.log("No Appointments")
-        setAppointment([]);
-        setNotification(0);
-      }
-    };
-  
-    fetchAppointment();
-  }, []); 
-
-
 
   useEffect(() => {
     
@@ -152,7 +111,52 @@ const DashboardView = () => {
     }
     fetchProspects()
     
-  })
+  }, []);
+
+
+  useEffect(() => {
+    const fetchAppointment = async () => {
+      try {
+        const agentId = localStorage.getItem("id");
+        console.log(`Agent id: ${agentId}`);
+  
+        // Log the agentId to ensure it's correct
+        console.log("Fetching appointments for agentId:", agentId);
+  
+        const responseProspects = await fetch(
+          `${API_URL}/client/appointments/${agentId}`
+        );
+  
+        // Log the response status and body
+        console.log("Response status:", responseProspects.status);
+        const responseBody = await responseProspects.json();
+        console.log("Response body:", responseBody);
+  
+        if (!responseProspects.ok) {
+          throw new Error(`Failed to fetch prospects: ${responseProspects.statusText}`);
+        }
+
+  
+        // Ensure the response is an array
+        if (Array.isArray(responseBody)) {
+          setAppointment(responseBody);
+          setNotification(responseBody.length);
+        } else {
+          setAppointment([]);
+          setNotification(0);
+        }
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+  
+        console.log("No Appointments")
+        setAppointment([]);
+        setNotification(0);
+      }
+    };
+  
+    fetchAppointment();
+  }, []); 
+
 
 
   const notify = () => {

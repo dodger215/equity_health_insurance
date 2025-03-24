@@ -30,12 +30,14 @@ const ClientFormComponent = () => {
     stage_4: false,
     stage_5: false,
     stage_6: false,
+    stage_7: false,
     
   });
 
   
 
   const [data, setData] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
 
   const [activeTab, setActiveTab] = useState('page1');
 
@@ -102,6 +104,8 @@ const ClientFormComponent = () => {
   }, [clientId]);
 
 
+  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -148,101 +152,92 @@ const ClientFormComponent = () => {
 
 
 
+  const deleteClient = async () => {
+    try {
+      const response = await fetch(`${API_URL}/delete/client/${clientId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Client deleted:', data);
+      // Add your success handling here
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      // Add your error handling here
+    }
+  };
+
+
+  const deleteDependent = async () => {
+    try {
+      const response = await fetch(`${API_URL}/delete/depentance/${clientId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Dependent deleted:', data);
+    } catch (error) {
+      console.error('Error deleting dependent:', error);
+    }
+  };
+
+
+  const deletePolicy = async () => {
+    try {
+      const response = await fetch(`${API_URL}/delete/policy/${clientId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Policy deleted:', data);
+    } catch (error) {
+      console.error('Error deleting policy:', error);
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-
-    const deleteClient = async () => {
       try {
-        const response = await fetch(`${API_URL}/delete/client/${clientId}`, {
-          method: 'DELETE',
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        console.log('Client deleted:', data);
-        // Add your success handling here
-      } catch (error) {
-        console.error('Error deleting client:', error);
-        // Add your error handling here
-      }
-    };
-  
-    // Delete Dependent
-    const deleteDependent = async () => {
-      try {
-        const response = await fetch(`${API_URL}/delete/depentance/${clientId}`, {
-          method: 'DELETE',
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        console.log('Dependent deleted:', data);
-      } catch (error) {
-        console.error('Error deleting dependent:', error);
-      }
-    };
-  
-    // Delete Policy
-    const deletePolicy = async () => {
-      try {
-        const response = await fetch(`${API_URL}/delete/policy/${clientId}`, {
-          method: 'DELETE',
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        console.log('Policy deleted:', data);
-      } catch (error) {
-        console.error('Error deleting policy:', error);
-      }
-    };
-
-    deleteClient();
-    deleteDependent();
-    deletePolicy();
-   
-      
-      try {
-        // Ensure the element exists
-        const input = document.getElementById('pdf-template');
-        if (!input) {
-          console.error("Element with ID 'pdf-template' not found.");
-          return;
-        }
-  
-        // Convert the element to a canvas
-        const canvas = await html2canvas(input);
-        const imgData = canvas.toDataURL("image/png");
-  
-        // Create a PDF
-        const pdf = new jsPDF("p", "mm", "a4");
-        const imgWidth = 210; // A4 width in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-        pdf.save("client_form.pdf");
-  
-        // Submit form data
         const formData = {
-          client: { ...client, is_submitted: true },
-          dependants,
-          policies,
-          // signature: signatureRef.current.toDataURL(),
+          client_info: { ...client, is_submitted: true },
+          dependants: dependants, // Assuming it's an array
+          policy: policies[0], // Send only the first policy object
         };
-  
-        // Email message
+        
+        console.log("Data being sent:", formData);
+        
+        const response = await fetch(`${API_URL}/submit/client/policies/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+        
+        const result = await response.json();
+        console.log("Response:", result);
+        
+
+        console.log("Data", formData);
+
+        
+
+
         const msg = `
-        Dear ${formData.client.first_name.toUpperCase()} ${formData.client.surname.toUpperCase()},
+Dear ${formData.client_info.first_name.toUpperCase()} ${client.surname.toUpperCase()},
 We are pleased to inform you that your subscription to the ${data?.product.toUpperCase()} has been successfully processed. The payment of ${amount?.total} has been made using your chosen payment method, Monthly.
 Should you have any questions or require further details regarding your subscription, please do not hesitate to contact our office. Our team is available to assist you and provide any additional information you may need.
 Thank you for choosing our services. We appreciate your trust and look forward to serving you.
@@ -251,6 +246,12 @@ Best regards,
 Equity Health Insurance
 `;
 
+
+        setPopupState({
+          show: true,
+          message: 'Form Uploaded Into the Back Office Successful! 🎉', 
+          page: 'login', 
+        });
         const smsParams = {
           number: client.phone_number,
           message: msg,
@@ -273,22 +274,24 @@ Equity Health Insurance
           "service_1zc90u8",
           "template_zqpczsv",
           {
-            to_name: `${formData.client.first_name} ${formData.client.surname}`,
+            to_name: `${formData.client_info.first_name} ${formData.client_info.surname}`,
             from_name: "Equity",
             message: `${msg}`,
             reply_to: "no-reply@yourcompany.com",
-            to_client: formData.client.email_address,
+            to_client: formData.client_info.email_address,
             from_email: "info@equityinsurance.com",
           },
           "OdwbNHd4lP5RDWUr6"
         );
   
-        navigate("/agent/main")
-        setPopupState({
-          show: true,
-          message: 'Form Uploaded Into the Back Office Successful! 🎉', 
-          page: 'login', 
-        });
+        navigate("/agent/main");
+        
+
+        deleteClient();
+        if(dependants > 0){
+          deleteDependent();
+        }
+        deletePolicy();
       } catch (error) {
         console.error("Error during form submission:", error);
       }
@@ -347,6 +350,28 @@ Equity Health Insurance
     }
   };
 
+
+
+  useEffect(() => {
+    const fetchFile = async () => {
+      try {
+        const response = await fetch(`${API_URL}/files/image/${clientId}`);
+        
+        if (!response.ok) throw new Error('Image not found');
+        
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        setImageUrl(url);
+      } catch (error) {
+        console.error('Error fetching image:', error);
+        setImageUrl(null);
+      }
+    };
+    fetchFile();
+  }, [clientId]);
+
+  console.log("Blob image: ", imageUrl);
+
   
 
   if (isLoading) return <InternetLoader/>;
@@ -394,7 +419,7 @@ Equity Health Insurance
                 />
               </div>
 
-              <div className="form-view">
+              {/* <div className="form-view">
                 <label>Other Name:</label>
                 <input
                   type="text"
@@ -402,7 +427,7 @@ Equity Health Insurance
                   value={client.other_names || ''}
                   onChange={handleClientChange}
                 />
-              </div>
+              </div> */}
 
               <div className="form-view">
                 <label>gender:</label>
@@ -650,13 +675,13 @@ Equity Health Insurance
                   className={activeTab === 'page2' ? styles.activeTab : styles.tab}
                   onClick={() => handleTabClick('page2')}
                 >
-                  Bank
+                  PayPoint
                 </div>
                 <div
                   className={activeTab === 'page3' ? styles.activeTab : styles.tab}
                   onClick={() => handleTabClick('page3')}
                 >
-                  Payload
+                  Bank
                 </div>
               </div>
               <div className={styles.iframe}>
@@ -709,8 +734,39 @@ Equity Health Insurance
       </div>
 
 
+      <div className={styles.collapsibleSection}>
+        <div
+          className={`${styles.collapsibleHeader} ${activeSections.stage_7 ? styles.active : ''}`}
+          onClick={() => toggleSection('stage_7')}
+        >
+          <span>National ID Image</span>
+          <FontAwesomeIcon 
+            icon={activeSections.stage_7 ? faMinus : faPlus} 
+            className={styles.icon}
+          />
+        </div>
+
+
+        {activeSections.stage_7 && (
+          <div className={styles.collapsibleContent}>
+            {/* Image component */}
+
+            {imageUrl && (
+              <div>
+                <h3>Image Preview:</h3>
+                <img src={imageUrl} alt="Fetched File" style={{ maxWidth: "300px", borderRadius: "8px" }} />
+              </div>
+            )}
+            
+          </div>
+        )}
+      </div>
+
+
+      <button type="submit">Submit Form</button>
+
       <div style={{
-        opacity: "100%",
+        opacity: "0%",
       }}>
       <div className={styles.collapsibleSection}>
         <div
@@ -730,9 +786,7 @@ Equity Health Insurance
           </div>
         )}
       </div>
-      </div> 
-      
-      <button type="submit">Submit Form</button>
+      </div>
       </form>
     </div>
   );

@@ -59,7 +59,7 @@ export default function ABSBrochure() {
     <div className={styles.container} ref={contentRef}>
       <Close title={'AYARESABEA BANBO SIKA (ABS)'} tab={'product'}/>
       <Forms />
-      <h1></h1>
+      <h1>AYARESABEA BANBO SIKA (ABS)</h1>
       <div className={styles.website}>
         <a href="http://www.equityhealthinsurance.com">www.equityhealthinsurance.com</a>
       </div>

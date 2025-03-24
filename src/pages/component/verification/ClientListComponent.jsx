@@ -7,8 +7,11 @@ import { InternetLoader } from '../ui/loading';
 import { Close } from '../ui/button';
 import { faTrash, faTruck } from '@fortawesome/free-solid-svg-icons';
 import API_URL from '../link';
+import { PopupContext } from '../../../App';
+import { useContext } from 'react';
 
 const ClientList = () => {
+   const { setPopupState } = useContext(PopupContext)
   const [Error, setError] = useState(false);
   const [clients, setClients] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +37,25 @@ const ClientList = () => {
       .finally(() => setIsLoading(false)); 
   }, [agentId]);
 
+  const handleDelete = ({clientId}) => {
+    axios.delete(`${API_URL}/delete/client/${clientId}`)
+    .then(reponse => {
+      setPopupState({
+        show: true,
+        message: `${reponse}`, 
+        page: 'prospect_forms',
+      });
+    })
+    .catch(error => {
+      setPopupState({
+        show: true,
+        message: `${error}`, 
+        page: 'prospect_forms',
+      });
+    })
+    .finally(() => setIsLoading(false));
+  };
+
   
 
   const handleClientClick = (clientId) => {
@@ -45,7 +67,15 @@ const ClientList = () => {
   }
 
   if (notFound) {
-    return <p>No clients found.</p>;
+    return (
+      <div>
+        <Close tab="home"/>
+        <p style={{
+          margin: "60px auto",
+          padding: "30px 20px"
+        }}>No clients found.</p>
+      </div>
+      );
   }
 
  
@@ -59,7 +89,9 @@ const ClientList = () => {
       }}>Client List</h1>
       <ul style={{
         padding: "20px 25px",
-        background: "#efefef"
+        background: "#efefef",
+        maxHeight: "60vh",
+        overflowY: "scroll",
       }}>
         {clients.map(client => (
           <li
@@ -77,7 +109,7 @@ const ClientList = () => {
           key={client.client_id} onClick={() => handleClientClick(client.client_id)}>
             {client.first_name} {client.surname}
 
-            <FontAwesomeIcon style={{color: "#fff"}} icon={ faTrash }/>
+            <FontAwesomeIcon style={{color: "#fff"}} icon={ faTrash } onClick={() => handleDelete(client.client_id)}/>
           </li>
         ))}
       </ul>

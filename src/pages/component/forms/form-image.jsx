@@ -9,6 +9,7 @@ import styles from '../verification/ClientForm.module.css';
 import { useContext } from 'react';
 import { PopupContext } from '../../../App';
 
+
 const ImageUploadForm = () => {
     const { setPopupState } = useContext(PopupContext)
     const [activeSections, setActiveSections] = useState({
@@ -53,64 +54,147 @@ const ImageUploadForm = () => {
     }, [clientId]);
 
     // Handle file input change
-    const handleFileChange = (setFile, e) => {
-        if (e.target.files[0]) {
-            setFile(e.target.files[0]);
-            console.log('File selected:', e.target.files[0]); // Log the selected file
-        }
-    };
+    // const handleFileChange = (setFile, e) => {
+    //     if (e.target.files[0]) {
+    //         setFile(e.target.files[0]);
+    //         console.log('File selected:', e.target.files[0]); // Log the selected file
+    //     }
+    // };
 
     const handleSkip = () => {
         navigate(`/ListClient`);
     };
 
     // Handle form submission
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
 
-        if (!clientId || !frontCard || !backCard) {
-            setMessage('Please fill all required fields');
-            return;
-        }
-        const label = "card";
+    //     if (!clientId || !frontCard || !backCard) {
+    //         setMessage('Please fill all required fields');
+    //         return;
+    //     }
+    //     const label = "card";
 
-        const formData = new FormData();
-        formData.append('client_id', clientId.toString());
-        formData.append('front_card', frontCard);
-        formData.append('back_card', backCard);
-        if (label) {
-            formData.append('label', label.toString());
-        }
+    //     const formData = new FormData();
+    //     formData.append('client_id', clientId.toString());
+    //     formData.append('front_card', frontCard);
+    //     formData.append('back_card', backCard);
+    //     if (label) {
+    //         formData.append('label', label.toString());
+    //     }
 
-        // Log FormData contents
-        for (let [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
+    //     // Log FormData contents
+    //     for (let [key, value] of formData.entries()) {
+    //         console.log(key, value);
+    //     }
 
-        try {
-            const response = await axios.post(`${API_URL}/upload-image/`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+    //     try {
+    //         const response = await axios.post(`${API_URL}/upload-image/`, formData, {
+    //             headers: {
+    //                 'Content-Type': 'multipart/form-data',
+    //             },
+    //         });
+    //         setMessage(response.data.message);
+    //         setPopupState({
+    //             show: true,
+    //             message: 'National ID Image Uploaded Successfully 🎉', 
+    //             page: 'login', 
+    //           });
+    //         handleSkip();
+    //     } catch (error) {
+    //         setMessage('Failed to upload images');
+    //         console.error('There was an error uploading the images!', error);
+    //     }
+    // };
+
+
+
+        const [files, setFiles] = useState([]);
+
+
+      
+        const handleFileChange = (event) => {
+            if (event.target.files.length > 0) {
+                setFrontCard(event.target.files[0]);
+                setBackCard(event.target.files[1]);
+                setFiles(event.target.files);
+            }
+          
+        };
+      
+        const handleUpload = async () => {
+          const formData = new FormData();
+          for (let i = 0; i < files.length; i++) {
+            formData.append("files", files[i]);
+          }
+      
+          try {
+            const response = await fetch(`${API_URL}/client/upload/${clientId}`, {
+              method: "POST",
+              body: formData,
             });
-            setMessage(response.data.message);
+      
+            const data = await response.json();
+            console.log("Upload successful:", data);
+
             setPopupState({
-                show: true,
-                message: 'National ID Image Uploaded Successfully 🎉', 
-                page: 'login', 
-              });
+                            show: true,
+                            message: 'National ID Image Uploaded Successfully 🎉', 
+                            page: 'login', 
+                          });
             handleSkip();
-        } catch (error) {
-            setMessage('Failed to upload images');
-            console.error('There was an error uploading the images!', error);
-        }
-    };
+          } catch (error) {
+            console.error("Error uploading files:", error);
+          }
+        };
+
+        const [imageUrl, setImageUrl] = useState(null);
+        const [fileId, setFileId] = useState("");
+      
+        const fetchFile = async () => { 
+            
+                try {
+                  const response = await fetch(`http://localhost:8000/files/image/${clientId}`);
+                  
+                  // Verify content length before processing
+                  const contentLength = response.headers.get('Content-Length');
+                  if (contentLength === '0') throw new Error('Server returned empty file');
+                  
+                  const blob = await response.blob();
+                  console.log("Received blob:", {
+                    size: blob.size,  // Must match Content-Length
+                    type: blob.type   // e.g. "image/png"
+                  });
+                  
+                  setImageUrl(URL.createObjectURL(blob));
+                } catch (error) {
+                  console.error("Image load failed:", error);
+                  setImageUrl('/fallback-image.png');
+                }
+
+              
+          };
+          
+          // Clean up blob URL on unmount
+          useEffect(() => {
+            return () => {
+              if (imageUrl) URL.revokeObjectURL(imageUrl);
+            };
+          }, [imageUrl]);
+          
+
+        console.log("Image: ", imageUrl);
+      
+      
 
     return (
         <div className='imageContainer'>
             <Close title={<div className='skip' onClick={handleSkip}>Next</div>} tab={'home'}/>
+            <div>
+    
 
-            <form onSubmit={handleSubmit}>
+
+               
                 <div style={{
                     display: 'flex',
                     flexDirection: 'row',
@@ -128,48 +212,67 @@ const ImageUploadForm = () => {
                         }}
                     />
                 </div>
+                <form>
                 <div>
-                    <label>Front Card Image:</label>
-                    <div onClick={() => frontCardInputRef.current.click()} style={{ cursor: 'pointer' }}>
+                    <label>Upload Both FRONT And BACK Of National ID Card Image:</label>
+                    <div onClick={() => frontCardInputRef.current.click()} style={{ 
+                        cursor: 'pointer',
+                         }}>
                         <FontAwesomeIcon icon={faImages} size="2x" className='icon' />
                         <input
                             type="file"
                             ref={frontCardInputRef}
                             style={{ display: 'none' }}
-                            onChange={(e) => handleFileChange(setFrontCard, e)}
+                            multiple 
+                            onChange={handleFileChange}
                             required
+                            accept='image/*'
                         />
                     </div>
-                    {frontCard && <p>{frontCard.name}</p>}
+                    {frontCard && <p>{frontCard.name}</p>} <br/> {backCard && <p>{backCard.name}</p>}
                 </div>
-                <div className='image'>
-                    <label>Back Card Image:</label>
-                    <div onClick={() => backCardInputRef.current.click()} style={{ cursor: 'pointer' }}>
-                        <FontAwesomeIcon icon={faImages} size="2x" className='icon' />
-                        <input
-                            type="file"
-                            ref={backCardInputRef}
-                            style={{ display: 'none' }}
-                            onChange={(e) => handleFileChange(setBackCard, e)}
-                            required
-                        />
-                    </div>
-                    {backCard && <p>{backCard.name}</p>}
-                </div>
-                {/* <div className='image'>
-                    <label>Label (optional):</label>
-                    <input
-                        type="text"
-                        value={label}
-                        onChange={(e) => setLabel(e.target.value)}
-                    />
-                </div> */}
-                <button type="submit" style={{
-                    margin: "10px 0",
-                }}>Upload Images</button>
-            </form>
 
-            <div className={styles.collapsibleSection}>
+    
+                </form>
+            
+                
+                <button style={{
+                    margin: "10px 0",
+                }}
+                
+                onClick={handleUpload}>Upload Images</button>
+
+            </div>
+
+
+            <div>
+                {/* <input 
+                    type="text" 
+                    placeholder="Enter File ID" 
+                    value={fileId} 
+                    onChange={(e) => setFileId(e.target.value)} 
+                /> */}
+                {/* <button onClick={fetchFile}>View Image</button>
+
+                {imageUrl && (
+                    <div>
+                    <h3>Image Preview:</h3>
+                        <img 
+                            key={imageUrl}
+                            src={imageUrl} 
+                            alt="Preview" 
+                            style={{ maxWidth: "100%" }}
+                            onError={(e) => console.error("Image failed to load")}
+                        />
+                    </div>
+                )} */}
+                </div>
+            
+
+
+            <div className={styles.collapsibleSection} style={{
+                margin: "40px 0",
+            }}>
                 <div
                     className={`${styles.collapsibleHeader} ${activeSections.stage_1 ? styles.active : ''}`}
                     onClick={() => toggleSection('stage_1')}

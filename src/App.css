@@ -2497,3 +2497,10 @@ select.error {
   display: flex;
   justify-content: space-between;
 }
+
+p {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}

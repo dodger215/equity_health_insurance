@@ -27,12 +27,18 @@ export default function AppointmentList() {
   const [appointmentNotes, setAppointmentNotes] = useState("")
   const [appointmentStatus, setAppointmentStatus] = useState("Scheduled")
   const [submitting, setSubmitting] = useState(false)
+  const [agent, setAgent] = useState("");
+  const [oneTime, setOneTime] = useState(false);
 
   const generateAppointmentCode = () => {
     const currentDate = new Date().toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD format
     const randomNumber = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
     return `APPT_${currentDate}_${randomNumber}`;
   }
+
+
+
+
 
 
   const requestNotificationPermission = () => {
@@ -71,6 +77,16 @@ export default function AppointmentList() {
 
   const appt_code = generateAppointmentCode()
 
+
+  useEffect(() => {
+    axios.get(`${API_URL}/agents/${localStorage.getItem('id')}`)
+    .then(response => {
+      setAgent(response.data);
+    })
+    .catch(error => setError(error))
+    .finally(() => setLoading(false));
+  });
+
   useEffect(() => {
     const fetchProspects = async () => {
       try {
@@ -105,6 +121,7 @@ export default function AppointmentList() {
   
         if (Array.isArray(data)) {
           setAppointment(data);
+
         } else if (data && Array.isArray(data.appointments)) {
           setAppointment(data.appointments);
         } else {
@@ -181,14 +198,16 @@ export default function AppointmentList() {
         page: 'login', 
       });
 
-      const msg = `Appointment scheduled with ${selectedProspect.FirstName.toUpperCase()} ${selectedProspect.LastNametoUpperCase()} at ${appointmentDate} details: ${appointmentNotes}`;
+      const msg = `Appointment Scheduled With ${selectedProspect.FirstName.toUpperCase()} ${selectedProspect.LastName.toUpperCase()} Details: ${appointmentNotes ? '' : "No Details Set"}`;
 
       triggerNotification(msg);
+
+      const message_sms = `You Have scheduled An Appointment with Agent ${agent.OtherNames.toUpperCase()} on this Date ${appointmentDate} at this ${appointmentTime}`;
 
 
         const params = {
           number: selectedProspect.Phone,
-          message: msg
+          message: message_sms
         };
 
           axios.post(`${API_URL}/sent-sms/`, params, {
@@ -216,7 +235,7 @@ export default function AppointmentList() {
   }
 
 
-    const deleleAppointment = async (id) => {
+  const deleleAppointment = async (id, $txt) => {
       try{
         const response = await fetch(`${API_URL}/delete/appointment/${id}`, {
         method: "DELETE",
@@ -230,16 +249,44 @@ export default function AppointmentList() {
       }
       setPopupState({
         show: true,
-        message: 'Appointment deleted Successful! 🎉', 
+        message: $txt, 
         page: 'login', 
       });
-      navigate("/Appointment") // to refresh
+    
+
+      const msg = `Appointment Cancelled`;
+
+      triggerNotification(msg);
+
+      const message_sms = `Your Appointment Have Been Cancelled With Agent ${agent.OtherNames.toUpperCase()}`;
+
+
+        const params = {
+          number: selectedProspect.Phone,
+          message: message_sms
+        };
+
+          axios.post(`${API_URL}/sent-sms/`, params, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+          .then(response => {
+            setPopupState({
+              show: true,
+              message: 'Messege Sent To Client Successful!', 
+              page: 'login', 
+            });
+            console.log(response);
+          })
+          .catch(error => {
+            console.log(error)
+          });
 
       
        // Trigger the popup
     } catch (err) {
       console.error("Error deleting appointment:", err)
-      alert(`Failed to deleting appointment: ${err.message}`)
     } finally {
       setLoading(false)
     }
@@ -278,15 +325,19 @@ export default function AppointmentList() {
   // Check if both lists are empty
   const isBothListsEmpty = prospects.length === 0 && appointment.length === 0
 
+  
+
   // Check if the lists are equal
   const areListsEqual =
     prospects.length === appointment.length &&
     prospects.every((prospect, index) => prospect.ProspectID === appointment[index]?.ProspectID)
 
-  const handlingAutoFill = (prospects_id) => {
+  const handlingAutoFill = (prospects_id, appointment_id) => {
     console.log(prospects_id)
     localStorage.setItem("prospect_id", prospects_id)
-    navigate('/Form')
+    deleleAppointment(appointment_id, "Thank you for honouring your appointmet brief")
+
+    navigate('/Form');
   }
 
   return (
@@ -299,8 +350,10 @@ export default function AppointmentList() {
               <FontAwesomeIcon className="icon" icon={faPeopleArrows} />
               <div className="title-text">Your Appointments</div>
             </h5>
-            <div className="card-title-1">
-              <span className="badge bg-danger rounded-pill text">Total Prospect: {prospects.length}</span>
+            <div className="card-title-1" style={{
+              padding: "20px",
+            }}>
+              <span className="badge bg-danger rounded-pill text">{prospects.length} Prospect{prospects.length > 1 ? "s" : ''}</span>
             </div>
           </div>
         </div>
@@ -371,6 +424,7 @@ export default function AppointmentList() {
                     </li>
                    
                     {prospectAppointments.length > 0 ? (
+                    
                     <li className="list-group-item"
                     style={{
                         margin: "10px 0",
@@ -424,9 +478,9 @@ export default function AppointmentList() {
                               style={{
                                 margin: "0 15px"
                               }} 
-                              onClick={() => handlingAutoFill(prospect.ProspectID)}/>
+                              onClick={() => handlingAutoFill(prospect.ProspectID, appt.appointment_id)}/>
                               <FontAwesomeIcon icon={ faTrash } 
-                              onClick={() => deleleAppointment(appt.appointment_id)}
+                              onClick={() => deleleAppointment(appt.appointment_id, "Appointment Cancelled Successfully")}
                               style={{
                                 margin: "0 15px",
                                 color: "#fff"
@@ -557,11 +611,11 @@ export default function AppointmentList() {
                     ></textarea>
                   </div>
                   <div className="alert alert-info">
-                    <small>
+                    {/* <small>
                       <strong>Client ID:</strong> {selectedProspect?.ProspectID}
                       <br />
                       <strong>Agent ID:</strong> {selectedProspect?.AgentID}
-                    </small>
+                    </small> */}
                   </div>
                 </div>
                 <div className="modal-footer"
