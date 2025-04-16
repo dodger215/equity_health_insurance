@@ -27,7 +27,10 @@ import ClientFormComponent from './pages/component/verification/ClientFormCompon
 import { useState, useEffect, createContext } from 'react';
 import EditProspect from './pages/component/start/edit-prospect';
 import AgentDetails from './pages/component/profile';
-
+import PasswordChangeForm from './pages/component/settings/change_password';
+import InsuranceFormShortcut from './pages/component/forms/shortcut';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 // Create and export PopupContext
 export const PopupContext = createContext();
 
@@ -48,9 +51,17 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [popupState.show]);
-  // Check screen size on mount and resize
+  
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // animation duration in milliseconds
+      easing: 'ease-in-out', // default easing for AOS animations
+      once: false // whether animation should happen only once
+    });
+  })
   const checkScreenSize = () => {
-    setIsMobile(window.innerWidth < 968); 
+    setIsMobile(window.innerWidth < 1026); 
   };
 
   useEffect(() => {
@@ -64,7 +75,7 @@ function App() {
       <PopupContext.Provider value={{ setPopupState }}>
         {/* Success Popup */}
         {popupState.show && (
-          <div className={`success-popup ${popupState.page}`}>
+          <div className={`success-popup ${popupState.page}`} data-aos="zoom-out" data-aos-delay="100">
             <i
               className="fa-solid fa-bell fa-beat"
               style={{ "--fa-beat-scale": 2.0, marginRight: "20px" }}
@@ -73,7 +84,9 @@ function App() {
         )}
 
         {isMobile ? (
-          <div className='fix'>
+          <div className='fix' style={{
+            width: "100%"
+          }}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/ABSCalc" element={<ABSCalc />} />
@@ -101,11 +114,13 @@ function App() {
               <Route path="/client/image/:clientId" element={<ImageUploadForm />} />
               <Route path="/edit/prospect/:prospectId" element={<EditProspect />} />
               <Route path="/agent/details" element={<AgentDetails />} />
+              <Route path="/agent/change/password" element={<PasswordChangeForm />} />
+              <Route path="/insurance/form/shortcut/:cli_id" element={<InsuranceFormShortcut />} />
             </Routes>
           </div>
         ) : (
           <div>
-            <h1>Please use your phone to access the app.</h1>
+            <h1></h1>
           </div>
         )}
       </PopupContext.Provider>

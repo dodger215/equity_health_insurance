@@ -1,70 +1,46 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import API_URL from "../link";
 
-
-const BankPayPoint = () => {
+const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnderAgent = "", initialAmount = 0 }) => {
   // State for form inputs and selections
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBank, setSelectedBank] = useState("");
   const [bankBranch, setBankBranch] = useState("");
   const [accountName, setAccountName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
+  const [policyId, setPolicyId] = useState(initialPolicyId);
+  const [clientId, setClientId] = useState(initialClientId);
+  const [underAgent, setUnderAgent] = useState(initialUnderAgent);
+  const [amount, setAmount] = useState(initialAmount);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState({
     accountName: "",
     accountNumber: "",
     bankBranch: "",
+    policyId: "",
+    clientId: "",
+    underAgent: "",
+    amount: ""
   });
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Bank options data (hardcoded as in the HTML)
+  // Bank options data
   const bankOptions = [
-    {
-      id: 1,
-      name: "ABSA BANK",
-      icon: "🏦",
-      branch: "ABSA BANK HEADQUARTERS (ACCRA)",
-    },
-    {
-      id: 2,
-      name: "APEX BANK",
-      icon: "🏦",
-      branch: "APEX BANK HEADQUARTERS (ACCRA)",
-    },
-    {
-      id: 3,
-      name: "GHANA COMMERCIAL BANK",
-      icon: "🏦",
-      branch: "GCB BANK HEADQUARTERS (ACCRA, RIDGE TOWERS)",
-    },
+    { id: 1, name: "ABSA BANK", icon: "🏦", branch: "ABSA BANK HEADQUARTERS (ACCRA)" },
+    { id: 2, name: "APEX BANK", icon: "🏦", branch: "APEX BANK HEADQUARTERS (ACCRA)" },
+    { id: 3, name: "GHANA COMMERCIAL BANK", icon: "🏦", branch: "GCB BANK HEADQUARTERS (ACCRA, RIDGE TOWERS)" },
     { id: 4, name: "GT BANK", icon: "🏦", branch: "GT BANK HEADQUARTERS (ACCRA)" },
-    {
-      id: 5,
-      name: "ACCESS BANK",
-      icon: "🏦",
-      branch: "ACCESS BANK HEADQUARTERS (ACCRA)",
-    },
+    { id: 5, name: "ACCESS BANK", icon: "🏦", branch: "ACCESS BANK HEADQUARTERS (ACCRA)" },
     { id: 6, name: "CAL BANK", icon: "🏦", branch: "CAL BANK HEADQUARTERS (ACCRA)" },
     { id: 7, name: "ECO BANK", icon: "🏦", branch: "ECO BANK HEADQUARTERS (ACCRA)" },
     { id: 8, name: "ADB BANK", icon: "🏦", branch: "ADB BANK HEADQUARTERS (ACCRA)" },
     { id: 9, name: "UBA", icon: "🏦", branch: "UBA BANK HEADQUARTERS (ACCRA)" },
-    {
-      id: 10,
-      name: "BANK OF AFRICA",
-      icon: "🏦",
-      branch: "BANK OF AFRICA HEADQUARTERS (ACCRA)",
-    },
-    {
-      id: 11,
-      name: "ZENITH BANK",
-      icon: "🏦",
-      branch: "ZENITH BANK HEADQUARTERS (ACCRA)",
-    },
-    {
-      id: 12,
-      name: "REPUBLIC BANK",
-      icon: "🏦",
-      branch: "REPUBLIC BANK HEADQUARTERS (ACCRA)",
-    },
+    { id: 10, name: "BANK OF AFRICA", icon: "🏦", branch: "BANK OF AFRICA HEADQUARTERS (ACCRA)" },
+    { id: 11, name: "ZENITH BANK", icon: "🏦", branch: "ZENITH BANK HEADQUARTERS (ACCRA)" },
+    { id: 12, name: "REPUBLIC BANK", icon: "🏦", branch: "REPUBLIC BANK HEADQUARTERS (ACCRA)" },
   ];
 
   // Filtered bank options based on search term
@@ -72,26 +48,18 @@ const BankPayPoint = () => {
     bank.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Handle search input change
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  // Handle bank selection
-  const handleBankSelect = (bank) => {
-    setSelectedBank(bank.name);
-    setBankBranch(bank.branch);
-    setSearchTerm(bank.name);
-    setErrors({ ...errors, bankBranch: "" }); // Clear branch error
-  };
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Validate form fields
+  // Form validation function
+  const validateForm = () => {
     let isValid = true;
-    const newErrors = { accountName: "", accountNumber: "", bankBranch: "" };
+    const newErrors = {
+      accountName: "",
+      accountNumber: "",
+      bankBranch: "",
+      policyId: "",
+      clientId: "",
+      underAgent: "",
+      amount: ""
+    };
 
     if (!accountName.trim()) {
       newErrors.accountName = "Please enter account name";
@@ -108,65 +76,95 @@ const BankPayPoint = () => {
       isValid = false;
     }
 
-    if (!selectedBank) {
-      alert("Please select a bank");
+    if (!policyId) {
+      newErrors.policyId = "Please enter policy ID";
+      isValid = false;
+    }
+
+    if (!clientId) {
+      newErrors.clientId = "Please enter client ID";
+      isValid = false;
+    }
+
+    if (!underAgent) {
+      newErrors.underAgent = "Please enter agent ID";
+      isValid = false;
+    }
+
+    if (!amount || amount <= 0) {
+      newErrors.amount = "Please enter a valid amount";
       isValid = false;
     }
 
     setErrors(newErrors);
+    return isValid;
+  };
 
-    if (!isValid) return;
+  // Handle bank selection
+  const handleBankSelect = (bank) => {
+    setSelectedBank(bank.name);
+    setBankBranch(bank.branch);
+    setSearchTerm(bank.name);
+    setErrors({ ...errors, bankBranch: "" });
+  };
 
-    // Simulate payment processing
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsProcessing(true);
-    setTimeout(() => {
+    setSuccessMessage("");
+    setErrorMessage("");
+
+    try {
+      const payload = {
+        bank_name: selectedBank,
+        bank_account_number: accountNumber,
+        branch: bankBranch,
+        account_name: accountName,
+        policy_id: policyId,
+        client_id: clientId,
+        under_agent: underAgent,
+        amount: parseFloat(amount)
+      };
+
+      const response = await axios.post(`${API_URL}/bank-deductions/`, payload);
+      
+      setSuccessMessage("Bank deduction created successfully!");
+      setIsModalOpen(false);
+      // Reset form
+      setSelectedBank("");
+      setBankBranch("");
+      setAccountName("");
+      setAccountNumber("");
+      setPolicyId(initialPolicyId);
+      setClientId(initialClientId);
+      setUnderAgent(initialUnderAgent);
+      setAmount(initialAmount);
+    } catch (error) {
+      console.error("Error creating bank deduction:", error);
+      setErrorMessage(error.response?.data?.detail || "Failed to create bank deduction");
+    } finally {
       setIsProcessing(false);
-      alert("Payment successful!");
-    }, 2000);
+    }
   };
 
   // Handle Pay button click
   const handlePayClick = (bank) => {
     handleBankSelect(bank);
-
-    // Validate form fields before showing payment modal
-    let isValid = true;
-    const newErrors = { accountName: "", accountNumber: "", bankBranch: "" };
-
-    if (!accountName.trim()) {
-      newErrors.accountName = "Please enter account name";
-      isValid = false;
-    }
-
-    if (!accountNumber.trim()) {
-      newErrors.accountNumber = "Please enter account number";
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-
-    if (!isValid) {
-      alert("Please fill in all required fields");
+    if (!validateForm()) {
       return;
     }
-
-    // Show payment modal
     setIsModalOpen(true);
   };
 
   // Handle modal close
   const handleCloseModal = () => {
     setIsModalOpen(false);
-  };
-
-  // Handle payment confirmation
-  const handleConfirmPayment = () => {
-    setIsModalOpen(false);
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      alert("Payment successful!");
-    }, 2000);
   };
 
   // Adjust for mobile viewport height
@@ -191,6 +189,18 @@ const BankPayPoint = () => {
         <h1>Bank Paypoint</h1>
       </div>
 
+      {successMessage && (
+        <div className="alert alert-success">
+          {successMessage}
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="alert alert-error">
+          {errorMessage}
+        </div>
+      )}
+
       <form className="payment-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <h5>Payment Details</h5>
@@ -206,7 +216,7 @@ const BankPayPoint = () => {
                 className="search-field"
                 placeholder="Search Bank options..."
                 value={searchTerm}
-                onChange={handleSearchChange}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
@@ -226,7 +236,10 @@ const BankPayPoint = () => {
                         <button
                           type="button"
                           className="badge"
-                          onClick={() => handlePayClick(bank)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePayClick(bank);
+                          }}
                         >
                           <span className="badge-text">PAY</span>
                           <span className="badge-dots"></span>
@@ -291,9 +304,78 @@ const BankPayPoint = () => {
             )}
           </div>
 
-          <button type="submit" className="submit-btn">
-            <span className="btn-text">Process Payment</span>
-            <span className="loading-dots"></span>
+          <div className="form-group full-width">
+            <label htmlFor="policyId">Policy ID</label>
+            <input
+              type="text"
+              id="policyId"
+              placeholder="Enter Policy ID"
+              value={policyId}
+              onChange={(e) => setPolicyId(e.target.value)}
+              required
+            />
+            {errors.policyId && (
+              <div className="error-message">{errors.policyId}</div>
+            )}
+          </div>
+
+          <div className="form-group full-width">
+            <label htmlFor="clientId">Client ID</label>
+            <input
+              type="text"
+              id="clientId"
+              placeholder="Enter Client ID"
+              value={clientId}
+              onChange={(e) => setClientId(e.target.value)}
+              required
+            />
+            {errors.clientId && (
+              <div className="error-message">{errors.clientId}</div>
+            )}
+          </div>
+
+          <div className="form-group full-width">
+            <label htmlFor="underAgent">Agent ID</label>
+            <input
+              type="text"
+              id="underAgent"
+              placeholder="Enter Agent ID"
+              value={underAgent}
+              onChange={(e) => setUnderAgent(e.target.value)}
+              required
+            />
+            {errors.underAgent && (
+              <div className="error-message">{errors.underAgent}</div>
+            )}
+          </div>
+
+          <div className="form-group full-width">
+            <label htmlFor="amount">Amount</label>
+            <input
+              type="number"
+              id="amount"
+              placeholder="Enter amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+              min="0"
+              step="0.01"
+            />
+            {errors.amount && (
+              <div className="error-message">{errors.amount}</div>
+            )}
+          </div>
+
+          <button 
+            type="submit" 
+            className="submit-btn"
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <span className="loading-dots">Processing...</span>
+            ) : (
+              <span className="btn-text">Submit Deduction</span>
+            )}
           </button>
         </div>
       </form>
@@ -303,7 +385,7 @@ const BankPayPoint = () => {
         <div className="payment-modal" id="paymentModal">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">Confirm Payment</h3>
+              <h3 className="modal-title">Confirm Payment Deduction</h3>
               <button
                 type="button"
                 className="close-modal"
@@ -322,12 +404,11 @@ const BankPayPoint = () => {
                     {selectedBank}
                   </div>
                   <div className="payment-info-subtitle">
-                    You are about to make a payment
+                    You are about to submit a bank deduction
                   </div>
                 </div>
               </div>
 
-              {/* Payment details section */}
               <div className="payment-details">
                 <div className="payment-detail-item">
                   <span className="payment-detail-label">Account Name:</span>
@@ -347,24 +428,54 @@ const BankPayPoint = () => {
                     {bankBranch}
                   </span>
                 </div>
+                <div className="payment-detail-item">
+                  <span className="payment-detail-label">Policy ID:</span>
+                  <span className="payment-detail-value" id="modalPolicyId">
+                    {policyId}
+                  </span>
+                </div>
+                <div className="payment-detail-item">
+                  <span className="payment-detail-label">Client ID:</span>
+                  <span className="payment-detail-value" id="modalClientId">
+                    {clientId}
+                  </span>
+                </div>
+                <div className="payment-detail-item">
+                  <span className="payment-detail-label">Agent ID:</span>
+                  <span className="payment-detail-value" id="modalUnderAgent">
+                    {underAgent}
+                  </span>
+                </div>
+                <div className="payment-detail-item">
+                  <span className="payment-detail-label">Amount:</span>
+                  <span className="payment-detail-value" id="modalAmount">
+                    {amount}
+                  </span>
+                </div>
               </div>
 
-              <p>Please confirm that you want to proceed with this payment.</p>
+              <p>Please confirm that you want to proceed with this bank deduction.</p>
             </div>
             <div className="modal-actions">
               <button
                 type="button"
                 className="modal-btn modal-btn-secondary"
                 onClick={handleCloseModal}
+                disabled={isProcessing}
               >
                 Cancel
               </button>
               <button
                 type="button"
                 className="modal-btn modal-btn-primary"
-                onClick={handleConfirmPayment}
+                onClick={handleSubmit}
+                disabled={isProcessing}
               >
-                <span>Confirm Payment</span>
+                {isProcessing ? (
+                  <span>Processing...</span>
+                ) : (
+                  <span>Confirm Deduction</span>
+                )}
               </button>
             </div>
           </div>

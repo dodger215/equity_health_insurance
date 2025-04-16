@@ -2,7 +2,7 @@ function Tabs({ active, setActive }) {
   const tabItems = [
     { id: "start", text: "Get Started", section: "" },
     { id: "recent", text: "Prospects", section: "exclude" },
-    { id: "commission", text: "Commission", section: "" },
+    { id: "forward", text: "Forward Propect", section: "" },
   ]
 
   return (

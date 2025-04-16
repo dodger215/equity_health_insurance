@@ -9,6 +9,8 @@ import API_URL from "./link"
 import { faBell, faShake } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import OfflinePage from "./ui/error"
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 
 const DashboardView = () => {
@@ -25,14 +27,20 @@ const DashboardView = () => {
   const [appointment, setAppointment] = useState([]); 
   const [notification, setNotification] = useState(0);
 
-
+  const token = localStorage.getItem("jwtToken")
+  const agentId = localStorage.getItem("id")
 
   
-
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // animation duration in milliseconds
+      easing: 'ease-in-out', // default easing for AOS animations
+      once: false // whether animation should happen only once
+    });
+  })
   useEffect(() => {
     const fetchDashboardData = async () => {
-      const token = localStorage.getItem("jwtToken")
-      const agentId = localStorage.getItem("id")
+      
       // console.log(token)
 
       let target = 0;
@@ -68,6 +76,7 @@ const DashboardView = () => {
           
       } catch (err) {
         setError(err.message)
+        navigate("/login")
 
       } finally {
         setLoading(false)
@@ -85,7 +94,12 @@ const DashboardView = () => {
     const fetchProspects = async () => {
       try{
         const agentId = localStorage.getItem("id")
-            const responseProspects = await fetch(`${API_URL}/prospects/${agentId}`);
+            const responseProspects = await fetch(`${API_URL}/prospects/${agentId}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            });
             if (!responseProspects.ok) {
               // throw new Error("Failed to fetch prospects");
               setProspects([]); 
@@ -124,8 +138,12 @@ const DashboardView = () => {
         console.log("Fetching appointments for agentId:", agentId);
   
         const responseProspects = await fetch(
-          `${API_URL}/client/appointments/${agentId}`
-        );
+          `${API_URL}/client/appointments/${agentId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
   
         // Log the response status and body
         console.log("Response status:", responseProspects.status);
@@ -137,7 +155,6 @@ const DashboardView = () => {
         }
 
   
-        // Ensure the response is an array
         if (Array.isArray(responseBody)) {
           setAppointment(responseBody);
           setNotification(responseBody.length);
@@ -155,7 +172,7 @@ const DashboardView = () => {
     };
   
     fetchAppointment();
-  }, []); 
+  }, [token]); 
 
 
 
@@ -182,10 +199,10 @@ const DashboardView = () => {
 
   return (
     <div className={styles.dashboard}>
-      <div className={styles.intro}><i className="fas fa-user p-3"></i>Welcome {userData.agent_name}</div>
+      <div className={styles.intro} data-aos="fade-in" data-aos-delay="100"><i className="fas fa-user p-3"></i>Welcome {userData.agent_name}</div>
       <div className={styles.show}>
         <div className={styles.targetScore}>
-          <div className={styles.scoreCircle}>
+          <div className={styles.scoreCircle} data-aos="zoom-in" data-aos-delay="150">
             <div className={styles.scoreText}>{targetScores}</div>
             <p>Targets</p>
           </div>
@@ -223,7 +240,7 @@ const DashboardView = () => {
         </div>
       </div>
 
-      <Contents />
+      <Contents data-aos="fade-in" data-aos-delay="200"/>
       {/* <div className={styles.usersList}>
         <h3>Clients ({userData.clients.length})</h3>
         <ul>

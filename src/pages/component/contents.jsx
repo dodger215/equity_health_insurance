@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Tab from './tab';
 import Started from './tabContents/start';
-import Commission from './tabContents/commission';
+import ForwardProspect from './tabContents/commission';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import API_URL from "./link";
@@ -291,7 +291,7 @@ function Content() {
             </div>
           </div>
         )}
-        {active === 'commission' && <Commission />}
+        {active === 'forward' && <ForwardProspect agentId={agentid} />}
       </div>
       {
         dialog === null ? '' : (

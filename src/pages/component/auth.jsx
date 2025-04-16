@@ -17,6 +17,7 @@ function LoginForm() {
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -24,6 +25,29 @@ function LoginForm() {
       ...prevState,
       [name]: value,
     }))
+  }
+
+  const uploadLogin = async (clientID) => {
+    const param = {
+      "ClientID": clientID.toString(),
+    }
+    await fetch(`${API_URL}/agent/logins/`, {
+      method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(param),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === "success") {
+        console.log("Login successful")
+      }
+    })
+    .catch((error) => {
+      console.error("Login error:", error)
+      setErrors({ submit: `An error occurred: ${error.message}. Please try again.` })
+    })
   }
 
   const handleSubmit = (e) => {
@@ -40,6 +64,8 @@ function LoginForm() {
     }
   }
 
+
+  
   useEffect(() => {
     if (isSubmitting) {
       console.log("Submitting form data:", formData)
@@ -58,6 +84,7 @@ function LoginForm() {
             localStorage.setItem("jwtToken", data.access_token)
             localStorage.setItem("agents_name", data.name)
             localStorage.setItem("id", data.id)
+            uploadLogin(data.id)
             setPopupState({
               show: true,
               message: 'Login Successful! 🎉', 
@@ -83,10 +110,17 @@ function LoginForm() {
     }
   }, [isSubmitting, formData, navigate])
 
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
+    <form onSubmit={handleSubmit} className="login">
+      <div className="input-group">
         {/* <label htmlFor="agent_code">Agent Code:</label> */}
+        {/* <span className="input-group-text">
+            <i className="fas fa-user"></i>
+          </span> */}
         <input
           type="text"
           id="agent_code"
@@ -94,21 +128,34 @@ function LoginForm() {
           placeholder="Agent Code"
           value={formData.agent_code}
           onChange={handleChange}
+          className="form-control"
           required
         />
         {errors.agent_code && <span className="error">{errors.agent_code}</span>}
       </div>
-      <div>
-        {/*  */}
+      <div className="input-group">
+        {/* <span className="input-group-text">
+            <i className="fas fa-lock"></i>
+        </span> */}
         <input
-          type="password"
+          type={showPassword ? "text" : "password"}
           id="password"
           name="password"
           placeholder="Password"
           value={formData.password}
+          className="form-control"
           onChange={handleChange}
           required
         />
+
+        <button
+            type="button"
+            className="view"
+            onClick={togglePasswordVisibility}
+            tabIndex={-1}
+          >
+            <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"} text-dark`}></i>
+          </button>
         {
           errors.password && 
           <span className="error">{errors.password}</span>
@@ -130,7 +177,10 @@ function LoginForm() {
           {errors.submit}
         </div>
       }
-      <button type="submit" disabled={isSubmitting}>
+      <button type="submit" className="login__submit" disabled={isSubmitting} style={{
+        width: "100%",
+        background: isSubmitting ? "#8abbff" : "#fff"
+      }}>
         {isSubmitting ? <PrimaryLoading /> : "Login"}
       </button>
     </form>

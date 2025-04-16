@@ -7,18 +7,16 @@ import axios from 'axios';
 import SignatureCanvas from 'react-signature-canvas';
 import { InternetLoader } from '../ui/loading';
 import { Close } from '../ui/button';
+import ImageUploadForm from '../forms/form-image';
 
 import API_URL from '../link';
-import PDFTemplate from './PDFTemplate';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import emailjs from 'emailjs-com';
 import MobilePayment from '../payments/momo';
 import PayPoint from '../payments/paycheck';
 import BankPayPoint from '../payments/bank';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { PopupContext } from '../../../App';
+import SignatureComponent from './Signature';
 
 const ClientFormComponent = () => {
   const { setPopupState } = useContext(PopupContext)
@@ -31,7 +29,7 @@ const ClientFormComponent = () => {
     stage_5: false,
     stage_6: false,
     stage_7: false,
-    
+    stage_8: false,
   });
 
   
@@ -64,6 +62,8 @@ const ClientFormComponent = () => {
   const [signature, setSignature] = useState(null);
   const signatureRef = useRef();
   const [amount, setAmount] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const [clientPolicies, setClientPolicies] = useState([])
 
   console.log(`client id: ${clientId}`);
 
@@ -209,13 +209,58 @@ const ClientFormComponent = () => {
 
   // Handle form submission
   const handleSubmit = async (e) => {
+    setLoading(true)
     e.preventDefault();
       try {
+
+        const clients = {
+          ...client, is_submitted: true
+        }
+        const today = new Date();
+        const start_date = new Date().toISOString().split('T')[0];
+        const matchedPolicy = policies.find(p => p.client_id === clientId);
+
+      
+        const totalFloat = parseFloat(amount.total.replace(/[^\d.]/g, ''));
+        const validDependants = dependants.filter(
+          d => d.full_name && d.date_of_birth && d.relation_type
+        );
+
+
+        console.log(clients)
         const formData = {
-          client_info: { ...client, is_submitted: true },
-          dependants: dependants, // Assuming it's an array
-          policy: policies[0], // Send only the first policy object
+          agent_id: localStorage.getItem("id"),
+          branch_id: 1,
+          client_info: {
+            FirstName: clients.first_name,
+            LastName: clients.surname,
+            OtherNames: clients.other_names || "",
+            Gender: clients.gender,
+            DateOfBirth: clients.date_of_birth,
+            PhoneNumber: clients.phone_number,
+            Email: clients.email_address,
+            NationalIDNumber: clients?.national_id_number?.trim() || clients.id_number,
+            ResidentialAddress: clients.residential_address,
+            City: clients.city_town,
+            CountryCode: "GH",
+            Occupation: clients.occupation
+          },
+          policy: {
+            product_id: "1",
+            product_name: matchedPolicy?.product_name,
+            product_code: matchedPolicy?.product_code,
+            sum_assured: Number(amount.sum_assured),
+            premium: totalFloat,
+            term: 1,
+            start_date: start_date,
+            },
+            ...(validDependants.length > 0 && { dependants: validDependants })
         };
+
+
+        // const submitData = {
+        //   agent_id: localStorage.getItem("id")
+        // }
         
         console.log("Data being sent:", formData);
         
@@ -229,6 +274,8 @@ const ClientFormComponent = () => {
         
         const result = await response.json();
         console.log("Response:", result);
+
+        setClientPolicies(result);
         
 
         console.log("Data", formData);
@@ -237,7 +284,7 @@ const ClientFormComponent = () => {
 
 
         const msg = `
-Dear ${formData.client_info.first_name.toUpperCase()} ${client.surname.toUpperCase()},
+Dear ${formData.client_info.FirstName.toUpperCase()} ${client.surname.toUpperCase()},
 We are pleased to inform you that your subscription to the ${data?.product.toUpperCase()} has been successfully processed. The payment of ${amount?.total} has been made using your chosen payment method, Monthly.
 Should you have any questions or require further details regarding your subscription, please do not hesitate to contact our office. Our team is available to assist you and provide any additional information you may need.
 Thank you for choosing our services. We appreciate your trust and look forward to serving you.
@@ -246,6 +293,33 @@ Best regards,
 Equity Health Insurance
 `;
 
+  
+        // // Send email using EmailJS
+        // await emailjs.send(
+        //   "service_1zc90u8",
+        //   "template_zqpczsv",
+        //   {
+        //     to_name: `${formData.client_info.first_name} ${formData.client_info.surname}`,
+        //     from_name: "Equity",
+        //     message: `${msg}`,
+        //     reply_to: "no-reply@yourcompany.com",
+        //     to_client: formData.client_info.email_address,
+        //     from_email: "info@equityinsurance.com",
+        //   },
+        //   "OdwbNHd4lP5RDWUr6"
+        // );
+
+        setTimeout(async () => {
+          await deleteClient();
+        
+          if (dependants > 0) {
+            await deleteDependent();
+          }
+        
+          await deletePolicy();
+        
+          navigate("/agent/main");
+        }, 1000);
 
         setPopupState({
           show: true,
@@ -258,42 +332,22 @@ Equity Health Insurance
         }
 
         axios.post(`${API_URL}/sent-sms/`, smsParams, {
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                  })
-                  .then(response => {
-                    console.log(response);
-                  })
-                  .catch(error => {
-                    console.log(error)
-                  });
-  
-        // Send email using EmailJS
-        await emailjs.send(
-          "service_1zc90u8",
-          "template_zqpczsv",
-          {
-            to_name: `${formData.client_info.first_name} ${formData.client_info.surname}`,
-            from_name: "Equity",
-            message: `${msg}`,
-            reply_to: "no-reply@yourcompany.com",
-            to_client: formData.client_info.email_address,
-            from_email: "info@equityinsurance.com",
+          headers: {
+            "Content-Type": "application/json",
           },
-          "OdwbNHd4lP5RDWUr6"
-        );
-  
-        navigate("/agent/main");
+        })
+        .then(response => {
+          console.log(response);
+        })
+        .catch(error => {
+          console.log(error)
+        });
         
-
-        deleteClient();
-        if(dependants > 0){
-          deleteDependent();
-        }
-        deletePolicy();
       } catch (error) {
         console.error("Error during form submission:", error);
+      }
+      finally{
+        setLoading(false)
       }
     
   };
@@ -630,7 +684,7 @@ Equity Health Insurance
                   />
                 </div>
                 
-                <div className="form-view">
+                {/* <div className="form-view">
                 <label>Product Code:</label>
                 <input
                   type="text"
@@ -638,7 +692,7 @@ Equity Health Insurance
                   value={policy.product_code || ''}
                   onChange={(e) => handlePolicyChange(index, e)}
                 />
-                </div>
+                </div> */}
                 
               </div>
             ))}
@@ -691,8 +745,8 @@ Equity Health Insurance
                   fontSize: "1rem"
                 }}>Premium amount: {amount.total}</div>
                 {activeTab === 'page1' && <MobilePayment amount={amount.total}/>}
-                {activeTab === 'page2' && <PayPoint amount={amount.total}/>}
-                {activeTab === 'page3' && <BankPayPoint amount={amount.total}/>}
+                {activeTab === 'page2' && <PayPoint policy_id={clientPolicies.policy_id} under_agent={client.agent_id} client_id={clientPolicies.cli_id} amount={amount.total}/>}
+                {activeTab === 'page3' && <BankPayPoint initialAmount={amount.total} initialClientId={clientPolicies.cli_id} initialPolicyId={clientPolicies.policy_id} initialUnderAgent={client.agent_id}/>}
               </div>
           </div>
           </div>
@@ -714,7 +768,7 @@ Equity Health Insurance
         {activeSections.stage_4 && (
           <div className={styles.collapsibleContent}>
             {/* Signature component */}
-            <div className="sign">
+            {/* <div className="sign">
               <h2>Signature</h2>
               <SignatureCanvas
                 ref={signatureRef}
@@ -727,8 +781,13 @@ Equity Health Insurance
               <button type="button" onClick={() => signatureRef.current.clear()}>
                 Clear Signature
               </button>
-              <input type="file" accept='image/png' />
-            </div>
+              <input type="file" accept='image/png' style={{
+                margin: "20px 0",
+              }}/>
+            </div> */}
+            <SignatureComponent style={{
+              scale: "0.5",
+            }}/>
           </div>
         )}
       </div>
@@ -750,43 +809,17 @@ Equity Health Insurance
         {activeSections.stage_7 && (
           <div className={styles.collapsibleContent}>
             {/* Image component */}
-
-            {imageUrl && (
-              <div>
-                <h3>Image Preview:</h3>
-                <img src={imageUrl} alt="Fetched File" style={{ maxWidth: "300px", borderRadius: "8px" }} />
-              </div>
-            )}
-            
+            <ImageUploadForm/>
           </div>
         )}
       </div>
 
 
-      <button type="submit">Submit Form</button>
+      <button type="submit" className="btn btn-primary">
+        {loading ? 'Submitting...' : 'Submit Form'}
+      </button>
 
-      <div style={{
-        opacity: "0%",
-      }}>
-      <div className={styles.collapsibleSection}>
-        <div
-          className={`${styles.collapsibleHeader} ${activeSections.stage_5 ? styles.active : ''}`}
-          onClick={() => toggleSection('stage_5')}
-        >
-          <span>PDF</span>
-          <FontAwesomeIcon 
-            icon={activeSections.stage_5 ? faMinus : faPlus} 
-            className={styles.icon}
-          />
-        </div>
-        
-        {activeSections.stage_5 && (
-          <div className={styles.collapsibleContent}>
-            <PDFTemplate client={client} dependants={dependants} policies={policies} />
-          </div>
-        )}
-      </div>
-      </div>
+      
       </form>
     </div>
   );

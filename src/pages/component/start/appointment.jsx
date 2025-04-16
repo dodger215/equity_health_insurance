@@ -12,6 +12,9 @@ import { useContext } from "react"
 import { PopupContext } from "../../../App"
 import Icon from "../../../img/logo.png"
 import axios from 'axios';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
 
 export default function AppointmentList() {
   const { setPopupState } = useContext(PopupContext)
@@ -36,7 +39,13 @@ export default function AppointmentList() {
     return `APPT_${currentDate}_${randomNumber}`;
   }
 
-
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // animation duration in milliseconds
+      easing: 'ease-in-out', // default easing for AOS animations
+      once: false // whether animation should happen only once
+    });
+  })
 
 
 
@@ -352,7 +361,7 @@ export default function AppointmentList() {
             </h5>
             <div className="card-title-1" style={{
               padding: "20px",
-            }}>
+            }} data-aos="zoom-in" data-aos-delay="100">
               <span className="badge bg-danger rounded-pill text">{prospects.length} Prospect{prospects.length > 1 ? "s" : ''}</span>
             </div>
           </div>
@@ -411,7 +420,7 @@ export default function AppointmentList() {
                     style={{
                       margin: "15px 0",
                       marginBottom: "15px",
-                    }}>
+                    }} data-aos="zoom-in" data-aos-delay="150">
                     <div className="text">
                         <h6 className="mb-1">
                         {prospect.FirstName} {prospect.LastName}
@@ -454,7 +463,7 @@ export default function AppointmentList() {
                               fontSize: "0.8em",
                               justifyContent: "space-between",
                               alignItems: "center"
-                            }}>
+                            }} data-aos="zoom-in" data-aos-delay="150">
                             <div>
                               <div>
                                   <strong>Date Scheduled:</strong> <br/> {appt.appointment_date}
@@ -553,7 +562,7 @@ export default function AppointmentList() {
               </div>
               <form onSubmit={handleSubmitAppointment}>
                 <div className="modal-body">
-                  <div className="mb-3">
+                  <div className="mb-3" data-aos="zoom-in" data-aos-delay="100">
                     <label htmlFor="date" className="form-label">
                       Appointment Date
                     </label>
@@ -566,7 +575,7 @@ export default function AppointmentList() {
                       required
                     />
                   </div>
-                  <div className="mb-3">
+                  <div className="mb-3" data-aos="zoom-in" data-aos-delay="150">
                     <label htmlFor="time" className="form-label">
                       Time
                     </label>
@@ -580,7 +589,7 @@ export default function AppointmentList() {
                     />
                     <small className="text-muted">Note: Time will be stored in notes</small>
                   </div>
-                  <div className="mb-3">
+                  <div className="mb-3" data-aos="zoom-in" data-aos-delay="200">
                     <label htmlFor="status" className="form-label">
                       Status
                     </label>
@@ -597,7 +606,7 @@ export default function AppointmentList() {
                       <option value="Cancelled">Cancelled</option>
                     </select>
                   </div>
-                  <div className="mb-3">
+                  <div className="mb-3" data-aos="zoom-in" data-aos-delay="200">
                     <label htmlFor="notes" className="form-label">
                       Notes
                     </label>

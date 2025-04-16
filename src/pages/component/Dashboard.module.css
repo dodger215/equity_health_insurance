@@ -139,7 +139,7 @@
 
 
   
-  @media (max-width: 768px) {
+  @media (max-width: 1025px) {
     .dashboard {
       flex-direction: row;
       flex-wrap: wrap;

@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 
-
-const PayPoint = () => {
+const PayPoint = ({ policy_id, client_id, under_agent, amount }) => {
   // State for form inputs and selections
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPayment, setSelectedPayment] = useState("");
   const [staffId, setStaffId] = useState("");
+  const [staffName, setStaffName] = useState("");
+  const [institutionName, setInstitutionName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [staffIdError, setStaffIdError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Payment options data
   const paymentOptions = [
@@ -34,6 +37,7 @@ const PayPoint = () => {
   const handlePaymentSelect = (payment) => {
     setSelectedPayment(payment.name);
     setSearchTerm(payment.name);
+    setInstitutionName(payment.name); // Set institution name from selected payment
   };
 
   // Handle Staff ID input change
@@ -42,45 +46,72 @@ const PayPoint = () => {
     setStaffIdError("");
   };
 
-  // Validate Staff ID
-  const validateStaffId = () => {
+  // Handle Staff Name input change
+  const handleStaffNameChange = (e) => {
+    setStaffName(e.target.value);
+  };
+
+  // Validate form inputs
+  const validateForm = () => {
     if (!staffId.trim()) {
       setStaffIdError("Please enter a Staff ID");
       return false;
     }
-    // Add more validation rules if needed
+    if (!staffName.trim()) {
+      setStaffIdError("Please enter Staff Name");
+      return false;
+    }
+    if (!selectedPayment) {
+      setStaffIdError("Please select a payment option");
+      return false;
+    }
     return true;
   };
 
   // Handle Pay button click
-  const handlePayClick = (payment) => {
-    if (!validateStaffId()) {
-      document.getElementById("staffId").focus();
-      return;
-    }
+  const handlePayClick = async (payment) => {
+    if (!validateForm()) return;
+    
     setSelectedPayment(payment.name);
     setIsProcessing(true);
-    setTimeout(() => {
+    
+    try {
+      const response = await fetch("http://127.0.0.1:8000/deductions/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          staff_id: staffId,
+          staff_name: staffName,
+          institution_name: institutionName,
+          amount: amount || 0,
+          policy_id: policy_id,
+          client_id: client_id,
+          under_agent: under_agent
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Payment failed");
+      }
+
+      const result = await response.json();
       setIsProcessing(false);
+      setSuccessMessage("Payment processed successfully!");
       setIsModalOpen(true);
-    }, 500);
+    } catch (error) {
+      setIsProcessing(false);
+      setErrorMessage(error.message);
+      setIsModalOpen(true);
+    }
   };
 
   // Handle modal close
   const handleCloseModal = () => {
     setIsModalOpen(false);
-  };
-
-  // Handle payment confirmation
-  const handleConfirmPayment = () => {
-    setIsModalOpen(false);
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      alert(
-        `Payment successful!\nStaff ID: ${staffId}\nPayment Method: ${selectedPayment}`
-      );
-    }, 2000);
+    setSuccessMessage("");
+    setErrorMessage("");
   };
 
   // Adjust for mobile viewport height
@@ -163,7 +194,7 @@ const PayPoint = () => {
         </div>
 
         <div className="form-grid">
-          <div className="form-group full-width">
+          <div className="form-group">
             <label htmlFor="staffId">Staff ID</label>
             <input
               type="text"
@@ -179,6 +210,18 @@ const PayPoint = () => {
               </div>
             )}
           </div>
+
+          <div className="form-group">
+            <label htmlFor="staffName">Staff Name</label>
+            <input
+              type="text"
+              id="staffName"
+              placeholder="Enter Staff Name"
+              value={staffName}
+              onChange={handleStaffNameChange}
+              required
+            />
+          </div>
         </div>
 
         <input type="hidden" id="selectedPayment" value={selectedPayment} />
@@ -189,7 +232,9 @@ const PayPoint = () => {
         <div className="payment-modal" id="paymentModal">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">Confirm Payment</h3>
+              <h3 className="modal-title">
+                {successMessage ? "Payment Successful" : "Payment Error"}
+              </h3>
               <button
                 type="button"
                 className="close-modal"
@@ -199,38 +244,46 @@ const PayPoint = () => {
               </button>
             </div>
             <div className="modal-body">
-              <div className="payment-info">
-                <span className="link-icon" id="modalIcon">
-                  {paymentOptions.find((p) => p.name === selectedPayment)?.icon}
-                </span>
-                <div className="payment-info-text">
-                  <div className="payment-info-title" id="modalTitle">
-                    {selectedPayment}
+              {successMessage ? (
+                <>
+                  <div className="payment-info">
+                    <span className="link-icon" id="modalIcon">
+                      {paymentOptions.find((p) => p.name === selectedPayment)?.icon}
+                    </span>
+                    <div className="payment-info-text">
+                      <div className="payment-info-title" id="modalTitle">
+                        {selectedPayment}
+                      </div>
+                      <div className="payment-info-subtitle">
+                        {successMessage}
+                      </div>
+                      <div className="staff-id-display">
+                        Staff ID: <span id="modalStaffId">{staffId}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="payment-info-subtitle">
-                    You are about to make a payment
+                  <div className="payment-details">
+                    <p>
+                      <strong>Amount:</strong> GHS {amount}
+                    </p>
+                    <p>
+                      <strong>Policy ID:</strong> {policy_id}
+                    </p>
                   </div>
-                  <div className="staff-id-display">
-                    Staff ID: <span id="modalStaffId">{staffId}</span>
-                  </div>
+                </>
+              ) : (
+                <div className="error-message">
+                  {errorMessage || "An error occurred during payment processing"}
                 </div>
-              </div>
-              <p>Please confirm that you want to proceed with this payment.</p>
+              )}
             </div>
             <div className="modal-actions">
               <button
                 type="button"
-                className="modal-btn modal-btn-secondary"
+                className="modal-btn modal-btn-primary"
                 onClick={handleCloseModal}
               >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="modal-btn modal-btn-primary"
-                onClick={handleConfirmPayment}
-              >
-                <span>Confirm Payment</span>
+                Close
               </button>
             </div>
           </div>

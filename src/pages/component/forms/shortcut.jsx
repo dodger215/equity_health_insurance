@@ -10,7 +10,7 @@ import API_URL from '../link';
 import { useContext } from 'react';
 import { PopupContext } from '../../../App';
 
-export default function InsuranceForm() {
+export default function InsuranceFormShortcut() {
   const { setPopupState } = useContext(PopupContext)
   const navigate = useNavigate()
 
@@ -18,84 +18,58 @@ export default function InsuranceForm() {
   const agentId = localStorage.getItem("id")
   const branch = "1"
 
-  const id = localStorage.getItem("prospect_id")
-  console.log(`Prospects id: ${id}`)
-  
+  const { cli_id } = useParams()
+  console.log(`Client id: ${cli_id}`)
 
   const generateClientCode = () => {
     const currentDate = new Date().toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD format
     const randomNumber = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
     return `CLI_${currentDate}_${randomNumber}`;
   }
-  // const generateProductCode = () => {
-  //   const currentDate = new Date().toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD format
-  //   const randomNumber = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
-  //   return `PUD_${currentDate}_${randomNumber}`;
-  // }
 
   const [prospect, setProspect] = useState({
-    BranchID: 0,
     FirstName: '',
     LastName: '',
-    Email: '',
-    Phone: '',
+    OtherNames: '',
+    Gender: '',
     DateOfBirth: '',
-    Address: '',
-    Source: '',
-    Stage: '',
-    Status: '',
-    Notes: ''
+    PhoneNumber: '',
+    Email: '',
+    NationalIDNumber: '',
+    ResidentialAddress: '',
+    City: '',
+    CountryCode: '',
+    Occupation: '',
+    ClientCode: ''
   });
 
   const clientid = generateClientCode()
   
-
-  const [firstName, setFirstName] = useState("")
+  const [FirstName, setFirstName] = useState("")
   const [otherName, setOtherName] = useState("")
-  const [surname, setSurname] = useState("")
   const [lastName, setLastName] = useState("")
   const [dateOfBirth, setDOB] = useState("")
   const [gender, setGender] = useState("")
-
   const [nationalNumber, setNationalNumber] = useState('GHA--')
-
   const [idType, setIdType] = useState("")
   const [idNumber, setIdNumber] = useState("")
   const [occupation, setOccupation] = useState("")
-
   const [abs, setABS] = useState(false)
   const [daakye, setDaakye] = useState(false)
   const [ebusua, setEbusua] = useState(false)
   const [telemed, setTele] = useState(false)
   const [micro, setMicro] = useState(false)
-
-
   const [message, setMessage] = useState("");
-
-
-
-  const handleFileChange = (e, setter) => {
-    const file = e.target.files[0];
-    if (file) {
-      setter(file);
-    }
-  };
-
   
   const [phonenumber, setPhonenumber] = useState("")
   const [city, setCity] = useState("")
   const [email, setEmail] = useState("")
-  const [nationality, setNationality] = useState("")
   const [country, setCountry] = useState("")
   const [address, setAddress] = useState("")
-
   const [dependent_dob, setDependentDOB] = useState("")
   const [dependent_fname, setDependentFirstName] = useState("")
   const [dependent_lname, setDependentLastName] = useState("")
   const [dependent_rel, setDependentRel] = useState("")
-
-  
-
 
   // State for form values
   const [microPlan, setMicroPlan] = useState("")
@@ -129,7 +103,6 @@ export default function InsuranceForm() {
   const [ebusuaPremium, setEbusuaPremium] = useState("GHS 0.00")
   const [ebusuaBeneficiaries, setEbusuaBeneficiaries] = useState([])
 
-
   const [selectedPolicy, setSelectedPolicy] = useState("");
 
   // State for collapsible sections
@@ -141,7 +114,7 @@ export default function InsuranceForm() {
     ebusua: false,
   })
 
-  // Premium calculation data
+  // Premium calculation data (same as before)
   const microPremiums = {
     "Micro 1": { monthly: 52, quarterly: 156, "half-yearly": 312, annually: 624 },
     "Micro 2": { monthly: 88, quarterly: 264, "half-yearly": 528, annually: 1056 },
@@ -211,12 +184,11 @@ export default function InsuranceForm() {
     },
   }
 
-
   useEffect(() => {
-    if (id) {
+    if (cli_id) {
       const fetchProspect = async () => {
         try {
-          const response = await fetch(`${API_URL}/get/prospects/${id}`);
+          const response = await fetch(`${API_URL}/client-policies/${cli_id}`);
           const data = await response.json();
           setProspect(data);
         } catch (error) {
@@ -226,9 +198,7 @@ export default function InsuranceForm() {
 
       fetchProspect();
     }
-  }, [id]);
-
-  
+  }, [cli_id]);
 
   // Toggle collapsible sections
   const toggleSection = (section) => {
@@ -267,10 +237,7 @@ export default function InsuranceForm() {
     } else {
       setMicroPremium("GHS 0.00")
     }
-    
   }, [microPlan, microFrequency])
-
-  
 
   // Calculate ABS premium
   useEffect(() => {
@@ -326,11 +293,6 @@ export default function InsuranceForm() {
     }
   }, [teleSubscription])
 
- 
-
-  
-
-
   // Calculate EBUSUA premium
   useEffect(() => {
     if (ebusuaPlan && ebusuaLevel && ebusuaLives) {
@@ -360,362 +322,241 @@ export default function InsuranceForm() {
     }
   }, [ebusuaPlan, ebusuaLevel, ebusuaLives])
 
-  const [formData, setFormData] = useState({
-      clientInfo: {
-      }
-    })
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { clientId } = useParams();
-    const [formState, setFormState] = useState({
-      firstName: '',
-      surname: '',
-      dateOfBirth: '',
-      phonenumber: '',
-      email: '',
-      address: '',
-      nationalNumber: '',
-      idType: '',
-      idNumber: '',
-      occupation: '',
-      nationality: '',
-      city: '',
-      country: '',
-      // dependent_name: '',
-      // dependent_dob: '',
-      // dependent_rel: ''
-    });
+  // Authentication check
+  useEffect(() => {
+    if (!token || !agentId) {
+      console.log("No authentication token or agent ID found");
+      navigate("/login");
+    }
+  }, [token, agentId, navigate]);
 
-    //const [selectedPolicy, setSelectedPolicy] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  console.log(token)
+  console.log(agentId)
 
+  useEffect(() => {
+    if (prospect) {
+      setFirstName(prospect.FirstName || '');
+      setLastName(prospect.LastName || '');
+      setOtherName(prospect.OtherNames || '');
+      setDOB(prospect.DateOfBirth || '');
+      setGender(prospect.Gender || '');
+      setPhonenumber(prospect.PhoneNumber || '');
+      setEmail(prospect.Email || '');
+      setNationalNumber(prospect.NationalIDNumber || '');
+      setAddress(prospect.ResidentialAddress || '');
+      setCity(prospect.City || '');
+      setCountry(prospect.CountryCode || '');
+      setOccupation(prospect.Occupation || '');
+    }
+  }, [prospect]);
+
+  const handleFileChange = (e, setter) => {
+    const file = e.target.files[0];
+    if (file) {
+      setter(file);
+    }
+  };
+
+  const handleNineDigitsChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 9);
+    const oneDigit = nationalNumber.split('-')[2] || '';
+    setNationalNumber(`GHA-${value}-${oneDigit}`);
+  };
+
+  const handleOneDigitChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 1);
+    const nineDigits = nationalNumber.split('-')[1] || '';
+    setNationalNumber(`GHA-${nineDigits}-${value}`);
+  };
+
+  const parts = nationalNumber.split('-');
+  const nineDigits = parts.length > 1 ? parts[1] : '';
+  const oneDigit = parts.length > 2 ? parts[2] : '';
+
+  const generatePolicyId = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0"); 
+    const randomInt = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000; 
+    const policyPrefix = selectedPolicy.slice(0, 3);
+    return `${policyPrefix}_${year}$${month}&${randomInt}`;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!selectedPolicy) {
+      setMessage("Please select a policy before submitting.");
+      return;
+    }
+
+    const ID = nationalNumber ? '' : idNumber;
 
     
-    // Authentication check
-    useEffect(() => {
-      if (!token || !agentId) {
-        console.log("No authentication token or agent ID found");
-        navigate("/login");
-      }
-    }, [token, agentId, navigate]);
-
-    console.log(token)
-    console.log(agentId)
   
-    useEffect(() => {
-      if (prospect) {
-        setFirstName(prospect.FirstName || '');
-        setSurname(prospect.LastName || '');
-        setDOB(prospect.DateOfBirth || '');
-        setPhonenumber(prospect.Phone || '');
-        setEmail(prospect.Email || '');
-        setAddress(prospect.Address || '');
-        setNationalNumber(prospect.NationalIdNumber || '');
-        setIdType(prospect.IdType || '');
-        setIdNumber(prospect.IdNumber || '');
-        setOccupation(prospect.Occupation || '');
-        setNationality(prospect.Nationality || '');
-        setCity(prospect.City || '');
-        setCountry(prospect.Country || '');
-        
-
-        console.log(prospect.FirstName)
-      }
-    }, [prospect]);
-
-
-
-    const deleteProspect = async () => {
-      try {
-        const response = await fetch(`${API_URL}/prospects/${id}`, {
-          method: 'DELETE',
-        });
+    if (!FirstName || !lastName || !dateOfBirth || !phonenumber || !email || !address || !idType || !occupation || !country || !city) {
+      setMessage("Please fill out all required fields.");
+      return;
+    }
   
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        console.log('Prospect deleted:', data);
-        // Add your success handling here
-      } catch (error) {
-        console.error('Error deleting prospect:', error);
-        // Add your error handling here
-      }
+    const personal = {
+      client_id: clientid,
+      agent_id: agentId,
+      agent_branch: branch,
+      first_name: FirstName,
+      surname: lastName,
+      other_name: otherName,
+      date_of_birth: dateOfBirth,
+      national_id_number: nationalNumber || '',
+      gender: gender,
+      id_type: idType,
+      id_number: idNumber || '',
+      phone_number: phonenumber,
+      email_address: email,
+      residential_address: address,
+      city_town: city,
+      country: country,
+      occupation: occupation,
     };
 
-    const deleteAppointment = async () => {
-      try {
-        const response = await fetch(`${API_URL}/prospects/${id}`, {
-          method: 'DELETE',
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        console.log('Prospect deleted:', data);
-        // Add your success handling here
-      } catch (error) {
-        console.error('Error deleting prospect:', error);
-        // Add your error handling here
-      }
+    console.log("Data", personal);
+    const qwabs = {
+      "micro": microPremium,
+      "daakye": daakyeCalculatedSumAssured,
+      "abs": absPremium,
+      "ebusua": ebusuaPremium,
+      "tele": telePremium
+    }
+
+    const filteredValues = Object.entries(qwabs)
+      .filter(([_, value]) => parseFloat(value.replace(/[^\d.]/g, '')) > 0)
+      .map(([key, value]) => ({ product: key, total: value }));
+
+    const payload = {
+      client_id: clientid,
+      agent_id: agentId.toString(),
+      product: filteredValues.length > 0 ? filteredValues[0].product : "N/A", 
+      total: filteredValues.length > 0 ? filteredValues[0].total : "0.00",
+      sum_assured: daakyeCalculatedSumAssured.length > 0 ? daakyeCalculatedSumAssured : "0.00"
     };
     
-    const handleSubmit = async (e) => {
-      e.preventDefault();
+    let policyId = generatePolicyId();
+  
+    const policyData = {
+      policy_id: policyId,
+      client_id: clientid,
+      agent: agentId.toString(),
+      product_name: selectedPolicy,
+      product_code: Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000,
+    };
 
+    const dependentData = {
+      client_id: clientid.toString(),
+      agent: agentId.toString(),
+      product_name: selectedPolicy,
+      product_code: Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000,
+      full_name: `${dependent_fname} ${dependent_lname}`,
+      date_of_birth: dependent_dob.toString(),
+      relation_type: dependent_rel.toString(),
+    };
 
-      
-      const generatePolicyId = () => {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0"); 
-        const randomInt = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000; 
-        const policyPrefix = selectedPolicy.slice(0, 3);
-        return `${policyPrefix}_${year}$${month}&${randomInt}`;
-      };
-
-      
-      
-      const generateClientId = () => {
-        const now = new Date();
-        const year = now.getFullYear(); 
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const randomInt = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
-        return `CLI_${year}$${month}&${randomInt}`;
-      };
-
-      const productCode = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
-    
-      if (!selectedPolicy) {
-        setMessage("Please select a policy before submitting.");
-        return;
+    try {
+      const response = await fetch(`${API_URL}/create/clients/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(personal),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+  
+      const result = await response.json();
+      console.log("Client created successfully", result);
+      setPopupState({
+        show: true,
+        message: 'Client Created Successful!', 
+        page: 'login', 
+      });
 
-      const ID = nationalNumber ? '' : idNumber;
-
-    
-      if (!firstName || !surname || !dateOfBirth || !phonenumber || !email || !address || !idType || !occupation || !nationality || !city || !country) {
-        setMessage("Please fill out all required fields.");
-        return;
+      const policyResponse = await fetch(`${API_URL}/client-policies/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(policyData),
+      });
+  
+      if (!policyResponse.ok) {
+        throw new Error(`HTTP error! status: ${policyResponse.status}`);
       }
-    
-      const personal = {
-        client_id: clientid,
-        agent_id: agentId,
-        agent_branch: branch,
-        first_name: firstName,
-        surname: surname,
-        other_name: otherName,
-        last_name: lastName,
-        date_of_birth: dateOfBirth,
-        national_id_number: nationalNumber || '',
-        gender: gender,
-        id_type: idType,
-        id_number: idNumber || '',
-        phone_number: phonenumber,
-        email_address: email,
-        nationality: nationality,
-        residential_address: address,
-        city_town: city,
-        country: country,
-        occupation: occupation,
-      };
+  
+      const policyResult = await policyResponse.json();
+      console.log("Policy submitted successfully:", policyResult);
 
-
-      const qwabs = {
-        "micro": microPremium,
-        "daakye": daakyeCalculatedSumAssured,
-        "abs": absPremium,
-        "ebusua": ebusuaPremium,
-        "tele": telePremium
+      const PayLoadResponse = await fetch(`${API_URL}/premiums/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!PayLoadResponse.ok) {
+        throw new Error(`HTTP error! status: ${PayLoadResponse.status}`);
       }
-    
   
-      // console.log(
-      //   Object.entries(qwabs)
-      //     .filter(([_, value]) => parseFloat(value.replace(/[^\d.]/g, '')) > 0)
-      //     .map(([key, value]) => `${key}: ${value}`)
-      //     .join(', ')
-      // );
+      const payLoadResult = await PayLoadResponse.json();
+      console.log("Policy submitted successfully:", payLoadResult);
   
-      const found = Object.entries(qwabs)
-                    .filter(([_, value]) => parseFloat(value.replace(/[^\d.]/g, '')) > 0)
-                    .map(([key, value]) => `${key}: ${value}`)
-                    .join(', ')
-  
-      console.log(JSON.stringify(found));
-  
-  
-      const filteredValues = Object.entries(qwabs)
-                            .filter(([_, value]) => parseFloat(value.replace(/[^\d.]/g, '')) > 0)
-                            .map(([key, value]) => ({ product: key, total: value }));
-  
-  
-      const payload = {
-        client_id: clientid,
-        agent_id: agentId.toString(),
-        product: filteredValues.length > 0 ? filteredValues[0].product : "N/A", 
-        total: filteredValues.length > 0 ? filteredValues[0].total : "0.00" ,
-        sum_assured: daakyeCalculatedSumAssured.length > 0 ? daakyeCalculatedSumAssured : "0.00"
-      };
-      
-      console.log(`Premium: ${JSON.stringify(payload)}`);
-  
-  
-      console.log(qwabs)
-      localStorage.setItem("total_premium", JSON.stringify(qwabs));
-  
-    
-    
-      let policyId = generatePolicyId();
-    
-      const policyData = {
-        policy_id: policyId,
-        client_id: clientid,
-        agent: agentId.toString(),
-        product_name: selectedPolicy,
-        product_code: productCode.toString(),
-      };
-    
-      const dependentData = {
-        client_id: clientid.toString(),
-        agent: agentId.toString(),
-        product_name: selectedPolicy,
-        product_code: productCode.toString(),
-        full_name: `${dependent_fname} ${dependent_lname}`,
-        date_of_birth: dependent_dob.toString(),
-        relation_type: dependent_rel.toString(),
-      };
-
-
-
-      console.log(`Dependant: ${dependentData}`);
-    
-      try {
-        const response = await fetch(`${API_URL}/create/clients/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(personal),
-        });
-    
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-    
-        const result = await response.json();
-        console.log("Client created successfully", result);
-        setPopupState({
-          show: true,
-          message: 'Client Created Successful!', 
-          page: 'login', 
-        });
-        deleteProspect();
-        deleteAppointment();
-    
-    
-        const policyResponse = await fetch(`${API_URL}/client-policies/`, {
+      if (dependentData.product_name === "ebusua") {
+        const dependentResponse = await fetch(`${API_URL}/dependants/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(policyData),
+          body: JSON.stringify(dependentData),
         });
-    
-        if (!policyResponse.ok) {
-          throw new Error(`HTTP error! status: ${policyResponse.status}`);
+  
+        if (!dependentResponse.ok) {
+          throw new Error(`HTTP error! status: ${dependentResponse.status}`);
         }
-    
-        const policyResult = await policyResponse.json();
-        console.log("Policy submitted successfully:", policyResult);
-
-
-
-        const PayLoadResponse = await fetch(`${API_URL}/premiums/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
-    
-        if (!PayLoadResponse.ok) {
-          throw new Error(`HTTP error! status: ${PayLoadResponse.status}`);
-        }
-    
-        const payLoadResult = await PayLoadResponse.json();
-        console.log("Policy submitted successfully:", payLoadResult);
-    
-        if (dependentData.product_name === "ebusua") {
-          const dependentResponse = await fetch(`${API_URL}/dependants/`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(dependentData),
-          });
-    
-          if (!dependentResponse.ok) {
-            throw new Error(`HTTP error! status: ${dependentResponse.status}`);
-          }
-    
-          const dependentResult = await dependentResponse.json();
-          console.log("Dependent submitted successfully:", dependentResult);
-        }
-    
-        navigate(`/ListClient`);
-        console.log("Navigating to /ListClient"); // Debugging line
-      } catch (error) {
-        console.error('Submission error:', error);
-        setPopupState({
-          show: true,
-          message: error.response?.data?.message || 'Submission failed. Please try again.', 
-          page: 'login', 
-        });
-      } finally {
-        setIsSubmitting(false);
+  
+        const dependentResult = await dependentResponse.json();
+        console.log("Dependent submitted successfully:", dependentResult);
       }
-    };
-
-
-    const handleNineDigitsChange = (e) => {
-      const value = e.target.value.replace(/\D/g, '').slice(0, 9); // Allow only digits and limit to 9
-      const oneDigit = nationalNumber.split('-')[2] || ''; // Get the existing oneDigit part
-      setNationalNumber(`GHA-${value}-${oneDigit}`); // Update the nationalNumber state
-    };
   
-    const handleOneDigitChange = (e) => {
-      const value = e.target.value.replace(/\D/g, '').slice(0, 1); // Allow only digits and limit to 1
-      const nineDigits = nationalNumber.split('-')[1] || ''; // Get the existing nineDigits part
-      setNationalNumber(`GHA-${nineDigits}-${value}`); // Update the nationalNumber state
-    };
-  
-    const parts = nationalNumber.split('-');
-    const nineDigits = parts.length > 1 ? parts[1] : '';
-    const oneDigit = parts.length > 2 ? parts[2] : '';
-  
+      navigate(`/ListClient`);
+      console.log("Navigating to /ListClient");
+    } catch (error) {
+      console.error('Submission error:', error);
+      setPopupState({
+        show: true,
+        message: error.response?.data?.message || 'Submission failed. Please try again.', 
+        page: 'login', 
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
- 
   if(setMessage){
     console.log(message)
   }
-  
+
   const set = () => {
     const nav = "product"
-
     localStorage.setItem("nav", nav)
     navigate("/agent/main")
-    
   }
-
-
 
   return (
     <div className={styles.container}>
@@ -736,51 +577,52 @@ export default function InsuranceForm() {
           <div className={styles.formGroup}>
             <label htmlFor="firstName">First Name</label>
             <input 
-            type="text" 
-            id="firstName" 
-            name="firstName"
-            value={ prospect.firstName || firstName }
-            onChange={(e) => setFirstName(e.target.value)} 
-            style={{ textTransform: 'capitalize' }}
-            required />
+              type="text" 
+              id="firstName" 
+              name="firstName"
+              value={prospect.FirstName || FirstName}
+              onChange={(e) => setFirstName(e.target.value)} 
+              style={{ textTransform: 'capitalize' }}
+              required 
+            />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="surname">Surname</label>
+            <label htmlFor="lastName">Last Name</label>
             <input 
-            type="text" 
-            id="surname" 
-            name="surname"
-            value={ prospect.lastName || surname }
-            onChange={(e) => setSurname(e.target.value)} 
-            style={{ textTransform: 'capitalize' }}
-            required />
+              type="text" 
+              id="lastName" 
+              name="lastName"
+              value={prospect.LastName || lastName}
+              onChange={(e) => setLastName(e.target.value)} 
+              style={{ textTransform: 'capitalize' }}
+              required 
+            />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="lastName">Other name</label>
+            <label htmlFor="otherName">Other name</label>
             <input 
-            type="text" 
-            id="otherName" 
-            name="otherName"
-            value={ otherName }
-            onChange={(e) => setOtherName(e.target.value)}  
-            style={{ textTransform: 'capitalize' }}
-            required />
+              type="text" 
+              id="otherName" 
+              name="otherName"
+              value={prospect.OtherNames || otherName}
+              onChange={(e) => setOtherName(e.target.value)}  
+              style={{ textTransform: 'capitalize' }}
+            />
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="dateOfBirth">Date of Birth</label>
             <div className={styles.dateInputWrapper}>
               <input 
-              type="date" 
-              id="dateOfBirth" 
-              name="dateOfBirth"
-              value={ prospect.DateOfBirth || dateOfBirth }
-              onChange={(e) => setDOB(e.target.value)}  
-              required />
-              {/* <FontAwesomeIcon icon={faCalendar} /> */}
+                type="date" 
+                id="dateOfBirth" 
+                name="dateOfBirth"
+                value={prospect.DateOfBirth || dateOfBirth}
+                onChange={(e) => setDOB(e.target.value)}  
+                required 
+              />
             </div>
           </div>
           
-         
           <div className={styles.formGroup}>
             <label htmlFor="idType">Type of ID</label>
             <select
@@ -810,7 +652,6 @@ export default function InsuranceForm() {
                   value={nineDigits}
                   onChange={handleNineDigitsChange}
                   maxLength={9}
-                
                   style={{ width: '100px', margin: '0 5px' }}
                 />
                 <span>-</span>
@@ -821,7 +662,6 @@ export default function InsuranceForm() {
                   value={oneDigit}
                   onChange={handleOneDigitChange}
                   maxLength={1}
-                  
                   style={{ width: '30px', margin: '0 5px' }} 
                 />
               </div>
@@ -834,151 +674,114 @@ export default function InsuranceForm() {
                   type="text" 
                   id="idNumber" 
                   name="idNumber"
-                  value={idNumber}
+                  value={idNumber || "none"}
                   onChange={(e) => setIdNumber(e.target.value)}  
-                  
                 />
               </div>
             )
           )}
 
-                    {/* <div className={styles.formGroup}>
-          <label htmlFor="frontImage">Front Image of Ghana Card</label>
-          <input
-            type="file"
-            id="frontImage"
-            name="frontImage"
-            onChange={handleFrontImageChange}
-            accept="image/*"
-            required
-          />
-          {frontImage && <p>Selected file: {frontImage.name}</p>}
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="backImage">Back Image of Ghana Card</label>
-          <input
-            type="file"
-            id="backImage"
-            name="backImage"
-            onChange={handleBackImageChange}
-            accept="image/*"
-            required
-          />
-          {backImage && <p>Selected file: {backImage.name}</p>}
-        </div> */}
-
-
           <div className={styles.formGroup}>
             <label htmlFor="occupation">Occupation</label>
             <input 
-            type="text" 
-            id="occupation" 
-            name="occupation"
-            value={ occupation }
-            onChange={(e) => setOccupation(e.target.value)}  
-            required />
+              type="text" 
+              id="occupation" 
+              name="occupation"
+              value={prospect.Occupation || occupation}
+              onChange={(e) => setOccupation(e.target.value)}  
+              required 
+            />
           </div>
         </div>
-
-        
 
         <div className={styles.formGroup}>
           <label>Gender</label>
           <div className={styles.radioGroup}>
             <label>
               <input 
-              type="radio" 
-              name="gender"
-              value="male"
-              checked={gender === "male"}
-              onChange={(e) => setGender(e.target.value)} />
+                type="radio" 
+                name="gender"
+                value="male"
+                checked={gender === "male"}
+                onChange={(e) => setGender(e.target.value)} 
+              />
               Male
             </label>
             <label>
               <input 
-              type="radio" 
-              name="gender" 
-              value="female"
-              checked={gender === "female"}
-              onChange={(e) => setGender(e.target.value)}/>
+                type="radio" 
+                name="gender" 
+                value="female"
+                checked={gender === "female"}
+                onChange={(e) => setGender(e.target.value)}
+              />
               Female
             </label>
           </div>
         </div>
 
-        
         <h2 className={styles.sectionTitle}>Client Contact</h2>
         <div className={styles.formGrid}>
           <div className={styles.formGroup}>
             <label htmlFor="phone">Phone number</label>
             <input 
-            type="tel" 
-            id="phone" 
-            name="phonenumber"
-            value={ prospect.phone || phonenumber }
-            onChange={(e) => setPhonenumber(e.target.value)} 
-            placeholder="+233 (0) "
-            required />
+              type="tel" 
+              id="phone" 
+              name="phonenumber"
+              value={prospect.PhoneNumber || phonenumber}
+              onChange={(e) => setPhonenumber(e.target.value)} 
+              placeholder="+233 (0) "
+              required 
+            />
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="email">Email</label>
             <input 
-            type="email" 
-            id="email" 
-            name="email"
-            value={ prospect.email || email }
-            onChange={(e) => setEmail(e.target.value)} 
-            required />
+              type="email" 
+              id="email" 
+              name="email"
+              value={prospect.Email || email}
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
+            />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="nationality">Nationality</label>
-            <input 
-            type="text" 
-            id="nationality" 
-            name="nationality"
-            value={ nationality }
-            onChange={(e) => setNationality(e.target.value)}  
-            required />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="city">Residential Address</label>
+            <label htmlFor="address">Residential Address</label>
             <div className={styles.dateInputWrapper}>
               <textarea  
-              id="address" 
-              name="address"
-              value={ address }
-              onChange={(e) => setAddress(e.target.value)}  
-              required ></textarea>
-              
+                id="address" 
+                name="address"
+                value={prospect.ResidentialAddress || address}
+                onChange={(e) => setAddress(e.target.value)}  
+                required 
+              ></textarea>
             </div>
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="city">City/Town</label>
             <div className={styles.dateInputWrapper}>
               <input 
-              type="text" 
-              id="city" 
-              name="city"
-              value={ city }
-              onChange={(e) => setCity(e.target.value)}  
-              required />
-              
+                type="text" 
+                id="city" 
+                name="city"
+                value={prospect.City || city}
+                onChange={(e) => setCity(e.target.value)}  
+                required 
+              />
             </div>
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="county">Country</label>
+            <label htmlFor="country">Country</label>
             <div className={styles.dateInputWrapper}>
               <input 
-              type="text" 
-              id="country" 
-              name="country"
-              value={ country }
-              onChange={(e) => setCountry(e.target.value)}  
-              required />
-              
+                type="text" 
+                id="country" 
+                name="country"
+                value={prospect.CountryCode || country}
+                onChange={(e) => setCountry(e.target.value)}  
+                required 
+              />
             </div>
           </div>
         </div>
@@ -987,13 +790,12 @@ export default function InsuranceForm() {
         <h2 className={styles.sectionTitle}>Policy Selection</h2>
 
         {/* MICRO Policy Section */}
-
         <div className={styles.collapsibleSection}>
           <div
             className={`${styles.collapsibleHeader} ${activeSections.micro ? styles.active : ""}`}
             onClick={() => {
-              setSelectedPolicy("micro"); // Set the selected policy to "micro"
-              toggleSection("micro"); // Toggle the micro section
+              setSelectedPolicy("micro");
+              toggleSection("micro");
             }}
           >
             <span>MICRO</span>
@@ -1009,8 +811,8 @@ export default function InsuranceForm() {
                   value="micro"
                   checked={selectedPolicy === "micro"}
                   onChange={() => {
-                    setSelectedPolicy("micro"); // Update the selected policy
-                    toggleSection("micro"); // Expand the micro section
+                    setSelectedPolicy("micro");
+                    toggleSection("micro");
                   }}
                 />
                 If requested select
@@ -1049,8 +851,8 @@ export default function InsuranceForm() {
           <div
             className={`${styles.collapsibleHeader} ${activeSections.abs ? styles.active : ""}`}
             onClick={() => {
-              setSelectedPolicy("abs"); // Set the selected policy to "abs"
-              toggleSection("abs"); // Toggle the abs section
+              setSelectedPolicy("abs");
+              toggleSection("abs");
             }}
           >
             <span>ABS</span>

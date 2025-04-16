@@ -1,80 +1,145 @@
 "use client"
 
-import { useState } from "react"
-import styles from "./page.module.css"
-import { premiums } from "./data"
-import BeneficiaryFields from "./beneficiary-fields"
-import { useNavigate } from "react-router-dom"
-import { Close } from "../../ui/button"
+import { useState, useEffect } from "react";
+import { premiums } from "./data";
+import { useNavigate } from "react-router-dom";
+import { Close } from "../../ui/button";
+import { Card, Row, Col, Form, ListGroup, Badge } from 'react-bootstrap';
+import '../calculator.css';
+import Select from "../select";
 
 export default function EbusuaCalculator() {
-  const [plan, setPlan] = useState("Shea")
-  const [level, setLevel] = useState("1")
-  const [lives, setLives] = useState("M")
-  const [premium, setPremium] = useState("")
-
-  const navigate = useNavigate()
-
-  const set = () => {
-    // Define the nav key as a string
-    const nav = "calculator"
-
-    localStorage.setItem("nav", nav)
-    navigate("/agent/main")
-  }
+  const navigate = useNavigate();
+  
+  const [plan, setPlan] = useState("Shea");
+  const [level, setLevel] = useState("1");
+  const [lives, setLives] = useState("M");
+  const [premium, setPremium] = useState("GHC 0.00");
 
   const calculatePremium = () => {
     if (premiums[plan] && premiums[plan][level] && premiums[plan][level][lives]) {
-      const premiumAmount = premiums[plan][level][lives]
-      setPremium(`GHC ${premiumAmount.toFixed(2)}`)
+      const premiumAmount = premiums[plan][level][lives];
+      setPremium(`GHC ${premiumAmount.toFixed(2)}`);
     } else {
-      setPremium("Error!")
+      setPremium("Invalid selection");
     }
-  }
+  };
 
-  const handleChange = (e, setter) => {
-    setter(e.target.value)
-    setTimeout(calculatePremium, 0)
-  }
+  useEffect(() => {
+    calculatePremium();
+  }, [plan, level, lives]);
+
+  const planOptions = [
+    { value: "Shea", label: "Shea" },
+    { value: "Oak", label: "Oak" },
+    { value: "Mahogany", label: "Mahogany" },
+    { value: "Rosewood", label: "Rosewood" },
+  ];
+
+  const levelOptions = [
+    { value: "1", label: "Level 1 (Base Cover)" },
+    { value: "2", label: "Level 2 (Base + Dental)" },
+    { value: "3", label: "Level 3 (Base + Dental + Optical)" },
+    { value: "4", label: "Level 4 (Base + Dental + Optical + Maternity)" },
+  ];
+
+  const livesOptions = [
+    { value: "M", label: "Individual (M)" },
+    { value: "M+1", label: "M+1 (2 lives)" },
+    { value: "M+2", label: "M+2 (3 lives)" },
+    { value: "M+3", label: "M+3 (4 lives)" },
+    { value: "M+4", label: "M+4 (5 lives)" },
+    { value: "M+5", label: "M+5 (6 lives)" },
+  ];
 
   return (
-    <div className={styles.container}>
+    <div className="calculator-containers p-3">
+      <Close tab={'calculator'} variant="light" />
       
-      <Close title={"EBUSUA Health Insurance Premium Calculator"} tab={'calculator'}/>
-      <h1></h1>
-      <form className={styles.form} id="premiumForm">
-        <label htmlFor="plan">Select Plan:</label>
-        <select id="plan" value={plan} onChange={(e) => handleChange(e, setPlan)} className={styles.select}>
-          <option value="Shea">Shea</option>
-          <option value="Oak">Oak</option>
-          <option value="Mahogany">Mahogany</option>
-          <option value="Rosewood">Rosewood</option>
-        </select>
+      {/* Input Card */}
+      <Card className="border-success mb-4">
+        <Card.Header className="bg-success text-white">
+          <div className="d-flex justify-content-between align-items-center">
+            <h5 className="mb-0">EBUSUA Health Insurance Calculator</h5>
+          </div>
+        </Card.Header>
+        <Card.Body>
+          <Form>
+            <Row className="g-3">
+              <Col md={6}>
+                <Form.Group controlId="planSelect">
+                  <Select
+                    id="plan"
+                    label="Select Plan"
+                    value={plan}
+                    options={planOptions}
+                    onChange={setPlan}
+                  />
+                </Form.Group>
+              </Col>
+              
+              <Col md={6}>
+                <Form.Group controlId="levelSelect">
+                  <Select
+                    id="level"
+                    label="Select Coverage Level"
+                    value={level}
+                    options={levelOptions}
+                    onChange={setLevel}
+                  />
+                </Form.Group>
+              </Col>
+              
+              <Col md={12}>
+                <Form.Group controlId="livesSelect">
+                  <Select
+                    id="lives"
+                    label="Select Number of Lives"
+                    value={lives}
+                    options={livesOptions}
+                    onChange={setLives}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
+        </Card.Body>
+      </Card>
 
-        <label htmlFor="level">Select Level:</label>
-        <select id="level" value={level} onChange={(e) => handleChange(e, setLevel)} className={styles.select}>
-          <option value="1">Level 1 (Base Cover)</option>
-          <option value="2">Level 2 (Base + Dental)</option>
-          <option value="3">Level 3 (Base + Dental + Optical)</option>
-          <option value="4">Level 4 (Base + Dental + Optical + Maternity)</option>
-        </select>
-
-        <label htmlFor="lives">Select Number of Lives:</label>
-        <select id="lives" value={lives} onChange={(e) => handleChange(e, setLives)} className={styles.select}>
-          <option value="M">M (Individual)</option>
-          <option value="M+1">M+1</option>
-          <option value="M+2">M+2</option>
-          <option value="M+3">M+3</option>
-          <option value="M+4">M+4</option>
-          <option value="M+5">M+5</option>
-        </select>
-
-        <label htmlFor="premium">Yearly Premium:</label>
-        <input type="text" id="premium" value={premium} readOnly className={styles.input} />
-
-        {/* <BeneficiaryFields lives={lives} /> */}
-      </form>
+      {/* Results Card */}
+      <Card className="border-success">
+        <Card.Header className="bg-success text-white">
+          <h5 className="mb-0">Premium Summary</h5>
+        </Card.Header>
+        <Card.Body>
+          <ListGroup variant="flush">
+            <ListGroup.Item className="d-flex justify-content-between align-items-center py-3">
+              <span>Selected Plan:</span>
+              <Badge bg="success" pill>
+                {plan}
+              </Badge>
+            </ListGroup.Item>
+            <ListGroup.Item className="d-flex justify-content-between align-items-center py-3">
+              <span>Coverage Level:</span>
+              <Badge bg="info" pill>
+                {levelOptions.find(opt => opt.value === level)?.label.split(' ')[0]}
+              </Badge>
+            </ListGroup.Item>
+            <ListGroup.Item className="d-flex justify-content-between align-items-center py-3">
+              <span>Number of Lives:</span>
+              <Badge bg="primary" pill>
+                {lives === "M" ? "1" : lives.replace("M+", "") + " + 1"}
+              </Badge>
+            </ListGroup.Item>
+            <ListGroup.Item className="d-flex justify-content-between align-items-center py-3">
+              <span>Yearly Premium:</span>
+              <Badge bg="warning" pill className="fs-6">
+                {premium}
+              </Badge>
+            </ListGroup.Item>
+          </ListGroup>
+        </Card.Body>
+      </Card>
     </div>
-  )
+  );
 }
-

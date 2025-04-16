@@ -61,9 +61,6 @@ const ImageUploadForm = () => {
     //     }
     // };
 
-    const handleSkip = () => {
-        navigate(`/ListClient`);
-    };
 
     // Handle form submission
     // const handleSubmit = async (e) => {
@@ -142,7 +139,6 @@ const ImageUploadForm = () => {
                             message: 'National ID Image Uploaded Successfully 🎉', 
                             page: 'login', 
                           });
-            handleSkip();
           } catch (error) {
             console.error("Error uploading files:", error);
           }
@@ -151,29 +147,29 @@ const ImageUploadForm = () => {
         const [imageUrl, setImageUrl] = useState(null);
         const [fileId, setFileId] = useState("");
       
-        const fetchFile = async () => { 
+        // const fetchFile = async () => { 
             
-                try {
-                  const response = await fetch(`http://localhost:8000/files/image/${clientId}`);
+        //         try {
+        //           const response = await fetch(`http://localhost:8000/files/image/${clientId}`);
                   
-                  // Verify content length before processing
-                  const contentLength = response.headers.get('Content-Length');
-                  if (contentLength === '0') throw new Error('Server returned empty file');
+        //           // Verify content length before processing
+        //           const contentLength = response.headers.get('Content-Length');
+        //           if (contentLength === '0') throw new Error('Server returned empty file');
                   
-                  const blob = await response.blob();
-                  console.log("Received blob:", {
-                    size: blob.size,  // Must match Content-Length
-                    type: blob.type   // e.g. "image/png"
-                  });
+        //           const blob = await response.blob();
+        //           console.log("Received blob:", {
+        //             size: blob.size,  // Must match Content-Length
+        //             type: blob.type   // e.g. "image/png"
+        //           });
                   
-                  setImageUrl(URL.createObjectURL(blob));
-                } catch (error) {
-                  console.error("Image load failed:", error);
-                  setImageUrl('/fallback-image.png');
-                }
+        //           setImageUrl(URL.createObjectURL(blob));
+        //         } catch (error) {
+        //           console.error("Image load failed:", error);
+        //           setImageUrl('/fallback-image.png');
+        //         }
 
               
-          };
+        //   };
           
           // Clean up blob URL on unmount
           useEffect(() => {
@@ -189,13 +185,8 @@ const ImageUploadForm = () => {
 
     return (
         <div className='imageContainer'>
-            <Close title={<div className='skip' onClick={handleSkip}>Next</div>} tab={'home'}/>
-            <div>
-    
-
-
-               
-                <div style={{
+            <div>               
+            <div style={{
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -229,13 +220,34 @@ const ImageUploadForm = () => {
                             accept='image/*'
                         />
                     </div>
-                    {frontCard && <p>{frontCard.name}</p>} <br/> {backCard && <p>{backCard.name}</p>}
-                </div>
+                    <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
+                        {frontCard && (
+                        <div>
+                            <p>Front of Card</p>
+                            <img
+                            src={URL.createObjectURL(frontCard)}
+                            alt="Front Card"
+                            style={{ width: '200px', height: 'auto', border: '1px solid #ccc' }}
+                            />
+                        </div>
+                        )}
 
-    
+                        {backCard && (
+                        <div>
+                            <p>Back of Card</p>
+                            <img
+                            src={URL.createObjectURL(backCard)}
+                            alt="Back Card"
+                            style={{ width: '200px', height: 'auto', border: '1px solid #ccc' }}
+                            />
+                        </div>
+                        )}
+                    </div>
+
+
+                </div>
                 </form>
             
-                
                 <button style={{
                     margin: "10px 0",
                 }}
@@ -270,7 +282,7 @@ const ImageUploadForm = () => {
             
 
 
-            <div className={styles.collapsibleSection} style={{
+            {/* <div className={styles.collapsibleSection} style={{
                 margin: "40px 0",
             }}>
                 <div
@@ -296,7 +308,7 @@ const ImageUploadForm = () => {
                         <p><strong>Email:</strong> {clientData.email_address}</p>
                     </div>
                 )}
-            </div>
+            </div> */}
 
             {/* {message && <p>{message}</p>} */}
         </div>

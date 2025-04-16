@@ -7,8 +7,11 @@ import Settings from "./logout";
 
 function Dashboard() {
     const getNav = localStorage.getItem("nav");
-    const activeTabDefault = getNav && getNav.trim() !== "" ? getNav.trim() : "home";
+    const activeTabDefault = getNav === null || getNav === undefined || getNav.trim() === "" ? "home" : getNav.trim();
 
+    console.log("Final activeTabDefault:", activeTabDefault);
+
+    
     const [activeTab, setActiveTab] = useState(activeTabDefault);
 
     useEffect(() => {

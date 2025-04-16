@@ -75,16 +75,16 @@ You have applied for ${data?.product.toUpperCase()} with a premium ${data?.total
 Please provide the token:${randomCode} to the agent to finalise your application.`;
 
       // Send email
-      await emailjs.send('service_1zc90u8', 'template_zqpczsv', {
-        to_name: `${clientName}`,
-        from_name: "Equity",
-        message: `${msg}`,
-        reply_to: 'no-reply@yourcompany.com',
-        to_client: response.data.email_address,
-        from_email: "info@equityinsurance.com",
-      }, 'OdwbNHd4lP5RDWUr6');
+      // await emailjs.send('service_1zc90u8', 'template_zqpczsv', {
+      //   to_name: `${clientName}`,
+      //   from_name: "Equity",
+      //   message: `${msg}`,
+      //   reply_to: 'no-reply@yourcompany.com',
+      //   to_client: response.data.email_address,
+      //   from_email: "info@equityinsurance.com",
+      // }, 'OdwbNHd4lP5RDWUr6');
 
-      // Send SMS
+      
       await axios.post(`${API_URL}/sent-sms/`, {
         number: clientNumber,
         message: msg

@@ -1,0 +1,76 @@
+.calculator-containers {
+    margin: 50px auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+
+  .calculator-containers .border-info{
+    margin: 20px 0;
+  }
+ 
+  .calculator-containers .border-danger {
+    border-width: 2px !important;
+  }
+  
+ 
+  .calculator-container .card-header h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+
+
+  .calculator-containers .selectContainer {
+    margin-bottom: 1rem;
+  }
+  
+  .calculator-containers .customSelect {
+    position: relative;
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    min-width: 200px;
+  }
+  
+  .calculator-containers .selectHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .calculator-containers .arrow {
+    margin-left: 8px;
+  }
+  
+  .calculator-containers .selectOptions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .calculator-containers .option {
+    padding: 8px 12px;
+    transition: background-color 0.2s;
+  }
+  
+  .calculator-containers .option:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .calculator-containers .selectedOption {
+    background-color: #e0e0e0;
+    font-weight: bold;
+  }

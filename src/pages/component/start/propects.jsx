@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./ProspectForm.module.css";
 import { Close } from "../ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,11 +9,24 @@ import API_URL from "../link";
 import { useContext } from "react";
 import { PopupContext } from "../../../App";
 import { useNavigate } from "react-router-dom";
+import DocumentScanner from "./DocumentScanner";
+import { faCamera } from "@fortawesome/free-solid-svg-icons";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 function ProspectForm() {
   const agentid = parseInt(localStorage.getItem('id'), 10);
   const branchid = parseInt(localStorage.getItem('branch'), 10) || 1;
+  const [showScanner, setShowScanner] = useState(false);
   const navigate = useNavigate()
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // animation duration in milliseconds
+      easing: 'ease-in-out', // default easing for AOS animations
+      once: false // whether animation should happen only once
+    });
+  })
 
   const [formData, setFormData] = useState({
     "AgentID": agentid || 0,
@@ -33,6 +46,39 @@ function ProspectForm() {
 
   const [productKey, setProductKey] = useState("");
   const [productValue, setProductValue] = useState("");
+
+  const handleDataExtracted = (extractedData) => {
+    setFormData(prev => ({
+      ...prev,
+      ...extractedData
+    }));
+    
+    setPopupState({
+      show: true,
+      message: 'Data extracted successfully!',
+      page: 'prospect_forms',
+    });
+  };
+
+
+  useEffect(() => {
+    const onResize = () => {
+      const viewport = window.visualViewport;
+      if (viewport) {
+        const keyboardHeight = window.innerHeight - viewport.height;
+        document.body.style.paddingBottom = keyboardHeight + 'px';
+      }
+    };
+  
+    window.visualViewport?.addEventListener('resize', onResize);
+  
+    return () => {
+      window.visualViewport?.removeEventListener('resize', onResize);
+      document.body.style.paddingBottom = '0px';
+    };
+  }, []);
+  
+
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -58,13 +104,6 @@ function ProspectForm() {
     }
   };
 
-  // const removeInterestedProduct = (key) => {
-  //   setFormData(prevState => {
-  //     const updatedProducts = { ...prevState.InterestedProducts };
-  //     delete updatedProducts[key];
-  //     return { ...prevState, InterestedProducts: updatedProducts };
-  //   });
-  // };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -152,9 +191,25 @@ const handleSubmit = async (e) => {
       <div className={`${styles.formContainer} card mt-4 mb-4`}>
         <div className="card-body">
           <h1>Prospects Form</h1>
+
+          {/* Add Camera/Upload Button */}
+          <div className="mb-3" style={{
+            position: "absolute",
+            bottom: "30px",
+            right: "30px",
+            borderRadius: "100px",
+          }}>
+            <button 
+              type="button" 
+              className="btn btn-secondary"
+              onClick={() => setShowScanner(true)}
+            >
+              <FontAwesomeIcon icon={faCamera} className="me-2" />
+            </button>
+          </div>
           <form onSubmit={handleSubmit}>
 
-            <fieldset>
+            <fieldset data-aos="zoom-in" data-aos-delay="100">
               <div className="row mb-6">
                 <div className="col-md-6">
                   <label htmlFor="FirstName" className="form-label">
@@ -189,7 +244,7 @@ const handleSubmit = async (e) => {
               </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset data-aos="zoom-in" data-aos-delay="500">
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label htmlFor="Email" className="form-label">
@@ -221,7 +276,7 @@ const handleSubmit = async (e) => {
               </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset data-aos="zoom-in" data-aos-delay="1000">
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label htmlFor="DateOfBirth" className="form-label">
@@ -273,98 +328,7 @@ const handleSubmit = async (e) => {
               </div>
             </fieldset>
 
-            {/* <fieldset>
-              <div className="row mb-3 field">
-                <div className="col-md-6">
-                  <label htmlFor="Stage" className="form-label">
-                    Stage
-                  </label>
-                  <select
-                    className="form-select"
-                    id="Stage"
-                    name="Stage"
-                    value={formData.Stage}
-                    onChange={handleChange}
-                  >
-                    <option value="New">New</option>
-                    <option value="Contacted">Contacted</option>
-                    <option value="Qualified">Qualified</option>
-                    <option value="Proposal">Proposal</option>
-                    <option value="Negotiation">Negotiation</option>
-                    <option value="Closed Won">Closed Won</option>
-                    <option value="Closed Lost">Closed Lost</option>
-                  </select>
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="Status" className="form-label">
-                    Status
-                  </label>
-                  <select
-                    className="form-select"
-                    id="Status"
-                    name="Status"
-                    value={formData.Status}
-                    onChange={handleChange}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Converted">Converted</option>
-                    <option value="Lost">Lost</option>
-                  </select>
-                </div>
-              </div>
-            </fieldset> */}
-
-            {/* <fieldset>
-              <div className="mb-3">
-                <label className="form-label">Interested Products</label>
-                <div className="card p-3 mb-2">
-                  <div className="row g-2">
-                    <div className="col-md-5">
-                      <input
-                        type="text"
-                        className=""
-                        placeholder="Product Name"
-                        value={productKey}
-                        onChange={(e) => setProductKey(e.target.value)}
-                      />
-                    </div>
-                    <div className="col-md-5">
-                      <input
-                        type="text"
-                        className=""
-                        placeholder="Details"
-                        value={productValue}
-                        onChange={(e) => setProductValue(e.target.value)}
-                      />
-                    </div>
-                    <div className="col-md-2">
-                      <button className="btn btn-success w-100" onClick={addInterestedProduct}>
-                        <FontAwesomeIcon icon={faPlus} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {Object.keys(formData.InterestedProducts).length > 0 && (
-                    <div className="mt-3 card border">
-                      <h6>Added Products:</h6>
-                      <ul className="list-group">
-                        {Object.entries(formData.InterestedProducts).map(([key, value]) => (
-                          <li key={key} className="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                              <strong>{key}</strong>: {value}
-                            </div>
-                            <button className="btn btn-sm btn-danger" onClick={() => removeInterestedProduct(key)}>
-                              <FontAwesomeIcon icon={faTrash} /> Remove
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )} 
-                </div>
-              </div>
-            </fieldset> */}
-
+            
             <div className="mb-3">
               <label htmlFor="Notes" className="form-label">
                 Notes Plan
@@ -396,6 +360,26 @@ const handleSubmit = async (e) => {
           </form>
         </div>
       </div>
+      {showScanner && (
+        <div style={{
+          position: "absolute",
+          top: "0%",
+          left: "0%",
+          width: "100%",
+          height: "100%",
+          background: "#000000ab",
+          backdropFilter: "blur(20px)",
+          zIndex: "99999999",
+          display: "flex",
+          justifyContent: "center",
+          padding: "20px",
+        }}>
+        <DocumentScanner 
+          onDataExtracted={handleDataExtracted}
+          onClose={() => setShowScanner(false)}
+        />
+        </div>
+      )}
     </div>
   );
 }
