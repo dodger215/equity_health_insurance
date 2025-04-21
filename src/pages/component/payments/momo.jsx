@@ -19,77 +19,77 @@ const MobilePayment = ({ amount }) => {
   const navigate = useNavigate()
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
     
-    // if (paymentMode === "auto-deduction") {
-    //   // Handle mandate creation
-    //   const mandateData = {
-    //     starting_date: startingDate,
-    //     ending_date: endingDate,
-    //     frequencyType: frequencyType,
-    //     frequency: frequency,
-    //     momoNumber: mobileNumber,
-    //     debitAmounts: amounts,
-    //     debitDay: debitDay
-    //   };
+  //   // if (paymentMode === "auto-deduction") {
+  //   //   // Handle mandate creation
+  //   //   const mandateData = {
+  //   //     starting_date: startingDate,
+  //   //     ending_date: endingDate,
+  //   //     frequencyType: frequencyType,
+  //   //     frequency: frequency,
+  //   //     momoNumber: mobileNumber,
+  //   //     debitAmounts: amounts,
+  //   //     debitDay: debitDay
+  //   //   };
       
-    //   try {
-    //     const response = await fetch("http://127.0.0.1:8000/create-mandate", {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json"
-    //       },
-    //       body: JSON.stringify(mandateData)
-    //     });
+  //   //   try {
+  //   //     const response = await fetch("http://127.0.0.1:8000/create-mandate", {
+  //   //       method: "POST",
+  //   //       headers: {
+  //   //         "Content-Type": "application/json"
+  //   //       },
+  //   //       body: JSON.stringify(mandateData)
+  //   //     });
         
-    //     if (!response.ok) {
-    //       throw new Error("Failed to create mandate");
-    //     }
+  //   //     if (!response.ok) {
+  //   //       throw new Error("Failed to create mandate");
+  //   //     }
         
-    //     const result = await response.json();
-    //     console.log("Mandate created:", result);
-    //     // Handle success (show success message, redirect, etc.)
-    //   } catch (error) {
-    //     console.error("Error creating mandate:", error);
-    //     // Handle error (show error message)
-    //   }
-    // } else {
-    //   // Handle one-time payment
-    //   const paymentData = {
-    //     refNo: `PAY-${Date.now()}`,
-    //     msisdn: mobileNumber,
-    //     network: networkProvider,
-    //     amount: amounts,
-    //     narration: narration || "Payment for services",
-    //     additionalRef: {},
-    //     currency: "GHS"
-    //   };
+  //   //     const result = await response.json();
+  //   //     console.log("Mandate created:", result);
+  //   //     // Handle success (show success message, redirect, etc.)
+  //   //   } catch (error) {
+  //   //     console.error("Error creating mandate:", error);
+  //   //     // Handle error (show error message)
+  //   //   }
+  //   // } else {
+  //   //   // Handle one-time payment
+  //   //   const paymentData = {
+  //   //     refNo: `PAY-${Date.now()}`,
+  //   //     msisdn: mobileNumber,
+  //   //     network: networkProvider,
+  //   //     amount: amounts,
+  //   //     narration: narration || "Payment for services",
+  //   //     additionalRef: {},
+  //   //     currency: "GHS"
+  //   //   };
       
-    //   try {
-    //     const response = await fetch("http://127.0.0.1:8000/credit-uniwallet", {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json"
-    //       },
-    //       body: JSON.stringify(paymentData)
-    //     });
+  //   //   try {
+  //   //     const response = await fetch("http://127.0.0.1:8000/credit-uniwallet", {
+  //   //       method: "POST",
+  //   //       headers: {
+  //   //         "Content-Type": "application/json"
+  //   //       },
+  //   //       body: JSON.stringify(paymentData)
+  //   //     });
         
-    //     if (!response.ok) {
-    //       throw new Error("Payment failed");
-    //     }
+  //   //     if (!response.ok) {
+  //   //       throw new Error("Payment failed");
+  //   //     }
         
-    //     const result = await response.json();
-    //     console.log("Payment successful:", result);
-    //     // Handle success (show success message, redirect, etc.)
-    //   } catch (error) {
-    //     console.error("Payment error:", error);
-    //     // Handle error (show error message)
-    //   }
-    // }
-      navigate('momo/checkout/');
+  //   //     const result = await response.json();
+  //   //     console.log("Payment successful:", result);
+  //   //     // Handle success (show success message, redirect, etc.)
+  //   //   } catch (error) {
+  //   //     console.error("Payment error:", error);
+  //   //     // Handle error (show error message)
+  //   //   }
+  //   // }
+  //     navigate('momo/checkout/');
     
-  };
+  // };
 
   // Handle provider logo click
   const handleProviderClick = (provider) => {
