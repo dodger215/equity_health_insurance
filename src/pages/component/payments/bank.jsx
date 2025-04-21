@@ -1,52 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import axios from "axios";
 import API_URL from "../link";
+import { bankData } from "./bankData";
 
-const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnderAgent = "", initialAmount = 0 }) => {
+const BankPayPoint = ({ initialPolicyId, initialClientId, initialUnderAgent, initialAmount }) => {
   // State for form inputs and selections
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBank, setSelectedBank] = useState("");
   const [bankBranch, setBankBranch] = useState("");
   const [accountName, setAccountName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [policyId, setPolicyId] = useState(initialPolicyId);
-  const [clientId, setClientId] = useState(initialClientId);
-  const [underAgent, setUnderAgent] = useState(initialUnderAgent);
-  const [amount, setAmount] = useState(initialAmount);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [amount, setAmount] = useState(initialAmount || "");
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState({
     accountName: "",
     accountNumber: "",
     bankBranch: "",
-    policyId: "",
-    clientId: "",
-    underAgent: "",
     amount: ""
   });
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
 
-  // Bank options data
-  const bankOptions = [
-    { id: 1, name: "ABSA BANK", icon: "🏦", branch: "ABSA BANK HEADQUARTERS (ACCRA)" },
-    { id: 2, name: "APEX BANK", icon: "🏦", branch: "APEX BANK HEADQUARTERS (ACCRA)" },
-    { id: 3, name: "GHANA COMMERCIAL BANK", icon: "🏦", branch: "GCB BANK HEADQUARTERS (ACCRA, RIDGE TOWERS)" },
-    { id: 4, name: "GT BANK", icon: "🏦", branch: "GT BANK HEADQUARTERS (ACCRA)" },
-    { id: 5, name: "ACCESS BANK", icon: "🏦", branch: "ACCESS BANK HEADQUARTERS (ACCRA)" },
-    { id: 6, name: "CAL BANK", icon: "🏦", branch: "CAL BANK HEADQUARTERS (ACCRA)" },
-    { id: 7, name: "ECO BANK", icon: "🏦", branch: "ECO BANK HEADQUARTERS (ACCRA)" },
-    { id: 8, name: "ADB BANK", icon: "🏦", branch: "ADB BANK HEADQUARTERS (ACCRA)" },
-    { id: 9, name: "UBA", icon: "🏦", branch: "UBA BANK HEADQUARTERS (ACCRA)" },
-    { id: 10, name: "BANK OF AFRICA", icon: "🏦", branch: "BANK OF AFRICA HEADQUARTERS (ACCRA)" },
-    { id: 11, name: "ZENITH BANK", icon: "🏦", branch: "ZENITH BANK HEADQUARTERS (ACCRA)" },
-    { id: 12, name: "REPUBLIC BANK", icon: "🏦", branch: "REPUBLIC BANK HEADQUARTERS (ACCRA)" },
-  ];
+  
+
+  // Convert bankData to array format for the bank selection dropdown
+  const bankOptions = Object.keys(bankData).map(bankName => ({
+    id: bankName.toLowerCase().replace(/\s+/g, '-'),
+    name: bankName,
+    icon: "🏦"
+  }));
 
   // Filtered bank options based on search term
   const filteredBanks = bankOptions.filter((bank) =>
     bank.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Get branches for selected bank
+  const bankBranches = selectedBank ? bankData[selectedBank] || [] : [];
 
   // Form validation function
   const validateForm = () => {
@@ -55,9 +46,6 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
       accountName: "",
       accountNumber: "",
       bankBranch: "",
-      policyId: "",
-      clientId: "",
-      underAgent: "",
       amount: ""
     };
 
@@ -69,6 +57,9 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
     if (!accountNumber.trim()) {
       newErrors.accountNumber = "Please enter account number";
       isValid = false;
+    } else if (!/^\d+$/.test(accountNumber)) {
+      newErrors.accountNumber = "Account number should contain only digits";
+      isValid = false;
     }
 
     if (!bankBranch) {
@@ -76,22 +67,7 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
       isValid = false;
     }
 
-    if (!policyId) {
-      newErrors.policyId = "Please enter policy ID";
-      isValid = false;
-    }
-
-    if (!clientId) {
-      newErrors.clientId = "Please enter client ID";
-      isValid = false;
-    }
-
-    if (!underAgent) {
-      newErrors.underAgent = "Please enter agent ID";
-      isValid = false;
-    }
-
-    if (!amount || amount <= 0) {
+    if (!amount || isNaN(amount) || amount <= 0) {
       newErrors.amount = "Please enter a valid amount";
       isValid = false;
     }
@@ -103,8 +79,16 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
   // Handle bank selection
   const handleBankSelect = (bank) => {
     setSelectedBank(bank.name);
-    setBankBranch(bank.branch);
+    setBankBranch("");
     setSearchTerm(bank.name);
+    setShowBranchDropdown(true);
+    setErrors({ ...errors, bankBranch: "" });
+  };
+
+  // Handle branch selection
+  const handleBranchSelect = (branch) => {
+    setBankBranch(branch);
+    setShowBranchDropdown(false);
     setErrors({ ...errors, bankBranch: "" });
   };
 
@@ -126,25 +110,23 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
         bank_account_number: accountNumber,
         branch: bankBranch,
         account_name: accountName,
-        policy_id: policyId,
-        client_id: clientId,
-        under_agent: underAgent,
+        policy_id: parseInt(initialPolicyId),
+        client_id: parseInt(initialClientId),
+        under_agent: parseInt(initialUnderAgent),
         amount: parseFloat(amount)
       };
 
       const response = await axios.post(`${API_URL}/bank-deductions/`, payload);
       
       setSuccessMessage("Bank deduction created successfully!");
-      setIsModalOpen(false);
       // Reset form
       setSelectedBank("");
       setBankBranch("");
       setAccountName("");
       setAccountNumber("");
-      setPolicyId(initialPolicyId);
-      setClientId(initialClientId);
-      setUnderAgent(initialUnderAgent);
-      setAmount(initialAmount);
+      setAmount(initialAmount || "");
+      setSearchTerm("");
+      setShowBranchDropdown(false);
     } catch (error) {
       console.error("Error creating bank deduction:", error);
       setErrorMessage(error.response?.data?.detail || "Failed to create bank deduction");
@@ -153,28 +135,16 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
     }
   };
 
-  // Handle Pay button click
-  const handlePayClick = (bank) => {
-    handleBankSelect(bank);
-    if (!validateForm()) {
-      return;
-    }
-    setIsModalOpen(true);
-  };
-
-  // Handle modal close
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
   // Adjust for mobile viewport height
   useEffect(() => {
     const adjustForMobile = () => {
       const list = document.querySelector(".auto-generated-list");
-      if (window.innerWidth <= 480) {
-        list.style.maxHeight = window.innerHeight * 0.25 + "px";
-      } else {
-        list.style.maxHeight = "200px";
+      if (list) {
+        if (window.innerWidth <= 480) {
+          list.style.maxHeight = window.innerHeight * 0.25 + "px";
+        } else {
+          list.style.maxHeight = "200px";
+        }
       }
     };
 
@@ -184,7 +154,11 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
   }, []);
 
   return (
-    <div className="payment-container">
+    <div className="payment-container" style={{
+      height: "90vh",
+      overflowY: "auto",
+      width: "100%",
+    }}>
       <div className="payment-header">
         <h1>Bank Paypoint</h1>
       </div>
@@ -233,17 +207,6 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
                       >
                         <span className="link-icon">{bank.icon}</span>
                         {bank.name}
-                        <button
-                          type="button"
-                          className="badge"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePayClick(bank);
-                          }}
-                        >
-                          <span className="badge-text">PAY</span>
-                          <span className="badge-dots"></span>
-                        </button>
                       </div>
                     </li>
                   ))
@@ -258,21 +221,31 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
         </div>
 
         <div className="form-grid">
-          <div className="form-group full-width">
-            <label htmlFor="bankBranch">Bank Branch</label>
-            <select
-              id="bankBranch"
-              value={bankBranch}
-              onChange={(e) => setBankBranch(e.target.value)}
-              required
-            >
-              <option value="">Select a bank first</option>
-              {selectedBank && <option value={bankBranch}>{bankBranch}</option>}
-            </select>
-            {errors.bankBranch && (
-              <div className="error-message">{errors.bankBranch}</div>
-            )}
-          </div>
+          {selectedBank && (
+            <div className="form-group full-width">
+              <label htmlFor="bankBranch">Bank Branch</label>
+              <input
+                id="bankBranch"
+                placeholder="Select branch"
+                value={bankBranch}
+                onClick={() => setShowBranchDropdown(!showBranchDropdown)}
+                readOnly
+                className="read-only-input"
+              />
+              {showBranchDropdown && (
+                <ul className="branch-dropdown">
+                  {bankBranches.map((branch, index) => (
+                    <li key={index} onClick={() => handleBranchSelect(branch)}>
+                      {branch}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {errors.bankBranch && (
+                <div className="error-message">{errors.bankBranch}</div>
+              )}
+            </div>
+          )}
 
           <div className="form-group full-width">
             <label htmlFor="accountName">Account Name</label>
@@ -301,51 +274,6 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
             />
             {errors.accountNumber && (
               <div className="error-message">{errors.accountNumber}</div>
-            )}
-          </div>
-
-          <div className="form-group full-width">
-            <label htmlFor="policyId">Policy ID</label>
-            <input
-              type="text"
-              id="policyId"
-              placeholder="Enter Policy ID"
-              value={policyId}
-              onChange={(e) => setPolicyId(e.target.value)}
-              required
-            />
-            {errors.policyId && (
-              <div className="error-message">{errors.policyId}</div>
-            )}
-          </div>
-
-          <div className="form-group full-width">
-            <label htmlFor="clientId">Client ID</label>
-            <input
-              type="text"
-              id="clientId"
-              placeholder="Enter Client ID"
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              required
-            />
-            {errors.clientId && (
-              <div className="error-message">{errors.clientId}</div>
-            )}
-          </div>
-
-          <div className="form-group full-width">
-            <label htmlFor="underAgent">Agent ID</label>
-            <input
-              type="text"
-              id="underAgent"
-              placeholder="Enter Agent ID"
-              value={underAgent}
-              onChange={(e) => setUnderAgent(e.target.value)}
-              required
-            />
-            {errors.underAgent && (
-              <div className="error-message">{errors.underAgent}</div>
             )}
           </div>
 
@@ -379,108 +307,6 @@ const BankPayPoint = ({ initialPolicyId = "", initialClientId = "", initialUnder
           </button>
         </div>
       </form>
-
-      {/* Payment Modal */}
-      {isModalOpen && (
-        <div className="payment-modal" id="paymentModal">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3 className="modal-title">Confirm Payment Deduction</h3>
-              <button
-                type="button"
-                className="close-modal"
-                onClick={handleCloseModal}
-              >
-                ×
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="payment-info">
-                <span className="link-icon" id="modalIcon">
-                  {bankOptions.find((bank) => bank.name === selectedBank)?.icon}
-                </span>
-                <div className="payment-info-text">
-                  <div className="payment-info-title" id="modalTitle">
-                    {selectedBank}
-                  </div>
-                  <div className="payment-info-subtitle">
-                    You are about to submit a bank deduction
-                  </div>
-                </div>
-              </div>
-
-              <div className="payment-details">
-                <div className="payment-detail-item">
-                  <span className="payment-detail-label">Account Name:</span>
-                  <span className="payment-detail-value" id="modalAccountName">
-                    {accountName}
-                  </span>
-                </div>
-                <div className="payment-detail-item">
-                  <span className="payment-detail-label">Account Number:</span>
-                  <span className="payment-detail-value" id="modalAccountNumber">
-                    {accountNumber}
-                  </span>
-                </div>
-                <div className="payment-detail-item">
-                  <span className="payment-detail-label">Branch:</span>
-                  <span className="payment-detail-value" id="modalBranch">
-                    {bankBranch}
-                  </span>
-                </div>
-                <div className="payment-detail-item">
-                  <span className="payment-detail-label">Policy ID:</span>
-                  <span className="payment-detail-value" id="modalPolicyId">
-                    {policyId}
-                  </span>
-                </div>
-                <div className="payment-detail-item">
-                  <span className="payment-detail-label">Client ID:</span>
-                  <span className="payment-detail-value" id="modalClientId">
-                    {clientId}
-                  </span>
-                </div>
-                <div className="payment-detail-item">
-                  <span className="payment-detail-label">Agent ID:</span>
-                  <span className="payment-detail-value" id="modalUnderAgent">
-                    {underAgent}
-                  </span>
-                </div>
-                <div className="payment-detail-item">
-                  <span className="payment-detail-label">Amount:</span>
-                  <span className="payment-detail-value" id="modalAmount">
-                    {amount}
-                  </span>
-                </div>
-              </div>
-
-              <p>Please confirm that you want to proceed with this bank deduction.</p>
-            </div>
-            <div className="modal-actions">
-              <button
-                type="button"
-                className="modal-btn modal-btn-secondary"
-                onClick={handleCloseModal}
-                disabled={isProcessing}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="modal-btn modal-btn-primary"
-                onClick={handleSubmit}
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <span>Processing...</span>
-                ) : (
-                  <span>Confirm Deduction</span>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

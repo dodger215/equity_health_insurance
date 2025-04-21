@@ -8,6 +8,7 @@ import SignatureCanvas from 'react-signature-canvas';
 import { InternetLoader } from '../ui/loading';
 import { Close } from '../ui/button';
 import ImageUploadForm from '../forms/form-image';
+import { bankData } from '../payments/bankData';
 
 import API_URL from '../link';
 import MobilePayment from '../payments/momo';
@@ -64,6 +65,260 @@ const ClientFormComponent = () => {
   const [amount, setAmount] = useState([]);
   const [loading, setLoading] = useState(false)
   const [clientPolicies, setClientPolicies] = useState([])
+
+
+  // State for form inputs and selections
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedPayment, setSelectedPayment] = useState("");
+    const [staffId, setStaffId] = useState("");
+    const [staffName, setStaffName] = useState("");
+    const [institutionName, setInstitutionName] = useState("");
+  
+    const [staffIdError, setStaffIdError] = useState("");
+    
+  
+    // Payment options data
+    const paymentOptions = [
+      { id: 1, name: "CONTROLLER", icon: "🔄" },
+      { id: 2, name: "ECG", icon: "⚡" },
+      { id: 3, name: "GHANA WATER", icon: "💧" },
+      { id: 4, name: "GHANA PAY", icon: "🇬🇭" },
+      { id: 5, name: "BANK TRANSFER", icon: "🏦" },
+      { id: 6, name: "GHANA HEALTH SERVICE", icon: "🏥" },
+    ];
+  
+    // Filtered payment options based on search term
+    const filteredPayments = paymentOptions.filter((option) =>
+      option.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  
+    // Handle search input change
+    
+
+
+
+
+  // bank Pay Check
+  
+  const [selectedBank, setSelectedBank] = useState("");
+  const [bankBranch, setBankBranch] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [errors, setErrors] = useState({
+    accountName: "",
+    accountNumber: "",
+    bankBranch: "",
+    amount: ""
+  });
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
+
+
+  const bankOptions = Object.keys(bankData).map(bankName => ({
+    id: bankName.toLowerCase().replace(/\s+/g, '-'),
+    name: bankName,
+    icon: "🏦"
+  }));
+
+  // Filtered bank options based on search term
+  const filteredBanks = bankOptions.filter((bank) =>
+    bank.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Get branches for selected bank
+  const bankBranches = selectedBank ? bankData[selectedBank] || [] : [];
+
+  // Form validation function
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      accountName: "",
+      accountNumber: "",
+      bankBranch: "",
+    };
+
+    if (!accountName.trim()) {
+      newErrors.accountName = "Please enter account name";
+      isValid = false;
+    }
+
+    if (!accountNumber.trim()) {
+      newErrors.accountNumber = "Please enter account number";
+      isValid = false;
+    } else if (!/^\d+$/.test(accountNumber)) {
+      newErrors.accountNumber = "Account number should contain only digits";
+      isValid = false;
+    }
+
+    if (!bankBranch) {
+      newErrors.bankBranch = "Please select a bank branch";
+      isValid = false;
+    }
+
+  
+
+  
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // Handle bank selection
+  const handleBankSelect = (bank) => {
+    setSelectedBank(bank.name);
+    setBankBranch("");
+    setSearchTerm(bank.name);
+    setShowBranchDropdown(true);
+    setErrors({ ...errors, bankBranch: "" });
+  };
+
+  // Handle branch selection
+  const handleBranchSelect = (branch) => {
+    setBankBranch(branch);
+    setShowBranchDropdown(false);
+    setErrors({ ...errors, bankBranch: "" });
+  };
+
+  
+  const handleBankSubmit = async (policyId, clientId, amounts, underAgent) => {
+    
+
+    setIsProcessing(true);
+    setSuccessMessage("");
+    setErrorMessage("");
+
+    
+
+    try {
+      const payload = {
+        bank_name: selectedBank,
+        bank_account_number: accountNumber,
+        branch: bankBranch,
+        account_name: accountName,
+        policy_id: parseInt(policyId),
+        client_id: parseInt(clientId),
+        under_agent: parseInt(underAgent),
+        amount: amounts,
+      };
+
+      console.log("Bank Details Param: ", payload);
+
+      const response = await axios.post(`${API_URL}/bank-deductions/`, payload);
+      
+      setSuccessMessage("Bank deduction created successfully!");
+      
+      setShowBranchDropdown(false);
+    } catch (error) {
+      console.error("Error creating bank deduction:", error);
+      setErrorMessage(error.response?.data?.detail || "Failed to create bank deduction");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+
+  // Controller
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Handle payment option selection
+  const handlePaymentSelect = (payment) => {
+    setSelectedPayment(payment.name);
+    setSearchTerm(payment.name);
+    setInstitutionName(payment.name); 
+  };
+
+  const handleStaffIdChange = (e) => {
+    setStaffId(e.target.value);
+    setStaffIdError("");
+  };
+
+  // Handle Staff Name input change
+  const handleStaffNameChange = (e) => {
+    setStaffName(e.target.value);
+  };
+
+  // Validate form inputs
+  const controllerValidateForm = () => {
+    if (!staffId.trim()) {
+      setStaffIdError("Please enter a Staff ID");
+      return false;
+    }
+    if (!staffName.trim()) {
+      setStaffIdError("Please enter Staff Name");
+      return false;
+    }
+    if (!selectedPayment) {
+      setStaffIdError("Please select a payment option");
+      return false;
+    }
+    return true;
+  };
+  
+  // Handle Pay button click
+  const handlePayClick = async (policyId, clientId, amounts, underAgent) => {
+    if (!controllerValidateForm()) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      const payload = {
+        staff_id: staffId,  // Don't need toString() if already string
+        staff_name: staffName,
+        institution_name: institutionName,
+        amount: Number(amounts),  // Use Number instead of parseInt
+        policy_id: policyId,  // Use as-is if API accepts this format
+        client_id: clientId,
+        under_agent: underAgent.toString()  // Only convert if needed
+      };
+
+    const tryLoad = {
+      "staff_id": staffId,
+      "staff_name": staffName,
+      "institution_name": institutionName,
+      "amount": Number(amounts),
+      "policy_id": policyId,
+      "client_id": clientId,
+      "under_agent": underAgent.toString()
+    };
+  
+      console.log("Controller Data:", payload);
+      
+      const response = await fetch(`${API_URL}/deductions/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(tryLoad),        
+      });
+  
+      const result = await response.json();
+      
+      if (!response.ok) {
+        // This will catch 422 errors and show the server's validation messages
+        throw new Error(result.detail || JSON.stringify(result));
+      }
+  
+      console.log("Successful", result);
+      setIsProcessing(false);
+      setSuccessMessage("Payment processed successfully!");
+      return result;
+  
+    } catch (error) {
+      setIsProcessing(false);
+      setErrorMessage(error.message);
+      console.error("Deduction error:", error);
+      throw error;  
+    }
+  };
+
+ 
+
 
   console.log(`client id: ${clientId}`);
 
@@ -164,10 +419,10 @@ const ClientFormComponent = () => {
 
       const data = await response.json();
       console.log('Client deleted:', data);
-      // Add your success handling here
+      
     } catch (error) {
       console.error('Error deleting client:', error);
-      // Add your error handling here
+      
     }
   };
 
@@ -205,6 +460,16 @@ const ClientFormComponent = () => {
     } catch (error) {
       console.error('Error deleting policy:', error);
     }
+  };
+
+  const handlePayment = async (policyId, clientId, amount, underAgent) => {
+    if (activeTab === 'page3') {
+      return handleBankSubmit(policyId, clientId, amount, underAgent);
+    }
+    if (activeTab === 'page2') {
+      return handlePayClick(policyId, clientId, amount, underAgent);
+    }
+    // Momo handling if needed
   };
 
   // Handle form submission
@@ -258,9 +523,6 @@ const ClientFormComponent = () => {
         };
 
 
-        // const submitData = {
-        //   agent_id: localStorage.getItem("id")
-        // }
         
         console.log("Data being sent:", formData);
         
@@ -276,9 +538,51 @@ const ClientFormComponent = () => {
         console.log("Response:", result);
 
         setClientPolicies(result);
+
+        
+        // await handleBankSubmit(
+        //   result.policy_id, 
+        //   result.client_id, 
+        //   totalFloat, 
+        //   localStorage.getItem("id")
+        // );
+
+        // if(activeTab === "page3"){
+        //   await handleBankSubmit(
+        //     result.policy_id, 
+        //     result.client_id, 
+        //     totalFloat, 
+        //     localStorage.getItem("id")
+        //   );
+        // }
+        // if(activeTab === "page2"){
+        //   await handlePayClick(
+        //     result.policy_id, 
+        //     result.client_id, 
+        //     totalFloat, 
+        //     localStorage.getItem("id")
+        //   );
+        // }
         
 
-        console.log("Data", formData);
+        if (activeTab === 'page3') {
+          handleBankSubmit(
+            result.policy_id, 
+            result.client_id, 
+            totalFloat, 
+            localStorage.getItem("id")
+          );
+        }
+        if (activeTab === 'page2') {
+          handlePayClick(
+            result.policy_number, 
+            result.cli_id, 
+            totalFloat, 
+            localStorage.getItem("id")
+          );
+        }
+        
+        
 
         
 
@@ -294,20 +598,7 @@ Equity Health Insurance
 `;
 
   
-        // // Send email using EmailJS
-        // await emailjs.send(
-        //   "service_1zc90u8",
-        //   "template_zqpczsv",
-        //   {
-        //     to_name: `${formData.client_info.first_name} ${formData.client_info.surname}`,
-        //     from_name: "Equity",
-        //     message: `${msg}`,
-        //     reply_to: "no-reply@yourcompany.com",
-        //     to_client: formData.client_info.email_address,
-        //     from_email: "info@equityinsurance.com",
-        //   },
-        //   "OdwbNHd4lP5RDWUr6"
-        // );
+        
 
         setTimeout(async () => {
           await deleteClient();
@@ -745,8 +1036,236 @@ Equity Health Insurance
                   fontSize: "1rem"
                 }}>Premium amount: {amount.total}</div>
                 {activeTab === 'page1' && <MobilePayment amount={amount.total}/>}
-                {activeTab === 'page2' && <PayPoint policy_id={clientPolicies.policy_id} under_agent={client.agent_id} client_id={clientPolicies.cli_id} amount={amount.total}/>}
-                {activeTab === 'page3' && <BankPayPoint initialAmount={amount.total} initialClientId={clientPolicies.cli_id} initialPolicyId={clientPolicies.policy_id} initialUnderAgent={client.agent_id}/>}
+                {activeTab === 'page2' && 
+                  <div className="payment-container">
+                  <div className="payment-header">
+                    <h1>Pay Point</h1>
+                  </div>
+                    <div className="form-group">
+                      <h5>Payment Details</h5>
+            
+                      <div className="payment-options">
+                        <h3 className="section-title">Payment Options</h3>
+            
+                        {/* Search Field */}
+                        <div className="search-container">
+                          <span className="search-icon"></span>
+                          <input
+                            type="text"
+                            className="search-field"
+                            placeholder="Search payment options..."
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                          />
+                        </div>
+            
+                        <div className="dropdown-container">
+                          <ul className="auto-generated-list" id="paymentList">
+                            {filteredPayments.length > 0 ? (
+                              filteredPayments.map((payment) => (
+                                <li key={payment.id}>
+                                  <div
+                                    className={`payment-link ${
+                                      selectedPayment === payment.name ? "selected" : ""
+                                    }`}
+                                    onClick={() => handlePaymentSelect(payment)}
+                                  >
+                                    <span className="link-icon">{payment.icon}</span>
+                                    {payment.name}
+                                    <button
+                                      type="button"
+                                      className={`badge ${
+                                        isProcessing && selectedPayment === payment.name
+                                          ? "processing"
+                                          : ""
+                                      }`}
+                                      onClick={() => handlePayClick(payment)}
+                                    >
+                                      <span className="badge-text">Select</span>
+                                      <span className="badge-dots"></span>
+                                    </button>
+                                  </div>
+                                </li>
+                              ))
+                            ) : (
+                              <div className="no-results" id="noResults">
+                                No payment options found
+                              </div>
+                            )}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+            
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label htmlFor="staffId">Staff ID</label>
+                        <input
+                          type="text"
+                          id="staffId"
+                          placeholder="Enter Staff ID"
+                          value={staffId}
+                          onChange={handleStaffIdChange}
+                          required
+                        />
+                        {staffIdError && (
+                          <div className="error-message" id="staffIdError">
+                            {staffIdError}
+                          </div>
+                        )}
+                      </div>
+            
+                      <div className="form-group">
+                        <label htmlFor="staffName">Staff Name</label>
+                        <input
+                          type="text"
+                          id="staffName"
+                          placeholder="Enter Staff Name"
+                          value={staffName}
+                          onChange={handleStaffNameChange}
+                          required
+                        />
+                      </div>
+                    </div>
+            
+                    <input type="hidden" id="selectedPayment" value={selectedPayment} />
+                  
+                </div>
+                
+                }
+                {activeTab === 'page3' && 
+                  <div className="bank-main-container">
+                    <div className="payment-container" style={{
+                      height: "90vh",
+                      overflowY: "auto",
+                      width: "100%",
+                    }}>
+                      <div className="payment-header">
+                        <h1>Bank Paypoint</h1>
+                      </div>
+
+                      {successMessage && (
+                        <div className="alert alert-success">
+                          {successMessage}
+                        </div>
+                      )}
+
+                      {errorMessage && (
+                        <div className="alert alert-error">
+                          {errorMessage}
+                        </div>
+                      )}
+                      
+
+                        {/* Rest of the bank form fields */}
+                        <div className="form-group">
+                          <h5>Payment Details</h5>
+                          <div className="payment-options">
+                            <h3 className="section-title">Bank</h3>
+
+                            <div className="search-container">
+                              <span className="search-icon"></span>
+                              <input
+                                type="text"
+                                className="search-field"
+                                placeholder="Search Bank options..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                              />
+                            </div>
+
+                            <div className="dropdown-container">
+                              <ul className="auto-generated-list" id="paymentList">
+                                {filteredBanks.length > 0 ? (
+                                  filteredBanks.map((bank) => (
+                                    <li key={bank.id}>
+                                      <div
+                                        className={`payment-link ${
+                                          selectedBank === bank.name ? "selected" : ""
+                                        }`}
+                                        onClick={() => handleBankSelect(bank)}
+                                      >
+                                        <span className="link-icon">{bank.icon}</span>
+                                        {bank.name}
+                                      </div>
+                                    </li>
+                                  ))
+                                ) : (
+                                  <div className="no-results" id="noResults">
+                                    No payment options found
+                                  </div>
+                                )}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+
+                        {selectedBank && (
+                          <div className="form-group full-width">
+                            <label htmlFor="bankBranch">Bank Branch</label>
+                            <input
+                              id="bankBranch"
+                              placeholder="Select branch"
+                              value={bankBranch}
+                              onClick={() => setShowBranchDropdown(!showBranchDropdown)}
+                              readOnly
+                              className="read-only-input"
+                            />
+                            {showBranchDropdown && (
+                              <ul className="branch-dropdown" style={{
+                                maxHeight: "50vh",
+                                overflowY: "scroll",
+                              }}>
+                                {bankBranches.map((branch, index) => (
+                                  <li className="list-details" style={{
+                                    textDecoration: "none",
+                                  }} key={index} onClick={() => handleBranchSelect(branch)}>
+                                    {branch}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                            {errors.bankBranch && (
+                              <div className="error-message">{errors.bankBranch}</div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="form-group full-width">
+                          <label htmlFor="accountName">Account Name</label>
+                          <input
+                            type="text"
+                            id="accountName"
+                            placeholder="Account Name"
+                            value={accountName}
+                            onChange={(e) => setAccountName(e.target.value)}
+                            required
+                          />
+                          {errors.accountName && (
+                            <div className="error-message">{errors.accountName}</div>
+                          )}
+                        </div>
+
+                        <div className="form-group full-width">
+                          <label htmlFor="accountNumber">Account Number</label>
+                          <input
+                            type="text"
+                            id="accountNumber"
+                            placeholder="Enter Acct number"
+                            value={accountNumber}
+                            onChange={(e) => setAccountNumber(e.target.value)}
+                            required
+                          />
+                          {errors.accountNumber && (
+                            <div className="error-message">{errors.accountNumber}</div>
+                          )}
+                        </div>
+
+                        
+                    
+                    </div>
+                  </div>
+                }
               </div>
           </div>
           </div>
@@ -768,23 +1287,7 @@ Equity Health Insurance
         {activeSections.stage_4 && (
           <div className={styles.collapsibleContent}>
             {/* Signature component */}
-            {/* <div className="sign">
-              <h2>Signature</h2>
-              <SignatureCanvas
-                ref={signatureRef}
-                canvasProps={{
-                  width: 500,
-                  height: 200,
-                  className: 'signature-canvas',
-                }}
-              />
-              <button type="button" onClick={() => signatureRef.current.clear()}>
-                Clear Signature
-              </button>
-              <input type="file" accept='image/png' style={{
-                margin: "20px 0",
-              }}/>
-            </div> */}
+            
             <SignatureComponent style={{
               scale: "0.5",
             }}/>

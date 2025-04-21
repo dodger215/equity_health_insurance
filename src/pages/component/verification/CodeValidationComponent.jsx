@@ -137,7 +137,7 @@ Please provide the token:${randomCode} to the agent to finalise your application
   };
 
   if (loading) return <InternetLoader/>;
-  if (error) return <p>Error: {error}</p>;
+  
 
   return (
     <div style={{
@@ -168,12 +168,24 @@ Please provide the token:${randomCode} to the agent to finalise your application
             />
           ))}
         </div>
+        {error && (
+          <p style={{
+            color: "var(--light)",
+            fontWeight: "500",
+            fontSize: "1.5em"
+          }}>
+            Invalid Code, Try Again.
+          </p>
+        )}
+
 
         {countdown > 0 ? (
           <div style={{ margin: '20px 0' }}>
+            
             <p>Resend code in: {countdown} seconds</p>
           </div>
         ) : (
+          
           <button
             style={{
               margin: "20px 0",
@@ -193,7 +205,7 @@ Please provide the token:${randomCode} to the agent to finalise your application
           Abort Process
         </button>
   
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        
       </div>
 
       <img 

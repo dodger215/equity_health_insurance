@@ -4,7 +4,7 @@ import SignatureCanvas from 'react-signature-canvas';
 const SignatureComponent = () => {
   const signatureRef = useRef(null);
   const fileInputRef = useRef(null);
-  const [signatureMethod, setSignatureMethod] = useState('draw'); // 'draw' or 'upload'
+  const [signatureMethod, setSignatureMethod] = useState('draw'); 
   const [previewImage, setPreviewImage] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -59,27 +59,27 @@ const SignatureComponent = () => {
     }}>  
       <h2>Signature</h2>
       
-      <div style={{ marginBottom: '20px' }} classname="group">
-        <label style={{ marginRight: '15px' }}>
+      <div style={{ display: "flex", flexDirection: "row"}} classname="group">
+        <label style={{ display: "flex", flexDirection: "row"}}>
           <input
             type="radio"
             name="signatureMethod"
             value="draw"
             checked={signatureMethod === 'draw'}
             onChange={() => setSignatureMethod('draw')}
-            style={{ marginRight: '5px' }}
+            style={{ marginRight: '5px', width: "20px" }}
           />
           Draw Signature
         </label>
         
-        <label>
+        <label style={{ display: "flex", flexDirection: "row"}}>
           <input
             type="radio"
             name="signatureMethod"
             value="upload"
             checked={signatureMethod === 'upload'}
             onChange={() => setSignatureMethod('upload')}
-            style={{ marginRight: '5px' }}
+            style={{  }}
           />
           Upload Signature
         </label>
@@ -90,10 +90,10 @@ const SignatureComponent = () => {
           <SignatureCanvas
             ref={signatureRef}
             canvasProps={{
-              width: 500,
+              width: 250,
               height: 200,
               className: 'signature-canvas',
-              style: { border: '1px solid #000', background: '#fff'}
+              style: { border: '1px solid #000', background: '#fff', margin: "5px 30px", borderRadius: "20px"}
             }}
           />
           <button 
@@ -102,7 +102,7 @@ const SignatureComponent = () => {
             style={{ 
               margin: '10px 0',
               padding: '8px 15px',
-              backgroundColor: '#f0f0f0',
+              backgroundColor: 'var(--light)',
               border: '1px solid #ccc',
               borderRadius: '4px',
               cursor: 'pointer'
@@ -117,12 +117,13 @@ const SignatureComponent = () => {
             type="file" 
             accept='image/*'
             ref={fileInputRef}
+            
             onChange={handleFileChange}
             style={{ display: 'none' }}
           />
           
           {previewImage ? (
-            <div style={{ margin: '10px 0', position: 'relative' }}>
+            <div style={{ margin: '10px 0', position: 'relative',  width: "250px", height: "200px" }}>
               <img 
                 src={previewImage} 
                 alt="Signature Preview" 
@@ -143,13 +144,13 @@ const SignatureComponent = () => {
                   background: 'red', 
                   color: 'white',
                   border: 'none',
-                  borderRadius: '50%',
+                  borderRadius: '100px',
                   width: '25px',
                   height: '25px',
                   cursor: 'pointer'
                 }}
               >
-                ×
+                Remove
               </button>
             </div>
           ) : (
@@ -169,21 +170,23 @@ const SignatureComponent = () => {
                 transition: 'border-color 0.3s',
                 ':hover': {
                   borderColor: '#999'
-                }
+                },
+                 width: "250px", height: "200px"
+
               }}
             >
               <p style={{ color: '#666' }}>Click to select signature image</p>
             </div>
           )}
           
-          <button
+          {/* <button
             type="button"
             onClick={handleUpload}
             disabled={!previewImage || isUploading}
             style={{ 
               margin: '10px 0',
               padding: '8px 15px',
-              backgroundColor: previewImage ? '#4CAF50' : '#cccccc',
+              backgroundColor: previewImage ? '#4CAF50' : 'var(--light)',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
@@ -192,7 +195,7 @@ const SignatureComponent = () => {
             }}
           >
             {isUploading ? 'Uploading...' : 'Upload Signature'}
-          </button>
+          </button> */}
         </>
       )}
     </div>

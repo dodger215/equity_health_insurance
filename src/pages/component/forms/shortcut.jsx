@@ -462,6 +462,8 @@ export default function InsuranceFormShortcut() {
       relation_type: dependent_rel.toString(),
     };
 
+    console.log("Client", personal);
+    console.log("Policy", policyData);
     try {
       const response = await fetch(`${API_URL}/create/clients/`, {
         method: "POST",

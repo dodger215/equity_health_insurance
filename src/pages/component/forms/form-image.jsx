@@ -119,7 +119,7 @@ const ImageUploadForm = () => {
           
         };
       
-        const handleUpload = async () => {
+        const handleImageUpload = async () => {
           const formData = new FormData();
           for (let i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
@@ -186,41 +186,29 @@ const ImageUploadForm = () => {
     return (
         <div className='imageContainer'>
             <div>               
-            <div style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                }}>
-                    <label>Client ID:</label>
-                    <input
-                        type="text"
-                        value={clientId}
-                        readOnly
-                        style={{
-                            border: "none",
-                            fontSize: "1.0em",
-                            width: "50%"
-                        }}
-                    />
-                </div>
+            
+               
                 <form>
                 <div>
                     <label>Upload Both FRONT And BACK Of National ID Card Image:</label>
                     <div onClick={() => frontCardInputRef.current.click()} style={{ 
                         cursor: 'pointer',
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                          }}>
-                        <FontAwesomeIcon icon={faImages} size="2x" className='icon' />
+                        <FontAwesomeIcon icon={faImages} size="2x" className='icon' style={{ width: "60%", position: "relative" }} />
                         <input
                             type="file"
                             ref={frontCardInputRef}
-                            style={{ display: 'none' }}
+                            style={{ display: 'none', }}
                             multiple 
                             onChange={handleFileChange}
                             required
                             accept='image/*'
                         />
                     </div>
-                    <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
+                    <div style={{ width: "90%", display: 'flex', gap: '5px', marginTop: '20px', scale: "0.5"}}>
                         {frontCard && (
                         <div>
                             <p>Front of Card</p>
@@ -238,7 +226,7 @@ const ImageUploadForm = () => {
                             <img
                             src={URL.createObjectURL(backCard)}
                             alt="Back Card"
-                            style={{ width: '200px', height: 'auto', border: '1px solid #ccc' }}
+                            style={{ width: '200px', height: 'auto', border: '1px solid #ccc'}}
                             />
                         </div>
                         )}
@@ -249,10 +237,14 @@ const ImageUploadForm = () => {
                 </form>
             
                 <button style={{
+                    width: "100%",
                     margin: "10px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
                 }}
                 
-                onClick={handleUpload}>Upload Images</button>
+                onClick={handleImageUpload}>Upload Images</button>
 
             </div>
 

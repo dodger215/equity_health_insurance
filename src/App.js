@@ -31,6 +31,8 @@ import PasswordChangeForm from './pages/component/settings/change_password';
 import InsuranceFormShortcut from './pages/component/forms/shortcut';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import BankPayPoint from './pages/component/payments/bank';
+import CheckOut from './pages/component/payments/checkOut';
 // Create and export PopupContext
 export const PopupContext = createContext();
 
@@ -116,6 +118,8 @@ function App() {
               <Route path="/agent/details" element={<AgentDetails />} />
               <Route path="/agent/change/password" element={<PasswordChangeForm />} />
               <Route path="/insurance/form/shortcut/:cli_id" element={<InsuranceFormShortcut />} />
+              <Route path="/bank/check/" element={<BankPayPoint/>}/>
+              <Route path="/momo/checkout/" element={<CheckOut/>}/>
             </Routes>
           </div>
         ) : (

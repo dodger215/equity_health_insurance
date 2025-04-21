@@ -13,8 +13,9 @@ export default function DocumentScanner({ onDataExtracted, onClose }) {
   const [capturedImage, setCapturedImage] = useState(null);
   const [isExtractingData, setIsExtractingData] = useState(false);
   const [mode, setMode] = useState(null); 
+  const [error, setError] = useState("");
 
-  // Function to start camera
+
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -29,7 +30,7 @@ export default function DocumentScanner({ onDataExtracted, onClose }) {
     }
   };
 
-  // Function to capture image
+
   const captureImage = () => {
     if (videoRef.current && canvasRef.current) {
       const context = canvasRef.current.getContext('2d');
@@ -43,7 +44,7 @@ export default function DocumentScanner({ onDataExtracted, onClose }) {
     }
   };
 
-  // Function to stop camera
+
   const stopCamera = () => {
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
@@ -78,7 +79,7 @@ export default function DocumentScanner({ onDataExtracted, onClose }) {
       formData.append('file', blob, 'document.jpg');
       
       // Call your OCR API
-      const response = await fetch('http://127.0.0.1:8000/upload/', {
+      const response = await fetch('http://127.0.0.1:8085/upload/', {
         method: 'POST',
         body: formData,
       });
@@ -90,7 +91,11 @@ export default function DocumentScanner({ onDataExtracted, onClose }) {
       const result = await response.json();
       
       console.log(result.extracted_data);
+      // if(!result.extracted_data){
+      //   setError("Informaton Not Found");
+      // }
       const transformedData = transformExtractedData(result.extracted_data);
+    
 
       
       // Pass data back to parent component
