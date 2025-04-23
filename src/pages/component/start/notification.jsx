@@ -4,12 +4,11 @@ import { InternetLoader } from "../ui/loading";
 import API_URL from "../link";
 
 const Notifications = () => {
-  const [prospects, setProspects] = useState([]); // State for prospects
-  const [appointments, setAppointments] = useState([]); // State for appointments
-  const [loading, setLoading] = useState(true); // State for loading status
-  const [error, setError] = useState(null); // State for error handling
+  const [prospects, setProspects] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fetch prospects and appointments
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,7 +31,6 @@ const Notifications = () => {
         setAppointments(appointmentsData);
       } catch (error) {
         setError(error.message);
-        
       } finally {
         setLoading(false);
       }
@@ -41,17 +39,15 @@ const Notifications = () => {
     fetchData();
   }, []);
 
-  // Function to calculate time left for an appointment
   const getTimeLeft = (appointmentDate) => {
-    const now = new Date(); // Current date and time
-    const appointmentTime = new Date(appointmentDate); // Appointment date and time
-    const timeDifference = appointmentTime - now; // Difference in milliseconds
+    const now = new Date();
+    const appointmentTime = new Date(appointmentDate);
+    const timeDifference = appointmentTime - now;
 
     if (timeDifference <= 0) {
       return "Appointment passed";
     }
 
-    // Convert milliseconds to days, hours, and minutes
     const daysLeft = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
     const hoursLeft = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutesLeft = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
@@ -65,7 +61,6 @@ const Notifications = () => {
     }
   };
 
-  // Group appointments by month
   const groupAppointmentsByMonth = () => {
     const grouped = {};
 
@@ -84,7 +79,6 @@ const Notifications = () => {
 
   const groupedAppointments = groupAppointmentsByMonth();
 
-  // Styles for mobile view
   const styles = {
     container: {
       padding: "16px",
@@ -127,6 +121,10 @@ const Notifications = () => {
       color: "green",
       fontWeight: "bold",
     },
+    noData: {
+      color: "#666",
+      fontStyle: "italic",
+    }
   };
 
   if (loading) {
@@ -139,51 +137,42 @@ const Notifications = () => {
 
   return (
     <div style={styles.container}>
-
-        <Close tab={"home"}/>
+      <Close tab={"home"}/>
       <h1 style={styles.header}>Notifications</h1>
 
-      {/* Display prospects */}
-      {/* <h2 style={styles.monthHeader}>Months:</h2> */}
-      <ul style={styles.list}>
-        {/* {prospects.map((prospect) => (
-          <li key={prospect.ProspectID} style={styles.listItem}>
-            <strong>{prospect.FirstName} {prospect.LastName}</strong>
-            <div>Email: {prospect.Email}</div>
-            <div>Phone: {prospect.Phone}</div>
-          </li>
-        ))} */}
-      </ul>
+      {Object.keys(groupedAppointments).length === 0 ? (
+        <p style={styles.noData}>No appointments scheduled</p>
+      ) : (
+        Object.keys(groupedAppointments).map((month) => (
+          <div key={month}>
+            <h2 style={styles.monthHeader}>Your Appointment on {month}</h2>
+            <ul style={styles.list}>
+              {groupedAppointments[month].map((appointment) => {
+                const client = prospects.find((p) => 
+                  p.ProspectID?.toString() === appointment.client_id?.toString() ||
+                  p.id?.toString() === appointment.client_id?.toString()
+                );
 
-      {/* Display appointments grouped by month */}
-      {Object.keys(groupedAppointments).map((month) => (
-        <div key={month}>
-          <h2 style={styles.monthHeader}>{month}</h2>
-          <ul style={styles.list}>
-            {groupedAppointments[month].map((appointment) => {
-              // Find the client in the prospects array
-              const client = prospects?.find((p) => p.ProspectID.toString() === appointment.client_id.toString());
+                const clientName = client 
+                  ? `${client.FirstName || client.firstName || ''} ${client.LastName || client.lastName || ''}`.trim() 
+                  : "Unknown Client";
+                
+                const timeLeft = getTimeLeft(appointment.appointment_date);
 
-              // Log for debugging
-              console.log("Appointment:", appointment);
-              console.log("Client:", client);
-
-              const clientName = client ? `${client.FirstName} ${client.LastName}` : "Unknown Client";
-              const timeLeft = getTimeLeft(appointment.appointment_date);
-
-              return (
-                <li key={appointment.appointment_id} style={styles.listItem}>
-                  <strong>Appointment scheduled with {clientName} on {new Date(appointment.appointment_date).toLocaleDateString()}</strong>
-                  <div>Status: {appointment.appointment_status}</div>
-                  {timeLeft !== "Appointment passed" && (
-                    <div style={styles.timeLeft}>{timeLeft}</div>
-                  )}
-                </li>
-              );
-            }) ? '' : <p>No Notification Found</p>}
-          </ul>
-        </div>
-      ))}
+                return (
+                  <li key={appointment.appointment_id} style={styles.listItem}>
+                    <strong>Appointment scheduled with {clientName} on {new Date(appointment.appointment_date).toLocaleDateString()}</strong>
+                    <div>Status: {appointment.appointment_status}</div>
+                    {timeLeft !== "Appointment passed" && (
+                      <div style={styles.timeLeft}>{timeLeft}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))
+      )}
     </div>
   );
 };

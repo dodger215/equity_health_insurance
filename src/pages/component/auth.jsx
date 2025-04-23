@@ -85,12 +85,25 @@ function LoginForm() {
             localStorage.setItem("agents_name", data.name)
             localStorage.setItem("id", data.id)
             uploadLogin(data.id)
+            
+
+            const word = formData.password;
+            let redirectPath = "/agent/main";
+            let additionalMessage = "";
+
+            if (word.startsWith("pwd")) {
+              redirectPath = "/agent/change/password";
+              additionalMessage = "Please change your password before proceeding.";
+            }
+
             setPopupState({
               show: true,
-              message: 'Login Successful! 🎉', 
-              page: 'login', 
+              message: `Login Successful! 🎉 ${additionalMessage}`,
+              page: 'login',
             });
-            navigate("/agent/main")
+
+            navigate(redirectPath);
+            
           } else {
             console.log("Login failed")
             setPopupState({

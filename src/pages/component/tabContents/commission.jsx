@@ -147,7 +147,7 @@ function ForwardProspect({ agentId }) {
         justifyContent: "center",
       }}>
         <div style={{}}>
-        <Modal.Header className="m-5 w-100" >
+        <Modal.Header className="m-5 w-100" style={{ width: "100%" }}>
           <Modal.Title>Forward Prospect</Modal.Title>
         </Modal.Header>
         <Modal.Body className="w-100">

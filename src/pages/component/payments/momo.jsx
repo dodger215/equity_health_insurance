@@ -104,7 +104,7 @@ const MobilePayment = ({ amount }) => {
         <p>Secure mobile money transaction</p>
       </div>
 
-      <form id="momo-form" onSubmit={handleSubmit}>
+      <form id="momo-form" >
         {/* Mobile Number Input */}
         <div className="form-group">
           <label>Mobile Number</label>

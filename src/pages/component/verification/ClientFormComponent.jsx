@@ -64,7 +64,8 @@ const ClientFormComponent = () => {
   const signatureRef = useRef();
   const [amount, setAmount] = useState([]);
   const [loading, setLoading] = useState(false)
-  const [clientPolicies, setClientPolicies] = useState([])
+  const [clientPolicies, setClientPolicies] = useState([]);
+  const [products, setProducts] = useState([]);
 
 
   // State for form inputs and selections
@@ -165,6 +166,29 @@ const ClientFormComponent = () => {
     setErrors(newErrors);
     return isValid;
   };
+
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${API_URL}/show/product/`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
 
   // Handle bank selection
   const handleBankSelect = (bank) => {
@@ -485,6 +509,11 @@ const ClientFormComponent = () => {
         const start_date = new Date().toISOString().split('T')[0];
         const matchedPolicy = policies.find(p => p.client_id === clientId);
 
+        const productName = String(products?.Name || '').toUpperCase();
+        const policyProductName = String(matchedPolicy?.product_name || '').toUpperCase();
+
+        const isProductMatch = productName === policyProductName;
+
       
         const totalFloat = parseFloat(amount.total.replace(/[^\d.]/g, ''));
         const validDependants = dependants.filter(
@@ -511,9 +540,9 @@ const ClientFormComponent = () => {
             Occupation: clients.occupation
           },
           policy: {
-            product_id: "1",
+            product_id: isProductMatch ? String(products.ProductID) : '',
             product_name: matchedPolicy?.product_name,
-            product_code: matchedPolicy?.product_code,
+            product_code: isProductMatch ? products.ProductCode : '',
             sum_assured: Number(amount.sum_assured),
             premium: totalFloat,
             term: 1,
