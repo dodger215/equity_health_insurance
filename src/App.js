@@ -78,10 +78,11 @@ function App() {
         {/* Success Popup */}
         {popupState.show && (
           <div className={`success-popup ${popupState.page}`} data-aos="zoom-out" data-aos-delay="100">
-            <i
+            {/* <i
               className="fa-solid fa-bell fa-beat"
               style={{ "--fa-beat-scale": 2.0, marginRight: "20px" }}
-            ></i> {popupState.message || 'Action Successful! 🎉'}
+            ></i>  */}
+            {popupState.message || 'Action Successful! 🎉'}
           </div>
         )}
 

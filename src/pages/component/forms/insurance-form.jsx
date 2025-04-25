@@ -93,6 +93,20 @@ export default function InsuranceForm() {
   const [dependent_fname, setDependentFirstName] = useState("")
   const [dependent_lname, setDependentLastName] = useState("")
   const [dependent_rel, setDependentRel] = useState("")
+  const [lock, setLock] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [ebusuaBeneficiaries, setEbusuaBeneficiaries] = useState([]);
+
+
+  const handleBeneficiaryChange = (index, field, value) => {
+    const updatedBeneficiaries = [...ebusuaBeneficiaries];
+    updatedBeneficiaries[index] = {
+      ...updatedBeneficiaries[index],
+      [field]: value
+    };
+    setEbusuaBeneficiaries(updatedBeneficiaries);
+  };
 
   
 
@@ -127,7 +141,7 @@ export default function InsuranceForm() {
   const [ebusuaLevel, setEbusuaLevel] = useState("")
   const [ebusuaLives, setEbusuaLives] = useState("")
   const [ebusuaPremium, setEbusuaPremium] = useState("GHS 0.00")
-  const [ebusuaBeneficiaries, setEbusuaBeneficiaries] = useState([])
+
 
 
   const [selectedPolicy, setSelectedPolicy] = useState("");
@@ -346,9 +360,10 @@ export default function InsuranceForm() {
           beneficiaries.push({
             id: i,
             name: "",
+            surname: "",
             dob: "",
             relation: "",
-          })
+          });
         }
         setEbusuaBeneficiaries(beneficiaries)
       } else {
@@ -464,7 +479,7 @@ export default function InsuranceForm() {
     
     const handleSubmit = async (e) => {
       e.preventDefault();
-
+      setIsLoading(true);
 
       
       const generatePolicyId = () => {
@@ -579,19 +594,19 @@ export default function InsuranceForm() {
         product_code: productCode.toString(),
       };
     
-      const dependentData = {
-        client_id: clientid.toString(),
-        agent: agentId.toString(),
-        product_name: selectedPolicy,
-        product_code: productCode.toString(),
-        full_name: `${dependent_fname} ${dependent_lname}`,
-        date_of_birth: dependent_dob.toString(),
-        relation_type: dependent_rel.toString(),
-      };
+      // const dependentData = {
+      //   client_id: clientid.toString(),
+      //   agent: agentId.toString(),
+      //   product_name: selectedPolicy,
+      //   product_code: productCode.toString(),
+      //   full_name: `${dependent_fname} ${dependent_lname}`,
+      //   date_of_birth: dependent_dob.toString(),
+      //   relation_type: dependent_rel.toString(),
+      // };
 
 
 
-      console.log(`Dependant: ${dependentData}`);
+      // console.log(`Dependant: ${dependentData}`);
     
       try {
         const response = await fetch(`${API_URL}/create/clients/`, {
@@ -652,22 +667,27 @@ export default function InsuranceForm() {
         const payLoadResult = await PayLoadResponse.json();
         console.log("Policy submitted successfully:", payLoadResult);
     
-        if (dependentData.product_name === "ebusua") {
-          const dependentResponse = await fetch(`${API_URL}/dependants/`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(dependentData),
+        if (selectedPolicy === "ebusua" && ebusuaBeneficiaries.length > 0) {
+          const dependentPromises = ebusuaBeneficiaries.map(beneficiary => {
+            const dependentData = {
+              client_id: clientid.toString(),
+              agent: agentId.toString(),
+              product_name: selectedPolicy,
+              product_code: productCode.toString(),
+              full_name: `${beneficiary.name} ${beneficiary.surname}`,
+              date_of_birth: beneficiary.dob.toString(),
+              relation_type: beneficiary.relation.toString(),
+            };
+        
+            return fetch(`${API_URL}/dependants/`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(dependentData),
+            });
           });
-    
-          if (!dependentResponse.ok) {
-            throw new Error(`HTTP error! status: ${dependentResponse.status}`);
-          }
-    
-          const dependentResult = await dependentResponse.json();
-          console.log("Dependent submitted successfully:", dependentResult);
         }
     
         navigate(`/ListClient`);
@@ -1362,37 +1382,34 @@ export default function InsuranceForm() {
 
             {ebusuaBeneficiaries.length > 0 && (
               <div id="ebusuaBeneficiarySection">
-                {ebusuaBeneficiaries.map((beneficiary) => (
+                {ebusuaBeneficiaries.map((beneficiary, index) => (
                   <div key={beneficiary.id} className={styles.beneficiaryContainer}>
                     <h3>Beneficiary {beneficiary.id}</h3>
                     <div className={styles.formGroup}>
                       <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>First Name:</label>
                       <input 
-                      type="text" 
-                      id={`ebusuaBeneficiaryName${beneficiary.id}`} 
-                      placeholder="Enter First Name"
-                      name="dependent_name"
-                      onChange={(e) => setDependentFirstName(e.target.value)}
-                      value={ dependent_fname } />
+                        type="text" 
+                        id={`ebusuaBeneficiaryName${beneficiary.id}`} 
+                        placeholder="Enter First Name"
+                        onChange={(e) => handleBeneficiaryChange(index, 'name', e.target.value)}
+                        value={beneficiary.name} />
                     </div>
                     <div className={styles.formGroup}>
-                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>Surname:</label>
+                      <label htmlFor={`ebusuaBeneficiarySurname${beneficiary.id}`}>Surname:</label>
                       <input 
-                      type="text" 
-                      id={`ebusuaBeneficiaryName${beneficiary.id}`} 
-                      placeholder="Enter Surname"
-                      name="dependent_lname"
-                      onChange={(e) => setDependentLastName(e.target.value)}
-                      value={ dependent_lname } />
+                        type="text" 
+                        id={`ebusuaBeneficiarySurname${beneficiary.id}`} 
+                        placeholder="Enter Surname"
+                        onChange={(e) => handleBeneficiaryChange(index, 'surname', e.target.value)}
+                        value={beneficiary.surname} />
                     </div>
                     <div className={styles.formGroup}>
                       <label htmlFor={`ebusuaBeneficiaryDob${beneficiary.id}`}>Date of Birth:</label>
                       <input 
-                      type="date" 
-                      id={`ebusuaBeneficiaryDob${beneficiary.id}`} 
-                      name="dependent_dob"
-                      onChange={(e) => setDependentDOB(e.target.value)}
-                      value={ dependent_dob } />
+                        type="date" 
+                        id={`ebusuaBeneficiaryDob${beneficiary.id}`} 
+                        onChange={(e) => handleBeneficiaryChange(index, 'dob', e.target.value)}
+                        value={beneficiary.dob} />
                     </div>
                     <div className={styles.formGroup}>
                       <label htmlFor={`ebusuaBeneficiaryRelation${beneficiary.id}`}>Relationship with Client:</label>
@@ -1400,9 +1417,8 @@ export default function InsuranceForm() {
                         type="text"
                         id={`ebusuaBeneficiaryRelation${beneficiary.id}`}
                         placeholder="e.g., Spouse, Child"
-                        name="dependent_rel"
-                        onChange={(e) => setDependentRel(e.target.value)}
-                        value={ dependent_rel }
+                        onChange={(e) => handleBeneficiaryChange(index, 'relation', e.target.value)}
+                        value={beneficiary.relation}
                       />
                     </div>
                   </div>
@@ -1417,7 +1433,7 @@ export default function InsuranceForm() {
   
 
         <button type="submit" className={styles.submitButton}>
-            next
+            {isLoading ? "Submitting..." : "Next" }
         </button>
       </form>
     </div>

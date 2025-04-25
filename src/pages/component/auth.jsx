@@ -115,7 +115,12 @@ function LoginForm() {
         })
         .catch((error) => {
           console.error("Login error:", error)
-          setErrors({ submit: `An error occurred: ${error.message}. Please try again.` })
+          // setErrors({ submit: `An error occurred: ${error.message}. Please try again.` })
+          setPopupState({
+            show: true,
+            message: `An error occurred: ${error.message}. Please try again.`,
+            page: 'login',
+          });
         })
         .finally(() => {
           setIsSubmitting(false)
@@ -166,6 +171,7 @@ function LoginForm() {
             className="view"
             onClick={togglePasswordVisibility}
             tabIndex={-1}
+            
           >
             <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"} text-dark`}></i>
           </button>
@@ -190,9 +196,14 @@ function LoginForm() {
           {errors.submit}
         </div>
       }
+      <a href="" style={{
+        margin: "10px 0",
+        padding: "0",
+        height: "30px",
+      }}>Forgotten Passwords</a>
       <button type="submit" className="login__submit" disabled={isSubmitting} style={{
         width: "100%",
-        background: isSubmitting ? "#8abbff" : "#fff"
+        background: isSubmitting ? "linear-gradient(90deg,rgb(26, 97, 164),rgb(1, 10, 93))" : "linear-gradient(90deg, #a41a1a, #5d0101)"
       }}>
         {isSubmitting ? <PrimaryLoading /> : "Login"}
       </button>

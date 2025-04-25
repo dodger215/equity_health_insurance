@@ -540,7 +540,7 @@ const ClientFormComponent = () => {
             Occupation: clients.occupation
           },
           policy: {
-            product_id: isProductMatch ? String(products.ProductID) : '',
+            product_id: isProductMatch ? parseInt(products.ProductID) : 0,
             product_name: matchedPolicy?.product_name,
             product_code: isProductMatch ? products.ProductCode : '',
             sum_assured: Number(amount.sum_assured),
