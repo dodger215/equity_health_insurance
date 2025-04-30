@@ -7,6 +7,8 @@ import { InternetLoader } from '../ui/loading';
 import { useContext } from 'react';
 import { PopupContext } from '../../../App';
 import img from './otp.gif';
+import useBell from '../ui/bell';
+import useVibrate from '../ui/vibrator';
 
 const CodeValidation = () => {
   const { setPopupState } = useContext(PopupContext);
@@ -22,6 +24,8 @@ const CodeValidation = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [response, setResponse] = useState(null);
+  const ring = useBell();
+  const vibrate = useVibrate();
 
   // Countdown effect
   useEffect(() => {
@@ -92,6 +96,7 @@ Please provide the token:${randomCode} to the agent to finalise your application
         headers: { "Content-Type": "application/json" },
       });
 
+      ring()
       setPopupState({
         show: true,
         message: 'OTP Sent To Client Successfully!', 
@@ -99,6 +104,7 @@ Please provide the token:${randomCode} to the agent to finalise your application
       });
     } catch (error) {
       console.error('Error:', error);
+      vibrate();
       setError('Failed to send OTP. Please try again.');
     } finally {
       setIsGenerating(false);
@@ -123,6 +129,7 @@ Please provide the token:${randomCode} to the agent to finalise your application
     if (enteredCode === generatedCode) {
       navigate(`/client-form/${clientId}`);
     } else {
+      vibrate()
       setError('Invalid code. Please try again.');
     }
   };
@@ -133,6 +140,7 @@ Please provide the token:${randomCode} to the agent to finalise your application
       message: 'OTP Process Cancelled',
       page: 'login',
     });
+    ring();
     navigate('/agent/main');
   };
 

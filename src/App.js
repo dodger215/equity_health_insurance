@@ -33,16 +33,21 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import BankPayPoint from './pages/component/payments/bank';
 import CheckOut from './pages/component/payments/checkOut';
+import useBell from './pages/component/ui/bell';
+import { NestedList } from './pages/component/ui/loading';
+import MobilePayment from './pages/component/payments/momo';
 // Create and export PopupContext
 export const PopupContext = createContext();
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [popupState, setPopupState] = useState({
     show: false,
     message: '',
     page: '', // Add a page identifier
   });
+  const ring = useBell;
 
   // Auto-hide popup after 3 seconds
   useEffect(() => {
@@ -50,6 +55,7 @@ function App() {
       const timer = setTimeout(() => {
         setPopupState((prev) => ({ ...prev, show: false }));
       }, 3000);
+      
       return () => clearTimeout(timer);
     }
   }, [popupState.show]);
@@ -57,9 +63,9 @@ function App() {
 
   useEffect(() => {
     AOS.init({
-      duration: 1000, // animation duration in milliseconds
-      easing: 'ease-in-out', // default easing for AOS animations
-      once: false // whether animation should happen only once
+      duration: 1000, 
+      easing: 'ease-in-out', 
+      once: false 
     });
   })
   const checkScreenSize = () => {
@@ -72,16 +78,29 @@ function App() {
     return () => window.removeEventListener('resize', checkScreenSize); // Cleanup
   }, []);
 
+
+  
+
+  // useEffect(() => {
+  //   const handleLoad = () => setLoading(false);
+  //   window.addEventListener('load', handleLoad);
+
+  //   return () => window.removeEventListener('load', handleLoad);
+  // }, []);
+
+  // if (loading) {
+  //   return (
+  //     <NestedList/>
+  //   );
+  // }
+
   return (
     <Router>
       <PopupContext.Provider value={{ setPopupState }}>
         {/* Success Popup */}
         {popupState.show && (
           <div className={`success-popup ${popupState.page}`} data-aos="zoom-out" data-aos-delay="100">
-            {/* <i
-              className="fa-solid fa-bell fa-beat"
-              style={{ "--fa-beat-scale": 2.0, marginRight: "20px" }}
-            ></i>  */}
+            {/* <i className="fa-solid fa-bell"></i>  */}
             {popupState.message || 'Action Successful! 🎉'}
           </div>
         )}
@@ -121,7 +140,9 @@ function App() {
               <Route path="/insurance/form/shortcut/:cli_id" element={<InsuranceFormShortcut />} />
               <Route path="/bank/check/" element={<BankPayPoint/>}/>
               <Route path="/momo/checkout/" element={<CheckOut/>}/>
+              <Route path="/momo/payment/:price/:clientCode" element={<MobilePayment/>}/>
             </Routes>
+
           </div>
         ) : (
           <div>

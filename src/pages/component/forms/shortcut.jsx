@@ -210,6 +210,16 @@ export default function InsuranceFormShortcut() {
     }));
   };
   
+
+  const handleBeneficiaryChange = (index, field, value) => {
+    const updatedBeneficiaries = [...ebusuaBeneficiaries];
+    updatedBeneficiaries[index] = {
+      ...updatedBeneficiaries[index],
+      [field]: value
+    };
+    setEbusuaBeneficiaries(updatedBeneficiaries);
+  };
+
   const handlePolicyChange = (policy) => {
     setSelectedPolicy(policy);
     setActiveSections({
@@ -1166,51 +1176,47 @@ export default function InsuranceFormShortcut() {
 
             {ebusuaBeneficiaries.length > 0 && (
               <div id="ebusuaBeneficiarySection">
-                {ebusuaBeneficiaries.map((beneficiary) => (
-                  <div key={beneficiary.id} className={styles.beneficiaryContainer}>
-                    <h3>Beneficiary {beneficiary.id}</h3>
-                    <div className={styles.formGroup}>
-                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>First Name:</label>
-                      <input 
-                      type="text" 
-                      id={`ebusuaBeneficiaryName${beneficiary.id}`} 
-                      placeholder="Enter First Name"
-                      name="dependent_name"
-                      onChange={(e) => setDependentFirstName(e.target.value)}
-                      value={ dependent_fname } />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>Surname:</label>
-                      <input 
-                      type="text" 
-                      id={`ebusuaBeneficiaryName${beneficiary.id}`} 
-                      placeholder="Enter Surname"
-                      name="dependent_lname"
-                      onChange={(e) => setDependentLastName(e.target.value)}
-                      value={ dependent_lname } />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label htmlFor={`ebusuaBeneficiaryDob${beneficiary.id}`}>Date of Birth:</label>
-                      <input 
-                      type="date" 
-                      id={`ebusuaBeneficiaryDob${beneficiary.id}`} 
-                      name="dependent_dob"
-                      onChange={(e) => setDependentDOB(e.target.value)}
-                      value={ dependent_dob } />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label htmlFor={`ebusuaBeneficiaryRelation${beneficiary.id}`}>Relationship with Client:</label>
-                      <input
-                        type="text"
-                        id={`ebusuaBeneficiaryRelation${beneficiary.id}`}
-                        placeholder="e.g., Spouse, Child"
-                        name="dependent_rel"
-                        onChange={(e) => setDependentRel(e.target.value)}
-                        value={ dependent_rel }
-                      />
-                    </div>
-                  </div>
-                ))}
+                {ebusuaBeneficiaries.map((beneficiary, index) => (
+                                  <div key={beneficiary.id} className={styles.beneficiaryContainer}>
+                                    <h3>Beneficiary {beneficiary.id}</h3>
+                                    <div className={styles.formGroup}>
+                                      <label htmlFor={`ebusuaBeneficiaryName${beneficiary.id}`}>First Name:</label>
+                                      <input 
+                                        type="text" 
+                                        id={`ebusuaBeneficiaryName${beneficiary.id}`} 
+                                        placeholder="Enter First Name"
+                                        onChange={(e) => handleBeneficiaryChange(index, 'name', e.target.value)}
+                                        value={beneficiary.name} />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                      <label htmlFor={`ebusuaBeneficiarySurname${beneficiary.id}`}>Surname:</label>
+                                      <input 
+                                        type="text" 
+                                        id={`ebusuaBeneficiarySurname${beneficiary.id}`} 
+                                        placeholder="Enter Surname"
+                                        onChange={(e) => handleBeneficiaryChange(index, 'surname', e.target.value)}
+                                        value={beneficiary.surname} />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                      <label htmlFor={`ebusuaBeneficiaryDob${beneficiary.id}`}>Date of Birth:</label>
+                                      <input 
+                                        type="date" 
+                                        id={`ebusuaBeneficiaryDob${beneficiary.id}`} 
+                                        onChange={(e) => handleBeneficiaryChange(index, 'dob', e.target.value)}
+                                        value={beneficiary.dob} />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                      <label htmlFor={`ebusuaBeneficiaryRelation${beneficiary.id}`}>Relationship with Client:</label>
+                                      <input
+                                        type="text"
+                                        id={`ebusuaBeneficiaryRelation${beneficiary.id}`}
+                                        placeholder="e.g., Spouse, Child"
+                                        onChange={(e) => handleBeneficiaryChange(index, 'relation', e.target.value)}
+                                        value={beneficiary.relation}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
               </div>
             )}
           </div>

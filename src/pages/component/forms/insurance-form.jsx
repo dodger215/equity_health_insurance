@@ -522,7 +522,7 @@ export default function InsuranceForm() {
         agent_branch: branch,
         first_name: firstName,
         surname: surname,
-        other_name: otherName,
+        other_names: otherName,
         last_name: lastName,
         date_of_birth: dateOfBirth,
         national_id_number: nationalNumber || '',

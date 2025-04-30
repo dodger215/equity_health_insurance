@@ -12,14 +12,30 @@ import { useNavigate } from "react-router-dom";
 import DocumentScanner from "./DocumentScanner";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import AOS from 'aos';
+import useBell from "../ui/bell";
 import 'aos/dist/aos.css';
+import useVibrate from "../ui/vibrator";
+
 
 function ProspectForm() {
   const agentid = parseInt(localStorage.getItem('id'), 10);
   const branchid = parseInt(localStorage.getItem('branch'), 10) || 1;
   const [showScanner, setShowScanner] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const ring = useBell();
+  const vibrate = useVibrate();
 
+  const jwtToken = localStorage.getItem('jwtToken');
+  console.log("Auth: ", jwtToken);
+
+  if(!jwtToken){
+    navigate('/login');
+    setPopupState({
+      show: true,
+      message: 'Oops! Something went wrong.', 
+      page: 'login', 
+    });
+  }
   useEffect(() => {
     AOS.init({
       duration: 1000, // animation duration in milliseconds
@@ -117,6 +133,7 @@ function ProspectForm() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(data),
       });
@@ -134,13 +151,13 @@ function ProspectForm() {
         message: 'Prospect Created Successfully!',
         page: 'prospect_forms',
       });
-  
+      ring()
       navigate('/Appointment');
       return result;
   
     } catch (error) {
       console.error("Error submitting to API:", error);
-  
+      vibrate();
       setPopupState({
         show: true,
         message: error.message,
@@ -176,9 +193,12 @@ const handleSubmit = async (e) => {
 
   try {
     await submitToAPI(payload);
+    ring();
     setSubmitSuccess(true);
   } catch (error) {
+
     setSubmitError(error.message);
+    vibrate();
   } finally {
     setIsSubmitting(false);
   }

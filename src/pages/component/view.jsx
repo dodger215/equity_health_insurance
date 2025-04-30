@@ -1,16 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import styles from "./Dashboard.module.css"
 import Contents from "./contents"
 import { InternetLoader } from "./ui/loading"
 import API_URL from "./link"
-import { faBell, faShake } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faShake, faTimes, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import OfflinePage from "./ui/error"
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import axios from "axios";
+import { Badge } from "react-bootstrap"
+
+
 
 
 const DashboardView = () => {
@@ -26,9 +30,16 @@ const DashboardView = () => {
 
   const [appointment, setAppointment] = useState([]); 
   const [notification, setNotification] = useState(0);
+  const [prospectsList, setProspectsList] = useState([]);
+  const [policies, setPolicies] = useState([]);
+  const [policiesNumber, setPoliciesNumber] = useState(0);
+  const [show, setShow] = useState(false);
 
+  const [products, setProducts] = useState([]);
   const token = localStorage.getItem("jwtToken")
   const agentId = localStorage.getItem("id")
+
+  
 
   
   useEffect(() => {
@@ -38,143 +49,144 @@ const DashboardView = () => {
       once: false // whether animation should happen only once
     });
   })
+
+
+
+  const handleOpenPolicy = () => {
+    setShow(true);
+  }
+
+  const handlePolicyRoute = ({amount, clientCode}) => {
+    navigate(`/momo/payment/${amount}/${clientCode}`)
+  }
+
+  const handleClosePolicy = () => {
+    setShow(false);
+  }
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      
-      // console.log(token)
-
-      let target = 0;
-
-  
-
-      if (!token || !agentId) {
-        setError("No authentication token or agent ID found")
-        setLoading(false)
-        navigate("/login")
-        return
-      }
-
+    const fetchAllData = async () => {
       try {
-        const response = await fetch(`${API_URL}/agents/${agentId}`, {
+        setLoading(true)
+        
+        // 1. Fetch agent data
+        if (!token || !agentId) {
+          throw new Error("No authentication token or agent ID found")
+        }
+
+        const productResponse = await fetch(`${API_URL}/show/product/`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         })
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch dashboard data")
-        }
-
-        const data = await response.json()
-        setUserData({
-          agent_name: data.OtherNames
-        })
+        
 
         
 
-          
+        if (!productResponse.ok) {
+          throw new Error("Failed to fetch dashboard data")
+        }
+
+        const productData = await productResponse.json();
+        setProducts(productData);
+        console.table(productData);
+
+        const agentResponse = await fetch(`${API_URL}/agents/${agentId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+
+        if (!agentResponse.ok) {
+          throw new Error("Failed to fetch dashboard data")
+        }
+
+        const agentData = await agentResponse.json()
+        setUserData({
+          agent_name: agentData.OtherNames
+        })
+
+        // 2. Fetch policies
+        const policiesResponse = await axios.get(`${API_URL}/all/policy/with-details/`)
+        const filteredPolicies = policiesResponse.data.filter(policy => (
+          policy.AgentID.toString() === agentId &&
+          policy.Status.toLowerCase() === 'pending' && 
+          policy.government_deductions.length === 0 && 
+          policy.bank_deductions.length === 0 && 
+          policy.callback_payments.length === 0
+        ))
+        setPolicies(filteredPolicies)
+        console.table(filteredPolicies);
+        setPoliciesNumber(filteredPolicies.length)
+
+        // 3. Fetch prospects
+        const prospectsResponse = await fetch(`${API_URL}/prospects/${agentId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        
+        const prospectsData = await prospectsResponse.json()
+        if (Array.isArray(prospectsData)) {
+          setProspects(prospectsData)
+          setTargetScore(prospectsData.length)
+        }
+
+        // 4. Fetch appointments
+        const appointmentsResponse = await fetch(`${API_URL}/client/appointments/${agentId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        
+        const appointmentsData = await appointmentsResponse.json()
+        if (Array.isArray(appointmentsData)) {
+          setAppointment(appointmentsData)
+          setNotification(appointmentsData.length)
+        }
+
       } catch (err) {
         setError(err.message)
-        navigate("/login")
-
+        if (err.message.includes("authentication")) {
+          navigate("/login")
+        }
       } finally {
         setLoading(false)
       }
     }
 
-    fetchDashboardData()
-  })
+    fetchAllData()
+  }, [token, agentId, navigate])
 
 
-  
 
-  useEffect(() => {
-    
-    const fetchProspects = async () => {
-      try{
-        const agentId = localStorage.getItem("id")
-            const responseProspects = await fetch(`${API_URL}/prospects/${agentId}`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            });
-            if (!responseProspects.ok) {
-              // throw new Error("Failed to fetch prospects");
-              setProspects([]); 
-              setTargetScore(0);
-            }
-            const prospectsData = await responseProspects.json();
-    
-            if (Array.isArray(prospectsData)) {
-              setProspects(prospectsData.length);
-              setTargetScore(prospectsData.length);
-  
-            } else {
-              setProspects([]); 
-              setTargetScore(0);
-            }
-      }
-      catch(error){
-        console.log("No Prospect Found")
-        setProspects([]); 
-        setTargetScore(0);
-      }
-      
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const sliderRef = useRef(null);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current - touchEndX.current > 50) {
+      // Swipe left
+      setCurrentIndex(prev => Math.min(prev + 1, 1));
+    } else if (touchEndX.current - touchStartX.current > 50) {
+      // Swipe right
+      setCurrentIndex(prev => Math.max(prev - 1, 0));
     }
-    fetchProspects()
-    
-  }, []);
-
-
-  useEffect(() => {
-    const fetchAppointment = async () => {
-      try {
-        const agentId = localStorage.getItem("id");
-        console.log(`Agent id: ${agentId}`);
-  
-        // Log the agentId to ensure it's correct
-        console.log("Fetching appointments for agentId:", agentId);
-  
-        const responseProspects = await fetch(
-          `${API_URL}/client/appointments/${agentId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-  
-        // Log the response status and body
-        console.log("Response status:", responseProspects.status);
-        const responseBody = await responseProspects.json();
-        console.log("Response body:", responseBody);
-  
-        if (!responseProspects.ok) {
-          throw new Error(`Failed to fetch prospects: ${responseProspects.statusText}`);
-        }
-
-  
-        if (Array.isArray(responseBody)) {
-          setAppointment(responseBody);
-          setNotification(responseBody.length);
-        } else {
-          setAppointment([]);
-          setNotification(0);
-        }
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-  
-        console.log("No Appointments")
-        setAppointment([]);
-        setNotification(0);
-      }
-    };
-  
-    fetchAppointment();
-  }, [token]); 
-
-
+  };
 
   const notify = () => {
     navigate('/notify')
@@ -202,14 +214,55 @@ const DashboardView = () => {
       <div className={styles.intro} data-aos="fade-in" data-aos-delay="100"><i className="fas fa-user p-3"></i>Welcome {userData.agent_name}</div>
       <div className={styles.show}>
         <div className={styles.targetScore}>
-          <div className={styles.scoreCircle} data-aos="zoom-in" data-aos-delay="150">
-            <div className={styles.scoreText}>{targetScores}</div>
-            <p>Targets</p>
+        <div 
+            className={styles.sliderContainer}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            ref={sliderRef}
+          >
+            <div 
+              className={styles.sliderTrack}
+              style={{ 
+                width: "200%",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "40px",
+                transform: `translateX(-${currentIndex * 50}%)`,
+              }}
+            >
+              <div className={`${styles.scoreCircle} ${styles.slide}`} data-aos="zoom-in" data-aos-delay="150" style={{
+                left: "100px",
+              }}>
+                <div className={styles.scoreText}>{targetScores}</div>
+                <p>Targets</p>
+                
+              </div>
+              <div className={`${styles.scoreCircle} ${styles.slide}`} style={{
+                right: "100px",
+              }} 
+                onClick={() => handleOpenPolicy()}
+              >
+                <div className={styles.scoreText}>{policiesNumber}</div>
+                <p style={{
+                  fontSize: "0.7em",
+                  fontWeight: "700"
+                }}>Pending Payments</p>
+              </div>
+            </div>
+            
+            {/* Optional dots indicator */}
+            <div className={styles.dotsContainer}>
+              {[0, 1].map((_, index) => (
+                <span 
+                  key={index}
+                  className={`${styles.dot} ${currentIndex === index ? styles.activeDot : ''}`}
+                  onClick={() => setCurrentIndex(index)}
+                />
+              ))}
+            </div>
           </div>
-          {/* <div className={styles.scoreCircle}>
-            <div className={styles.scoreText}>{targetScores}</div>
-            <p>Targets week</p>
-          </div> */}
           <div className={styles.subContact}>
             <div className={styles.notification} style={{
               position: "relative",
@@ -241,24 +294,77 @@ const DashboardView = () => {
       </div>
 
       <Contents data-aos="fade-in" data-aos-delay="200"/>
-      {/* <div className={styles.usersList}>
-        <h3>Clients ({userData.clients.length})</h3>
-        <ul>
-          {userData.clients.map((client, index) => (
-            <li
-            key={client.id || index}
-            onClick={() => navigate(`/submit-client/${client.client_id || index + 1}`)}
-            className={styles.list}
-          >
-            {`${client.first_name} ${client.surname}` || `Client in draft ${index + 1}`}
-            <i 
-              className="fa fa-trash"
-              onClick={() => navigate()}
-              ></i>
-            </li>
-          ))}
-        </ul>
-      </div> */}
+
+      {show === true ? (
+          <div style={{
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            background: "#00000000",
+            zIndex: "999999999",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px"
+          }}>
+            <div className={styles.card} data-aos="zoom-in" data-aos-delay="100">
+              <div style={{
+                margin: "5px 5px"
+              }}
+              onClick={() => handleClosePolicy()}
+              >
+                <FontAwesomeIcon icon={ faTimes } />
+              </div>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}>
+                <h2>Pending Payment</h2>
+                
+                <ul className={ styles.lists } >
+                {policies.length === 0 ? (
+                    <p>No Pending Payment</p>
+                  ) : (
+                    policies.map(policy => {
+                      // Find the product that matches this policy's ProductID
+                      const product = products.find(p => p.ProductID === policy.ProductID);
+                      
+                      return (
+                        <li 
+                          key={policy.ClientCode}  // Don't forget a unique key!
+                          className={styles.label} 
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            margin: "20px 0",
+                          }}
+                          onClick={() => handlePolicyRoute(policy.Premium, policy.ClientCode)}
+                        >
+                          <p style={{
+                            fontSize: "0.7em",
+                            fontWeight: "700",
+                          }}>
+                            <FontAwesomeIcon icon={faUser} />
+                            {policy.client.FirstName} {policy.client.LastName} - {product ? product.Name : 'Unknown Product'}
+                          </p>
+
+                          <Badge>
+                            GHc {policy.Premium}
+                          </Badge>
+                        </li>
+                      );
+                    })
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+      ) : ''}
+
+      
+      
     </div>
   )
 }

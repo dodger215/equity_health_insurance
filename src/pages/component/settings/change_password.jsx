@@ -172,10 +172,16 @@ const PasswordChangeForm = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                <div className="d-grid gap-2">
+                <div className="d-grid gap-2" style={{
+                  width: "100%",
+                  margin: "30px 0",
+                }}>
                   <Button 
                     variant="primary" 
                     type="submit" 
+                    style={{
+                      width: "100%",
+                    }}
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? <PrimaryLoading/> : 'Change Password'}

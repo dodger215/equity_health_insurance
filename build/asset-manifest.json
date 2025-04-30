@@ -1,0 +1,38 @@
+{
+  "files": {
+    "main.css": "/static/css/main.62fac70a.css",
+    "main.js": "/static/js/main.40a64d11.js",
+    "static/js/977.84f42d80.chunk.js": "/static/js/977.84f42d80.chunk.js",
+    "static/js/553.6ad1a200.chunk.js": "/static/js/553.6ad1a200.chunk.js",
+    "static/js/488.19e6f816.chunk.js": "/static/js/488.19e6f816.chunk.js",
+    "static/media/otp.gif": "/static/media/otp.126d15686874caae1377.gif",
+    "static/media/fa-solid-900.ttf": "/static/media/fa-solid-900.2582b0e4bcf85eceead0.ttf",
+    "static/media/fa-brands-400.ttf": "/static/media/fa-brands-400.1815e00441357e01619e.ttf",
+    "static/media/fa-solid-900.woff2": "/static/media/fa-solid-900.2463b90d9a316e4e5294.woff2",
+    "static/media/bell.mp3": "/static/media/bell.52729c2b3e5385fb13d4.mp3",
+    "static/media/vibration-sound.mp3": "/static/media/vibration-sound.ae67da4196e1e7e9c7a2.mp3",
+    "static/media/family.jpg": "/static/media/family.ba3c721b3e2d66af806c.jpg",
+    "static/media/fa-brands-400.woff2": "/static/media/fa-brands-400.c210719e60948b211a12.woff2",
+    "static/media/fa-regular-400.ttf": "/static/media/fa-regular-400.914997e1bdfc990d0897.ttf",
+    "static/media/TELEMEDICINE .jpg": "/static/media/TELEMEDICINE .21f9188fe8b83abe8cca.jpg",
+    "static/media/micro.jpg": "/static/media/micro.923495867ed3e20598d6.jpg",
+    "static/media/group.jpg": "/static/media/group.4d2b79129972ea715240.jpg",
+    "static/media/education.jpg": "/static/media/education.9a4019aad16d1020e1e3.jpg",
+    "static/media/ads.jpg": "/static/media/ads.abe8c4fdca8567a39a0c.jpg",
+    "static/media/health.jpg": "/static/media/health.71c5240c6a00634e61e5.jpg",
+    "static/media/fa-regular-400.woff2": "/static/media/fa-regular-400.89999bdf5d835c012025.woff2",
+    "service-worker.js": "/service-worker.js",
+    "static/media/logo.png": "/static/media/logo.d2a7da4d183d800b263e.png",
+    "static/media/fa-v4compatibility.ttf": "/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
+    "static/media/fa-v4compatibility.woff2": "/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
+    "index.html": "/index.html",
+    "main.62fac70a.css.map": "/static/css/main.62fac70a.css.map",
+    "main.40a64d11.js.map": "/static/js/main.40a64d11.js.map",
+    "553.6ad1a200.chunk.js.map": "/static/js/553.6ad1a200.chunk.js.map",
+    "488.19e6f816.chunk.js.map": "/static/js/488.19e6f816.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.62fac70a.css",
+    "static/js/main.40a64d11.js"
+  ]
+}

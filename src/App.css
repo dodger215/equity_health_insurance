@@ -177,28 +177,7 @@ a:active, a:hover, a:focus{
   background-color: transparent;
 }
 
-.success-popup {
-  position: absolute;
-  width: calc(95%);
-  z-index: 99999999999999;
-  background: #ffffffc3;
-  backdrop-filter: blur(20px);
-  color: rgb(23, 45, 60);
-  left: 0;
-  padding: 35px 35px;
-  border-radius: 15px;
-  z-index: 1000;
-  box-shadow: 0 0px 5px rgba(0, 0, 0, 0.184);
-  animation: slideIn 0.5s ease-out;
-  font-weight: 700;
-  text-shadow: 0px 0px 12px #00000011;
-  top: 40px;
-}
 
-@keyframes slideIn {
-  from { transform: translateY(-100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
 
 
 .container h1{
@@ -2701,4 +2680,32 @@ button:active, button:focus{
 
 .group label{
   width: 50%;
+}
+
+.success-popup {
+  position: absolute;
+  width: 95%;
+  z-index: 99999999999999;
+  background: #ffffffc2;
+  left: 2.5%;
+  backdrop-filter: blur(20px);
+  color: rgb(23, 45, 60);
+  padding: 20px;
+  border-radius: 15px;
+  z-index: 1000;
+  box-shadow: 0 0px 5px rgba(0, 0, 0, 0.184);
+  animation: slideIn 0.5s ease-out;
+  font-weight: 700;
+  text-shadow: 0px 0px 12px #00000011;
+  top: 40px;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+
+li:last-child{
+  border-bottom: none;
 }

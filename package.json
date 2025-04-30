@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@capacitor/android": "^7.0.1",
-    "@capacitor/cli": "^7.0.1",
-    "@capacitor/core": "^7.0.1",
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/cli": "^7.2.0",
+    "@capacitor/core": "^7.2.0",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
@@ -34,23 +34,32 @@
     "lucide-react": "^0.475.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
+    "react-content-loader": "^7.0.2",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.5",
     "react-scripts": "^5.0.1",
     "react-signature-canvas": "^1.1.0-alpha.1",
     "tailwind-merge": "^3.0.1",
-    "web-vitals": "^4.2.4"
+    "web-vitals": "^4.2.4",
+    "workbox-precaching": "^6.6.0"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "set CI= && npm run build",
+    "build": "set CI= && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
+    "extends": "react-app",
+    "overrides": [
+      {
+        "files": [
+          "service-worker.js"
+        ],
+        "rules": {
+          "no-restricted-globals": "off"
+        }
+      }
     ]
   },
   "browserslist": {
@@ -68,5 +77,6 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "workbox-webpack-plugin": "^7.3.0"
-  }
+  },
+  "homepage": "./"
 }

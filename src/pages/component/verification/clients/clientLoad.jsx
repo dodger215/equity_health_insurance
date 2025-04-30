@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faAngleRight, faAngleDown, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faAngleRight, faAngleDown, faSearch, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import API_URL from '../../link';
 import { PrimaryLoading } from '../../ui/loading';
 
@@ -14,7 +14,26 @@ const ClientListLoaded = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [submittedPolicies, setSubmittedPolicies] = useState([]);
   const navigate = useNavigate();
+
+
+  // useEffect(() => {
+  //   const fetchSumbmitedPolicies = async () => {
+  //     await fetch(`${API_URL}/submitted/policies/`)
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         throw new Error('Failed to fetch clients');
+  //       }
+  //     })
+  //     .then(data => {
+  //       setSubmittedPolicies(data);
+  //       console.table(data)
+  //     })
+  //   }
+
+  //   fetchSumbmitedPolicies();
+  // })
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -177,7 +196,7 @@ const ClientListLoaded = () => {
                     flexDirection: "row",
                     alignItems: "center"
                   }}
-                  onClick={() => navigate(`/insurance/form/shortcut/${client.ClientID}`)}>
+                 >
                     <div className="me-3">
                       <FontAwesomeIcon icon={faUser} size="lg" />
                     </div>
@@ -250,6 +269,12 @@ const ClientListLoaded = () => {
                         fontSize: "0.7em",
                       }}><strong>Client Code:</strong> {client.ClientCode}</p> */}
                     </div>
+                    <button 
+                    style={{
+                      width: "100%"
+                    }}
+                    onClick={() => navigate(`/insurance/form/shortcut/${client.ClientID}`)}
+                    ><FontAwesomeIcon icon={faFileAlt}/></button>
                   </div>
                 </div>
               )}

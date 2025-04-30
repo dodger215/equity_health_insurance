@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const MobilePayment = ({ amount }) => {
   // State for form inputs
@@ -17,6 +17,9 @@ const MobilePayment = ({ amount }) => {
   const [debitDay, setDebitDay] = useState("1");
   const [narration, setNarration] = useState("");
   const navigate = useNavigate()
+
+  const { price, clientCode } = useParams();
+
 
   // Handle form submission
   // const handleSubmit = async (e) => {

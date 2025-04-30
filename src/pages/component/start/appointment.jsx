@@ -14,7 +14,8 @@ import Icon from "../../../img/logo.png"
 import axios from 'axios';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-
+import useVibrate from "../ui/vibrator"
+import useBell from "../ui/bell"
 
 export default function AppointmentList() {
   const { setPopupState } = useContext(PopupContext)
@@ -33,11 +34,16 @@ export default function AppointmentList() {
   const [agent, setAgent] = useState("");
   const [oneTime, setOneTime] = useState(false);
 
+
+  const jwtToken = localStorage.getItem('jwtToken');
   const generateAppointmentCode = () => {
     const currentDate = new Date().toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD format
     const randomNumber = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
     return `APPT_${currentDate}_${randomNumber}`;
   }
+
+  const ring = useBell(),
+  vibrate = useVibrate();
 
   useEffect(() => {
     AOS.init({
@@ -47,6 +53,14 @@ export default function AppointmentList() {
     });
   })
 
+  if(!jwtToken){
+    navigate('/login');
+    setPopupState({
+      show: true,
+      message: 'Oops! Something went wrong.', 
+      page: 'login', 
+    });
+  }
 
 
 
@@ -184,6 +198,7 @@ export default function AppointmentList() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(appointmentData),
       })
@@ -227,9 +242,10 @@ export default function AppointmentList() {
           .then(response => {
             setPopupState({
               show: true,
-              message: 'OTP Sent To Client Successful!', 
+              message: 'Message Sent To Client Successful!', 
               page: 'login', 
             });
+            ring();
             console.log(response);
           })
           .catch(error => {
@@ -237,6 +253,7 @@ export default function AppointmentList() {
           });
     } catch (err) {
       console.error("Error creating appointment:", err)
+      vibrate()
       alert(`Failed to create appointment: ${err.message}`)
     } finally {
       setLoading(false)
@@ -286,6 +303,7 @@ export default function AppointmentList() {
               message: 'Messege Sent To Client Successful!', 
               page: 'login', 
             });
+            ring()
             console.log(response);
           })
           .catch(error => {

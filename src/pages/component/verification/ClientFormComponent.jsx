@@ -18,7 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { PopupContext } from '../../../App';
 import SignatureComponent from './Signature';
-
+import useVibrate from '../ui/vibrator';
+import useBell from '../ui/bell';
 const ClientFormComponent = () => {
   const { setPopupState } = useContext(PopupContext)
   const navigate = useNavigate();
@@ -32,7 +33,8 @@ const ClientFormComponent = () => {
     stage_7: false,
     stage_8: false,
   });
-
+  const ring = useBell();
+  const vibrate = useVibrate()
   
 
   const [data, setData] = useState(null);
@@ -43,6 +45,16 @@ const ClientFormComponent = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
+
+  const token = localStorage.getItem('jwtToken');
+  if(!token){
+    navigate('/login');
+    setPopupState({
+      show: true,
+      message: 'Oops! Something went wrong.', 
+      page: 'login', 
+    });
+  }
 
 
   
@@ -179,6 +191,7 @@ const ClientFormComponent = () => {
         
         const data = await response.json();
         setProducts(data);
+        console.table(data)
       } catch (err) {
         setError(err.message);
       } finally {
@@ -509,10 +522,17 @@ const ClientFormComponent = () => {
         const start_date = new Date().toISOString().split('T')[0];
         const matchedPolicy = policies.find(p => p.client_id === clientId);
 
-        const productName = String(products?.Name || '').toUpperCase();
+        
         const policyProductName = String(matchedPolicy?.product_name || '').toUpperCase();
+        const product = products.find(p => p.Name === policyProductName);
+        const productName = product ? product.Name : null;
+        const product_code = product ? product.ProductCode : null; 
+        const productId = product ? product.ProductID : null
 
         const isProductMatch = productName === policyProductName;
+
+        console.log("Product name: ", productName)
+        console.log("Product id: ", productId)
 
       
         const totalFloat = parseFloat(amount.total.replace(/[^\d.]/g, ''));
@@ -540,15 +560,21 @@ const ClientFormComponent = () => {
             Occupation: clients.occupation
           },
           policy: {
-            product_id: isProductMatch ? parseInt(products.ProductID) : 0,
-            product_name: matchedPolicy?.product_name,
-            product_code: isProductMatch ? products.ProductCode : '',
+            product_id: parseInt(productId),
+            product_name: productName,
+            product_code: product_code,
             sum_assured: Number(amount.sum_assured),
             premium: totalFloat,
             term: 1,
             start_date: start_date,
             },
-            ...(validDependants.length > 0 && { dependants: validDependants })
+            ...(validDependants.length > 0 && 
+              { dependants: validDependants.map(d => ({
+                full_name: d.full_name,
+                date_of_birth: d.date_of_birth,
+                relation_type: d.relation_type
+            })) 
+          })
         };
 
 
@@ -559,6 +585,7 @@ const ClientFormComponent = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            // Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(formData),
         });
@@ -658,13 +685,18 @@ Equity Health Insurance
         })
         .then(response => {
           console.log(response);
+          ring();
         })
         .catch(error => {
           console.log(error)
+          vibrate()
         });
         
       } catch (error) {
+        
         console.error("Error during form submission:", error);
+        vibrate()
+
       }
       finally{
         setLoading(false)
@@ -793,15 +825,30 @@ Equity Health Insurance
                 />
               </div>
 
-              {/* <div className="form-view">
+              {client.other_names === '' ? (
+                <div className="form-view">
                 <label>Other Name:</label>
                 <input
                   type="text"
+                  placeholder='You may include other names, if relevant.'
                   name="other_names"
                   value={client.other_names || ''}
                   onChange={handleClientChange}
                 />
-              </div> */}
+              </div>
+              ) : (
+                <div className="form-view">
+                  <label>Other Name:</label>
+                  <input
+                    type="text"
+                    placeholder='You may include other names, if relevant.'
+                    name="other_names"
+                    value={client.other_names || ''}
+                    onChange={handleClientChange}
+                  />
+                </div>
+              )}
+              
 
               <div className="form-view">
                 <label>gender:</label>
@@ -809,16 +856,6 @@ Equity Health Insurance
                   type="text"
                   name="gender"
                   value={client.gender || ''}
-                  onChange={handleClientChange}
-                />
-              </div>
-
-              <div className="form-view">
-                <label>Ghana Card No:</label>
-                <input
-                  type="text"
-                  name="national_id_number"
-                  value={client.national_id_number || ''}
                   onChange={handleClientChange}
                 />
               </div>
@@ -833,15 +870,33 @@ Equity Health Insurance
                 />
               </div>
 
-              <div className="form-view">
-                <label>Id Number:</label>
-                <input
-                  type="text"
-                  name="id_number"
-                  value={client.id_number || ''}
-                  onChange={handleClientChange}
-                />
-              </div>
+              {client.national_id_number === '' ? (
+                  <div className="form-view">
+                  <label>Id Number:</label>
+                  <input
+                    type="text"
+                    name="id_number"
+                    value={client.id_number || ''}
+                    onChange={handleClientChange}
+                  />
+                </div>
+              ) : (
+
+                <div className="form-view">
+                  <label>Ghana Card No:</label>
+                  <input
+                    type="text"
+                    name="national_id_number"
+                    value={client.national_id_number || ''}
+                    onChange={handleClientChange}
+                  />
+                </div>
+
+              )}
+
+
+            
+              
 
               <div className="form-view">
                 <label>Phone Number:</label>
@@ -934,7 +989,14 @@ Equity Health Insurance
               <h2>Dependants</h2>
               {dependants.length > 0 ? (
                 dependants.map((dependant, index) => (
-                  <div key={dependant.id}>
+                  <div key={dependant.id} style={{
+                    border: "solid 2px var(--light)",
+                    borderRadius: "10px",
+                    marginBottom: "20ppx",
+                    margin: "10px 0",
+                    padding: "20px",
+                  }}>
+                    <h3>Person: {index + 1}</h3>
                     <div className="form-view">
                     <label>Full Name:</label>
                       <input

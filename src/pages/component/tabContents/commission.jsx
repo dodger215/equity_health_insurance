@@ -6,6 +6,8 @@ import { InternetLoader } from "../ui/loading"
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faUser, faChevronRight } from "@fortawesome/free-solid-svg-icons"
 
 function ForwardProspect({ agentId }) {
   const [prospects, setProspects] = useState([])
@@ -117,14 +119,35 @@ function ForwardProspect({ agentId }) {
               onClick={() => handleProspectClick(prospect)}
               style={{
                 width: "100%",
+                border: "none",
+                padding: "20px",
+                borderRadius: "20px",
+                color: "#0909090",
+                fontSize: "",
+                fontWeight: "700",
+                boxShadow: "0px 0px 12px rgba(0, 0, 0, 0.14)",
+                background: "#fff",
                 display: "flex",
                 flexDirection: "row",
-                justifyContent: "space-around"
+                alignItems: "center",
                 
               }}
             >
-              <div className="fw-bold">
+              <div className="fw-bold"
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                position: "relative",
+              }}>
+                <FontAwesomeIcon icon={ faUser } />
                 {prospect.FirstName} {prospect.LastName}
+
+                <FontAwesomeIcon icon={ faChevronRight} 
+                style={{
+                  position: "absolute",
+                  right: "20px",
+                }}/>
               </div>
               {/* <div className="text-muted small">{prospect.Email}</div> */}
             </li>
@@ -138,20 +161,23 @@ function ForwardProspect({ agentId }) {
         top: "0%",
         left: "0%",
         zIndex: "999999",
-        background: "#000000ad",
+        background: "#0000000a9",
         width: "100%",
         height: "100vh",
         backdropFilter: "blur(20px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        padding: "0px",
       }}>
-        <div style={{}}>
+
         <Modal.Header className="m-5 w-100" style={{ width: "100%" }}>
           <Modal.Title>Forward Prospect</Modal.Title>
         </Modal.Header>
         <Modal.Body className="w-100">
-          <Form>
+          <Form style={{
+            width: "100%",
+          }}>
             <Form.Group className="mb-3">
               <Form.Label>Forwarding: {selectedProspect?.FirstName} {selectedProspect?.LastName}</Form.Label>
             </Form.Group>
@@ -206,7 +232,6 @@ function ForwardProspect({ agentId }) {
             {isForwarding ? 'Forwarding...' : 'Forward'}
           </Button>
         </Modal.Footer>
-        </div>
       </Modal>
     </div>
   )

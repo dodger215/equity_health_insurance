@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ClientListLoaded from './clients/clientLoad';
 import { InternetLoader } from '../ui/loading';
 import { Close } from '../ui/button';
-import { faTrash, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faCheck, faUser } from '@fortawesome/free-solid-svg-icons';
 import API_URL from '../link';
 import { PopupContext } from '../../../App';
 
@@ -195,7 +195,10 @@ const ClientList = () => {
                     onMouseUp={clearPressTimer}
                     onMouseLeave={clearPressTimer}
                   >
-                    {client.first_name} {client.surname}
+                    <p style={{
+                      fontWeight: "700",
+                      color: "#ffffff",
+                    }}><FontAwesomeIcon icon={ faUser }/> {client.first_name} {client.surname}</p>
                     {isSelectMode ? (
                       <FontAwesomeIcon 
                         icon={faCheck} 

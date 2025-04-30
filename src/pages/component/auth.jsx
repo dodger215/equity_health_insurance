@@ -7,6 +7,8 @@ import API_URL from "./link"
 
 import { useContext } from "react"
 import { PopupContext } from "../../App"
+import useVibrate from "./ui/vibrator"
+import useBell from "./ui/bell"
 
 function LoginForm() {
   const { setPopupState } = useContext(PopupContext)
@@ -27,6 +29,9 @@ function LoginForm() {
     }))
   }
 
+  const vibrate = useVibrate();
+  const ring = useBell();
+
   const uploadLogin = async (clientID) => {
     const param = {
       "ClientID": clientID.toString(),
@@ -41,11 +46,13 @@ function LoginForm() {
     .then((response) => response.json())
     .then((data) => {
       if (data.status === "success") {
+
         console.log("Login successful")
       }
     })
     .catch((error) => {
       console.error("Login error:", error)
+      vibrate()
       setErrors({ submit: `An error occurred: ${error.message}. Please try again.` })
     })
   }
@@ -101,7 +108,7 @@ function LoginForm() {
               message: `Login Successful! 🎉 ${additionalMessage}`,
               page: 'login',
             });
-
+            ring();
             navigate(redirectPath);
             
           } else {
@@ -111,6 +118,7 @@ function LoginForm() {
               message: 'Login failed. Please check your credentials and try again.', 
               page: 'login', 
             });
+            vibrate()
           }
         })
         .catch((error) => {
@@ -121,6 +129,7 @@ function LoginForm() {
             message: `An error occurred: ${error.message}. Please try again.`,
             page: 'login',
           });
+          vibrate()
         })
         .finally(() => {
           setIsSubmitting(false)
