@@ -57,6 +57,8 @@ const DashboardView = () => {
   }
 
   const handlePolicyRoute = ({amount, clientCode}) => {
+    localStorage.removeItem('client_id')
+    console.log(amount, clientCode)
     navigate(`/momo/payment/${amount}/${clientCode}`)
   }
 
@@ -68,7 +70,7 @@ const DashboardView = () => {
       try {
         setLoading(true)
         
-        // 1. Fetch agent data
+       
         if (!token || !agentId) {
           throw new Error("No authentication token or agent ID found")
         }
@@ -333,19 +335,20 @@ const DashboardView = () => {
                       
                       return (
                         <li 
-                          key={policy.ClientCode}  // Don't forget a unique key!
+                          key={policy.ClientCode}  
                           className={styles.label} 
                           style={{
                             display: "flex",
                             alignItems: "center",
-                            margin: "20px 0",
+                            margin: "5px 0",
                           }}
-                          onClick={() => handlePolicyRoute(policy.Premium, policy.ClientCode)}
+                          onClick={() => navigate(`/momo/payment/${policy.Premium}/${policy.ClientCode}`)}
                         >
                           <p style={{
                             fontSize: "0.7em",
                             fontWeight: "700",
                           }}>
+                            {/* {policy.ClientCode} */}
                             <FontAwesomeIcon icon={faUser} />
                             {policy.client.FirstName} {policy.client.LastName} - {product ? product.Name : 'Unknown Product'}
                           </p>

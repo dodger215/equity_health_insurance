@@ -11,6 +11,7 @@ export function Close({title, tab}) {
     const goBack = () => {
       navigate(-1); 
       localStorage.setItem('nav', tab);
+      localStorage.removeItem('client_id')
     };
   
 

@@ -2709,3 +2709,55 @@ button:active, button:focus{
 li:last-child{
   border-bottom: none;
 }
+
+.prompt-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.5);
+          backdrop-filter: blur(20px);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+        .prompt-box {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          width: 300px;
+          text-align: center;
+        }
+        .countdown-animation {
+          height: 10px;
+          background: #eee;
+          border-radius: 5px;
+          margin: 15px 0;
+          overflow: hidden;
+        }
+        .countdown-bar {
+          height: 100%;
+          background: #4CAF50;
+          transition: width 1s linear;
+        }
+        .prompt-buttons {
+          display: flex;
+          justify-content: space-around;
+          margin-top: 20px;
+        }
+        .prompt-buttons button {
+          padding: 8px 20px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .prompt-buttons button:first-child {
+          background: #4CAF50;
+          color: white;
+        }
+        .prompt-buttons button:last-child {
+          background: #f44336;
+          color: white;
+        }

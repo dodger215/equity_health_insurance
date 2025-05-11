@@ -140,7 +140,7 @@ function App() {
               <Route path="/insurance/form/shortcut/:cli_id" element={<InsuranceFormShortcut />} />
               <Route path="/bank/check/" element={<BankPayPoint/>}/>
               <Route path="/momo/checkout/" element={<CheckOut/>}/>
-              <Route path="/momo/payment/:price/:clientCode" element={<MobilePayment/>}/>
+              <Route path="/momo/payment/:price/:clientId/" element={<MobilePayment/>}/>
             </Routes>
 
           </div>

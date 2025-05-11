@@ -78,6 +78,8 @@ const ClientFormComponent = () => {
   const [loading, setLoading] = useState(false)
   const [clientPolicies, setClientPolicies] = useState([]);
   const [products, setProducts] = useState([]);
+  const [momoDisplay, setMomoDisplay] = useState(false);
+  const [clientSubmittedId, setClientSubmittedId] = useState("");
 
 
   // State for form inputs and selections
@@ -89,6 +91,9 @@ const ClientFormComponent = () => {
     const [institutionName, setInstitutionName] = useState("");
   
     const [staffIdError, setStaffIdError] = useState("");
+    const [allowMomo, setAllowMomo] = useState(false);
+    const [showPrompt, setShowPrompt] = useState(false);
+    const [countdown, setCountdown] = useState(10);
     
   
     // Payment options data
@@ -128,6 +133,7 @@ const ClientFormComponent = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showBranchDropdown, setShowBranchDropdown] = useState(false);
+  const [routeMomo, setRouteMomo] = useState(false);
 
 
   const bankOptions = Object.keys(bankData).map(bankName => ({
@@ -140,6 +146,28 @@ const ClientFormComponent = () => {
   const filteredBanks = bankOptions.filter((bank) =>
     bank.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // useEffect(() => {
+    
+  //   if (allowMomo) {
+      
+  //   }
+  // }, [allowMomo]);
+
+  const startCountdown = () => {
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          if (!routeMomo) {
+            navigate("/agent/main");
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   // Get branches for selected bank
   const bankBranches = selectedBank ? bankData[selectedBank] || [] : [];
@@ -509,10 +537,15 @@ const ClientFormComponent = () => {
     // Momo handling if needed
   };
 
-  // Handle form submission
+  
+  
+
+
   const handleSubmit = async (e) => {
     setLoading(true)
     e.preventDefault();
+
+    
       try {
 
         const clients = {
@@ -619,6 +652,11 @@ const ClientFormComponent = () => {
         //     localStorage.getItem("id")
         //   );
         // }
+
+        setClientSubmittedId(result.client_id);
+
+        localStorage.setItem('client_id', result.cli_id);
+        
         
 
         if (activeTab === 'page3') {
@@ -664,8 +702,15 @@ Equity Health Insurance
           }
         
           await deletePolicy();
-        
-          navigate("/agent/main");
+
+          if (allowMomo){
+            setShowPrompt(true);
+            startCountdown();
+          }
+
+          
+
+          
         }, 1000);
 
         setPopupState({
@@ -703,6 +748,16 @@ Equity Health Insurance
       }
     
   };
+
+  const handleMomoResponse = (response) => {
+            setRouteMomo(response);
+            setShowPrompt(false);
+            if (response) {
+              navigate(`/momo/payment/${parseFloat(amount.total.replace(/[^\d.]/g, ''))}/${localStorage.getItem('client_id')}`); 
+            } else {
+              navigate("/agent/main");
+            }
+          };
 
   // Handle input changes for client details
   const handleClientChange = (e) => {
@@ -813,6 +868,7 @@ Equity Health Insurance
                   name="first_name"
                   value={client.first_name || ''}
                   onChange={handleClientChange}
+                  style={{ textTransform: 'uppercase' }}
                 />
               </div>
               <div className="form-view">
@@ -822,6 +878,7 @@ Equity Health Insurance
                   name="surname"
                   value={client.surname || ''}
                   onChange={handleClientChange}
+                  style={{ textTransform: 'uppercase' }}
                 />
               </div>
 
@@ -834,6 +891,7 @@ Equity Health Insurance
                   name="other_names"
                   value={client.other_names || ''}
                   onChange={handleClientChange}
+                  style={{ textTransform: 'uppercase' }}
                 />
               </div>
               ) : (
@@ -844,6 +902,7 @@ Equity Health Insurance
                     placeholder='You may include other names, if relevant.'
                     name="other_names"
                     value={client.other_names || ''}
+                    style={{ textTransform: 'uppercase' }}
                     onChange={handleClientChange}
                   />
                 </div>
@@ -1004,6 +1063,7 @@ Equity Health Insurance
                         name="full_name"
                         value={dependant.full_name || ''}
                         onChange={(e) => handleDependantChange(index, e)}
+                        style={{ textTransform: 'uppercase' }}
                       />
                     </div>
                     <div className="form-view">
@@ -1023,6 +1083,7 @@ Equity Health Insurance
                         name="relation_type"
                         value={dependant.relation_type || ''}
                         onChange={(e) => handleDependantChange(index, e)}
+                        style={{ textTransform: 'uppercase' }}
                       />
                     </div>
                     
@@ -1126,7 +1187,17 @@ Equity Health Insurance
                   fontWeight: 800,
                   fontSize: "1rem"
                 }}>Premium amount: {amount.total}</div>
-                {activeTab === 'page1' && <MobilePayment amount={amount.total}/>}
+                {activeTab === 'page1' && <div>
+                  <div>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={allowMomo}
+                        onChange={(e) => setAllowMomo(e.target.checked)}
+                      />Allow Momo Payment If Needed
+                    </label>
+                  </div>
+                </div> }
                 {activeTab === 'page2' && 
                   <div className="payment-container">
                   <div className="payment-header">
@@ -1415,6 +1486,26 @@ Equity Health Insurance
 
       
       </form>
+
+      {showPrompt && (
+        <div className="prompt-overlay">
+          <div className="prompt-box">
+            <h3>Use Mobile Money Payment?</h3>
+            <p>Automatically redirecting to agent portal in {countdown} seconds...</p>
+            <div className="countdown-animation">
+              <div 
+                className="countdown-bar" 
+                style={{ width: `${(countdown / 10) * 100}%` }}
+              ></div>
+            </div>
+            <div className="prompt-buttons">
+              <button onClick={() => handleMomoResponse(true)}>Yes</button>
+              <button onClick={() => handleMomoResponse(false)}>No</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

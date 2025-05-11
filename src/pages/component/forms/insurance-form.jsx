@@ -9,6 +9,7 @@ import axios from 'axios';
 import API_URL from '../link';
 import { useContext } from 'react';
 import { PopupContext } from '../../../App';
+import { national } from './lang';
 
 export default function InsuranceForm() {
   const { setPopupState } = useContext(PopupContext)
@@ -95,6 +96,7 @@ export default function InsuranceForm() {
   const [dependent_rel, setDependentRel] = useState("")
   const [lock, setLock] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
 
   const [ebusuaBeneficiaries, setEbusuaBeneficiaries] = useState([]);
 
@@ -142,6 +144,22 @@ export default function InsuranceForm() {
   const [ebusuaLives, setEbusuaLives] = useState("")
   const [ebusuaPremium, setEbusuaPremium] = useState("GHS 0.00")
 
+  const [selectCountry, setSelectCountry] = useState("");
+
+  const handleNationalityChange = (e) => {
+    const selectedValue = e.target.value;
+    setNationality(selectedValue);
+    
+    // Find the country that matches the selected nationality
+    const countryData = national.find(item => item.nationality === selectedValue);
+    
+    if (countryData) {
+      setSelectCountry(countryData.en_short_name);
+    } else {
+      setSelectCountry(""); 
+    }
+}
+
 
 
   const [selectedPolicy, setSelectedPolicy] = useState("");
@@ -154,6 +172,9 @@ export default function InsuranceForm() {
     telemedicine: false,
     ebusua: false,
   })
+
+
+ 
 
   // Premium calculation data
   const microPremiums = {
@@ -511,7 +532,7 @@ export default function InsuranceForm() {
       const ID = nationalNumber ? '' : idNumber;
 
     
-      if (!firstName || !surname || !dateOfBirth || !phonenumber || !email || !address || !idType || !occupation || !nationality || !city || !country) {
+      if (!firstName || !surname || !dateOfBirth || !phonenumber || !email || !address || !idType || !occupation || !nationality || !city || !selectCountry) {
         setMessage("Please fill out all required fields.");
         return;
       }
@@ -534,7 +555,7 @@ export default function InsuranceForm() {
         nationality: nationality,
         residential_address: address,
         city_town: city,
-        country: country,
+        country: selectCountry,
         occupation: occupation,
       };
 
@@ -761,7 +782,7 @@ export default function InsuranceForm() {
             name="firstName"
             value={ prospect.firstName || firstName }
             onChange={(e) => setFirstName(e.target.value)} 
-            style={{ textTransform: 'capitalize' }}
+            style={{ textTransform: 'uppercase' }}
             required />
           </div>
           <div className={styles.formGroup}>
@@ -772,7 +793,7 @@ export default function InsuranceForm() {
             name="surname"
             value={ prospect.lastName || surname }
             onChange={(e) => setSurname(e.target.value)} 
-            style={{ textTransform: 'capitalize' }}
+            style={{ textTransform: 'uppercase' }}
             required />
           </div>
           <div className={styles.formGroup}>
@@ -783,7 +804,7 @@ export default function InsuranceForm() {
             name="otherName"
             value={ otherName }
             onChange={(e) => setOtherName(e.target.value)}  
-            style={{ textTransform: 'capitalize' }}
+            style={{ textTransform: 'uppercase' }}
             required />
           </div>
           <div className={styles.formGroup}>
@@ -952,14 +973,21 @@ export default function InsuranceForm() {
             required />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="nationality">Nationality</label>
-            <input 
-            type="text" 
-            id="nationality" 
-            name="nationality"
-            value={ nationality }
-            onChange={(e) => setNationality(e.target.value)}  
-            required />
+              <label htmlFor="nationality">Nationality</label>
+              <select
+                  id="nationality"
+                  name="nationality"
+                  value={nationality}
+                  onChange={handleNationalityChange}
+                  required
+              >
+                  <option value="">Select Nationality</option>
+                  {national.map((item, index) => (
+                      <option key={index} value={item.nationality}>
+                          {item.nationality}
+                      </option>
+                  ))}
+              </select>
           </div>
 
           <div className={styles.formGroup}>
@@ -989,17 +1017,17 @@ export default function InsuranceForm() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="county">Country</label>
-            <div className={styles.dateInputWrapper}>
-              <input 
-              type="text" 
-              id="country" 
-              name="country"
-              value={ country }
-              onChange={(e) => setCountry(e.target.value)}  
-              required />
-              
-            </div>
+              <label htmlFor="country">Country</label>
+              <div className={styles.dateInputWrapper}>
+                  <input 
+                      type="text" 
+                      id="country" 
+                      name="country"
+                      value={selectCountry}
+                      readOnly
+                      required 
+                  />
+              </div>
           </div>
         </div>
 
@@ -1012,8 +1040,8 @@ export default function InsuranceForm() {
           <div
             className={`${styles.collapsibleHeader} ${activeSections.micro ? styles.active : ""}`}
             onClick={() => {
-              setSelectedPolicy("micro"); // Set the selected policy to "micro"
-              toggleSection("micro"); // Toggle the micro section
+              setSelectedPolicy("micro"); 
+              toggleSection("micro"); 
             }}
           >
             <span>MICRO</span>
@@ -1392,7 +1420,8 @@ export default function InsuranceForm() {
                         id={`ebusuaBeneficiaryName${beneficiary.id}`} 
                         placeholder="Enter First Name"
                         onChange={(e) => handleBeneficiaryChange(index, 'name', e.target.value)}
-                        value={beneficiary.name} />
+                        value={beneficiary.name} 
+                        style={{ textTransform: 'uppercase' }}/>
                     </div>
                     <div className={styles.formGroup}>
                       <label htmlFor={`ebusuaBeneficiarySurname${beneficiary.id}`}>Surname:</label>
@@ -1401,7 +1430,8 @@ export default function InsuranceForm() {
                         id={`ebusuaBeneficiarySurname${beneficiary.id}`} 
                         placeholder="Enter Surname"
                         onChange={(e) => handleBeneficiaryChange(index, 'surname', e.target.value)}
-                        value={beneficiary.surname} />
+                        value={beneficiary.surname} 
+                        style={{ textTransform: 'uppercase' }}/>
                     </div>
                     <div className={styles.formGroup}>
                       <label htmlFor={`ebusuaBeneficiaryDob${beneficiary.id}`}>Date of Birth:</label>
@@ -1413,13 +1443,26 @@ export default function InsuranceForm() {
                     </div>
                     <div className={styles.formGroup}>
                       <label htmlFor={`ebusuaBeneficiaryRelation${beneficiary.id}`}>Relationship with Client:</label>
-                      <input
-                        type="text"
+                      <select
                         id={`ebusuaBeneficiaryRelation${beneficiary.id}`}
-                        placeholder="e.g., Spouse, Child"
                         onChange={(e) => handleBeneficiaryChange(index, 'relation', e.target.value)}
                         value={beneficiary.relation}
-                      />
+                        style={{ textTransform: 'uppercase' }}
+                        required
+                      >
+                        <option value="" disabled>Select Relationship</option>
+                        <option value="Spouse">Spouse</option>
+                        <option value="Child">Child</option>
+                        <option value="Parent">Parent</option>
+                        <option value="Sibling">Sibling</option>
+                        <option value="Cousin">Cousin</option>
+                        <option value="Grandparent">Grandparent</option>
+                        <option value="Grandchild">Grandchild</option>
+                        <option value="Uncle">Uncle</option>
+                        <option value="Aunt">Aunt</option>
+                        <option value="Other">Other</option>
+                      </select>
+
                     </div>
                   </div>
                 ))}

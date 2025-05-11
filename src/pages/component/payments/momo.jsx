@@ -1,113 +1,94 @@
-import React, { useState, useEffect, } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Close } from "../ui/button";
+import axios from "axios";
+import API_URL from "../link";
+import { InternetLoader } from "../ui/loading";
 
 const MobilePayment = ({ amount }) => {
-  // State for form inputs
+  const { price, clientId } = useParams();
   const [mobileNumber, setMobileNumber] = useState("");
   const [paymentMode, setPaymentMode] = useState("");
   const [networkProvider, setNetworkProvider] = useState("");
-  const [amounts, setAmount] = useState(amount);
+  const [amounts, setAmount] = useState(amount || price || "");
   const [activeProvider, setActiveProvider] = useState("");
+  const [clientDetail, setClientDetail] = useState(null); // Changed to null for single client
+  const [isLoading, setIsLoading] = useState(true);
   
-  // State for mandate-specific fields
   const [startingDate, setStartingDate] = useState("");
   const [endingDate, setEndingDate] = useState("");
   const [frequencyType, setFrequencyType] = useState("monthly");
   const [frequency, setFrequency] = useState("1");
   const [debitDay, setDebitDay] = useState("1");
   const [narration, setNarration] = useState("");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const client_id = localStorage.getItem('client_id');
+  const getClientId = clientId || client_id;
 
-  const { price, clientCode } = useParams();
+  useEffect(() => {
+    const fetchPolicy = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/all/policy/with-details/`);
+        // Properly filter and find the matching policy
+        const foundPolicy = response.data.find(policy => 
+          policy.client?.ClientCode === getClientId
+        );
 
-
-  // Handle form submission
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
+        if (foundPolicy) {
+          setClientDetail(foundPolicy);
+        } else {
+          setClientDetail(null);
+        }
+      } catch (error) {
+        console.error("Error fetching policy:", error);
+        setClientDetail(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     
-  //   // if (paymentMode === "auto-deduction") {
-  //   //   // Handle mandate creation
-  //   //   const mandateData = {
-  //   //     starting_date: startingDate,
-  //   //     ending_date: endingDate,
-  //   //     frequencyType: frequencyType,
-  //   //     frequency: frequency,
-  //   //     momoNumber: mobileNumber,
-  //   //     debitAmounts: amounts,
-  //   //     debitDay: debitDay
-  //   //   };
-      
-  //   //   try {
-  //   //     const response = await fetch("http://127.0.0.1:8000/create-mandate", {
-  //   //       method: "POST",
-  //   //       headers: {
-  //   //         "Content-Type": "application/json"
-  //   //       },
-  //   //       body: JSON.stringify(mandateData)
-  //   //     });
-        
-  //   //     if (!response.ok) {
-  //   //       throw new Error("Failed to create mandate");
-  //   //     }
-        
-  //   //     const result = await response.json();
-  //   //     console.log("Mandate created:", result);
-  //   //     // Handle success (show success message, redirect, etc.)
-  //   //   } catch (error) {
-  //   //     console.error("Error creating mandate:", error);
-  //   //     // Handle error (show error message)
-  //   //   }
-  //   // } else {
-  //   //   // Handle one-time payment
-  //   //   const paymentData = {
-  //   //     refNo: `PAY-${Date.now()}`,
-  //   //     msisdn: mobileNumber,
-  //   //     network: networkProvider,
-  //   //     amount: amounts,
-  //   //     narration: narration || "Payment for services",
-  //   //     additionalRef: {},
-  //   //     currency: "GHS"
-  //   //   };
-      
-  //   //   try {
-  //   //     const response = await fetch("http://127.0.0.1:8000/credit-uniwallet", {
-  //   //       method: "POST",
-  //   //       headers: {
-  //   //         "Content-Type": "application/json"
-  //   //       },
-  //   //       body: JSON.stringify(paymentData)
-  //   //     });
-        
-  //   //     if (!response.ok) {
-  //   //       throw new Error("Payment failed");
-  //   //     }
-        
-  //   //     const result = await response.json();
-  //   //     console.log("Payment successful:", result);
-  //   //     // Handle success (show success message, redirect, etc.)
-  //   //   } catch (error) {
-  //   //     console.error("Payment error:", error);
-  //   //     // Handle error (show error message)
-  //   //   }
-  //   // }
-  //     navigate('momo/checkout/');
-    
-  // };
+    if (getClientId) {
+      fetchPolicy();
+    } else {
+      setIsLoading(false);
+    }
+  }, [getClientId]);
 
-  // Handle provider logo click
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Basic validation
+    if (!mobileNumber || !paymentMode || !networkProvider || !amounts) {
+      alert("Please fill all required fields");
+      return;
+    }
+    navigate('/momo/checkout/');
+  };
+
   const handleProviderClick = (provider) => {
     setActiveProvider(provider);
     setNetworkProvider(provider);
   };
 
+  if (isLoading) {
+    return <InternetLoader />;
+  }
+
+  if (!clientDetail) {
+    return <div>No client data found</div>;
+  }
+
   return (
-    <div className="payment-container">
-      <div className="payment-header">
+    <div style={{
+      width: "100%",
+      padding: "30px 20px",
+    }}>
+      <Close tab={'home'} />
+      <div className="payment-header" style={{ margin: "20px 0" }}>
         <h1>Mobile Payment</h1>
-        <p>Secure mobile money transaction</p>
+        <p>Secure mobile money transaction for {`${clientDetail.client?.FirstName || ''} ${clientDetail.client?.LastName || ''} ${clientDetail.client?.OtherNames || ''}`}</p>
       </div>
 
-      <form id="momo-form" >
+       <form id="momo-form" >
         {/* Mobile Number Input */}
         <div className="form-group">
           <label>Mobile Number</label>

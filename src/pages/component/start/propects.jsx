@@ -240,7 +240,7 @@ const handleSubmit = async (e) => {
                     className=""
                     id="FirstName"
                     name="FirstName"
-                    style={{ textTransform: 'capitalize' }}
+                    style={{ textTransform: 'uppercase' }}
                     value={formData.FirstName}
                     onChange={handleChange}
                     required
@@ -255,7 +255,7 @@ const handleSubmit = async (e) => {
                     className="control"
                     id="LastName"
                     name="LastName"
-                    style={{ textTransform: 'capitalize' }}
+                    style={{ textTransform: 'uppercase' }}
                     value={formData.LastName}
                     onChange={handleChange}
                     required
